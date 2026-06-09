@@ -4249,8 +4249,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
       const host = document.getElementById("aiToolsContent");
       if (!host) return;
 
-      // Persist filter state across re-renders
-      if (!host.__aiState) host.__aiState = { period: "12", activeProd: null };
+      if (!host.__aiState) host.__aiState = { period: "12", chartTab: "all" };
       const fst = host.__aiState;
 
       const allItems = getProcurementItems();
@@ -4262,314 +4261,403 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
         return;
       }
 
-      // --- filter helpers ---
+      // ── helpers ──────────────────────────────────────────
       function filterByPeriod(items) {
         if (fst.period === "all") return items;
-        const months = Number(fst.period);
         const cutoff = new Date();
-        cutoff.setMonth(cutoff.getMonth() - months);
-        const cutoffStr = cutoff.toISOString().slice(0, 10);
-        return items.filter((item) => String(item.date || "") >= cutoffStr);
-      }
-      function filterByProd(items) {
-        if (!fst.activeProd) return items;
-        return items.filter((item) => item.product_key === fst.activeProd);
+        cutoff.setMonth(cutoff.getMonth() - Number(fst.period));
+        const c = cutoff.toISOString().slice(0, 10);
+        return items.filter((it) => String(it.date || "") >= c);
       }
       const periodItems = filterByPeriod(allItems);
-      const viewItems = filterByProd(periodItems);
+      const chartProdKey = fst.chartTab === "all" ? null : fst.chartTab;
+      const viewItems = chartProdKey ? periodItems.filter((it) => it.product_key === chartProdKey) : periodItems;
       const summary = buildProductSummary(viewItems);
 
-      // --- monthly trend buckets (up to 12 months) ---
-      function buildMonthlyBuckets(n) {
-        const buckets = [];
-        for (let i = n - 1; i >= 0; i--) {
-          const d = new Date();
-          d.setDate(1);
-          d.setMonth(d.getMonth() - i);
-          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-          buckets.push({ key, label: `${d.getMonth() + 1}月`, total: 0, byProd: {} });
-        }
-        return buckets;
-      }
+      // monthly buckets
       const bucketCount = fst.period === "all" ? 12 : Number(fst.period);
-      const monthBuckets = buildMonthlyBuckets(bucketCount);
+      const monthBuckets = (() => {
+        const b = [];
+        for (let i = bucketCount - 1; i >= 0; i--) {
+          const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
+          const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+          b.push({ key, label:`${d.getMonth()+1}月`, total:0, byProd:{} });
+        }
+        return b;
+      })();
       const monthMap = new Map(monthBuckets.map((b) => [b.key, b]));
-      periodItems.forEach((item) => {
-        const mo = String(item.date || "").slice(0, 7);
+      periodItems.forEach((it) => {
+        const mo = String(it.date||"").slice(0,7);
         const b = monthMap.get(mo);
         if (!b) return;
         b.total++;
-        b.byProd[item.product_key] = (b.byProd[item.product_key] || 0) + 1;
+        b.byProd[it.product_key] = (b.byProd[it.product_key]||0)+1;
       });
 
-      // --- system counts from snapshot ---
-      const sysCounts = state.snapshot?.counts || {};
-      const sysTotal = sysCounts.totalCount || 0;
-      const sysWait = sysCounts.waitCount || 0;
-      const sysComplete = sysCounts.completeCount || 0;
-      const sysClosed = sysCounts.closedCount || 0;
-      const sysOutStock = sysCounts.outStockCount || 0;
-      const deliveryRate = sysTotal ? Math.round((sysComplete / sysTotal) * 100) : 0;
+      // system counts
+      const sc = state.snapshot?.counts || {};
+      const sysTotal = sc.totalCount || 0, sysWait = sc.waitCount || 0;
+      const sysComplete = sc.completeCount || 0, sysClosed = sc.closedCount || 0;
+      const deliveryRate = sysTotal ? Math.round((sysComplete/sysTotal)*100) : 0;
 
-      // --- KPIs for AI items ---
+      // AI KPIs
       const aiTotal = viewItems.length;
-      const aiWait = (summary.byStage?.need_pr || 0) + (summary.byStage?.pr || 0) + (summary.byStage?.po || 0) + (summary.byStage?.pa || 0);
+      const aiWait = (summary.byStage?.need_pr||0)+(summary.byStage?.pr||0)+(summary.byStage?.po||0)+(summary.byStage?.pa||0);
       const aiDelivered = summary.accepted;
-      const aiDeliveryRate = aiTotal ? Math.round((aiDelivered / aiTotal) * 100) : 0;
+      const aiDeliveryRate = aiTotal ? Math.round((aiDelivered/aiTotal)*100) : 0;
       const aiNoPR = summary.withoutPr;
-      const aiOutStock = viewItems.filter((item) => item.stock_flag).length;
-      // avg wait days: items with a date and not yet accepted
+      const aiOutStock = viewItems.filter((it) => it.stock_flag).length;
       const today = new Date();
-      const waitDays = viewItems
-        .filter((item) => !item.acceptance?.accepted && item.date)
-        .map((item) => Math.max(0, Math.round((today - new Date(item.date)) / 86400000)));
-      const avgWait = waitDays.length ? Math.round(waitDays.reduce((a, b) => a + b, 0) / waitDays.length) : 0;
+      const waitDays = viewItems.filter((it) => !it.acceptance?.accepted && it.date)
+        .map((it) => Math.max(0, Math.round((today - new Date(it.date))/86400000)));
+      const avgWait = waitDays.length ? Math.round(waitDays.reduce((a,b)=>a+b,0)/waitDays.length) : 0;
 
-      // --- dept breakdown ---
+      // dept
       const deptMap = {};
-      viewItems.forEach((item) => {
-        const d = item.dept || item.dept_full || "未知部门";
-        const top = d.split(/[/\\]/).slice(-2, -1)[0] || d.split(/[/\\]/)[0] || d;
-        deptMap[top] = (deptMap[top] || 0) + 1;
+      viewItems.forEach((it) => {
+        const d = it.dept||it.dept_full||"未知";
+        const top = d.split(/[/\\]/).slice(-2,-1)[0] || d.split(/[/\\]/)[0] || d;
+        deptMap[top] = (deptMap[top]||0)+1;
       });
-      const deptEntries = Object.entries(deptMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
-      const deptMax = deptEntries[0]?.[1] || 1;
+      const deptEntries = Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      const deptMax = deptEntries[0]?.[1]||1;
 
-      // --- product comparison table ---
-      const prodTableRows = AI_PRODUCT_DEFS.map((prod) => {
-        const group = summary.byProduct.find((g) => g.product.key === prod.key);
-        if (!group || !group.total) return null;
-        const prRate = group.total ? Math.round((group.withPr / group.total) * 100) : 0;
-        const outStock = viewItems.filter((item) => item.product_key === prod.key && item.stock_flag).length;
-        return { prod, total: group.total, withPr: group.withPr, outStock, prRate };
+      // product table
+      const prodRows = AI_PRODUCT_DEFS.map((prod) => {
+        const g = summary.byProduct.find((x)=>x.product.key===prod.key);
+        if (!g||!g.total) return null;
+        const outStock = viewItems.filter((it)=>it.product_key===prod.key&&it.stock_flag).length;
+        return { prod, total:g.total, withPr:g.withPr, outStock, prRate: g.total ? Math.round((g.withPr/g.total)*100) : 0 };
       }).filter(Boolean);
 
-      // --- SVG: stacked bar trend chart ---
-      function renderStackedTrend(buckets) {
-        const W = 640, H = 160, padB = 24, padT = 16;
-        const innerH = H - padB - padT;
-        if (!buckets.length) return "";
-        const maxVal = Math.max(...buckets.map((b) => b.total), 1);
-        const barW = Math.floor((W - 8) / buckets.length) - 4;
-        const bars = buckets.map((b, i) => {
-          const x = i * ((W - 8) / buckets.length) + 4;
-          let yOffset = H - padB;
-          const segments = AI_PRODUCT_DEFS.map((prod) => {
-            const v = b.byProd[prod.key] || 0;
-            if (!v) return "";
-            const bh = Math.round((v / maxVal) * innerH);
-            yOffset -= bh;
-            return `<rect x="${x}" y="${yOffset}" width="${barW}" height="${bh}" fill="${prod.color}" opacity="0.85" rx="2"/>`;
-          }).join("");
-          const label = `<text x="${x + barW / 2}" y="${H - 4}" text-anchor="middle" font-size="9" fill="#9ca3af">${escapeHtml(b.label)}</text>`;
-          const val = b.total ? `<text x="${x + barW / 2}" y="${H - padB - Math.round((b.total / maxVal) * innerH) - 4}" text-anchor="middle" font-size="9" fill="#6b7280">${b.total}</text>` : "";
-          return segments + label + val;
+      // funnel
+      const funnelSteps = [
+        { label:"系统总申请", v: sysTotal||aiTotal, color:"#2F5CE8" },
+        { label:"待发放",     v: sysWait||aiWait,   color:"#B86B28" },
+        { label:"已完成发放", v: sysComplete||aiDelivered, color:"#167857" },
+        { label:"已关闭",     v: sysClosed,          color:"#8E877D" },
+      ];
+      const funnelMax = funnelSteps[0].v || 1;
+
+      // ── SVG charts ───────────────────────────────────────
+      // Shared grid lines helper
+      function gridLines(W, H, padL, padT, padB, maxVal) {
+        const ticks = 4;
+        return Array.from({length: ticks+1}, (_,i) => {
+          const y = padT + Math.round(((H-padT-padB) / ticks) * i);
+          const val = Math.round(maxVal * (ticks-i)/ticks);
+          return `<line x1="${padL}" y1="${y}" x2="${W-4}" y2="${y}" stroke="rgba(0,0,0,0.05)" stroke-width="1"/>
+            <text x="${padL-4}" y="${y+3.5}" text-anchor="end" font-size="9" fill="#b0a99a" font-family="var(--mono)">${i===ticks?0:val}</text>`;
         }).join("");
-        return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" aria-hidden="true">${bars}</svg>`;
       }
 
-      // --- SVG: single-product area+line trend chart ---
-      function renderAreaTrend(buckets, color) {
-        const W = 640, H = 160, padB = 24, padT = 16, padL = 4, padR = 4;
-        const innerW = W - padL - padR;
-        const innerH = H - padB - padT;
-        if (!buckets.length) return "";
-        const maxVal = Math.max(...buckets.map((b) => {
-          if (fst.activeProd) return b.byProd[fst.activeProd] || 0;
-          return b.total;
-        }), 1);
-        const pts = buckets.map((b, i) => {
-          const v = fst.activeProd ? (b.byProd[fst.activeProd] || 0) : b.total;
-          const x = padL + (buckets.length === 1 ? innerW / 2 : (i / (buckets.length - 1)) * innerW);
-          const y = padT + innerH - Math.round((v / maxVal) * innerH);
-          return { x, y, v, label: b.label };
-        });
-        const lineD = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-        const areaD = `${lineD} L ${pts[pts.length - 1].x} ${H - padB} L ${pts[0].x} ${H - padB} Z`;
-        const labels = pts.map((p) => `<text x="${p.x}" y="${H - 4}" text-anchor="middle" font-size="9" fill="#9ca3af">${escapeHtml(p.label)}</text>`).join("");
-        const values = pts.map((p) => p.v ? `<text x="${p.x}" y="${p.y - 5}" text-anchor="middle" font-size="9" fill="#6b7280">${p.v}</text>` : "").join("");
-        const dots = pts.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" />`).join("");
+      function renderStackedChart(buckets) {
+        const W=700, H=220, padL=32, padT=12, padB=28;
+        const innerH=H-padT-padB, innerW=W-padL-8;
+        if(!buckets.length) return `<div style="height:${H}px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:12px;">暂无数据</div>`;
+        const maxVal = Math.max(...buckets.map((b)=>b.total),1);
+        const gap=4, barW=Math.max(10, Math.floor((innerW - gap*(buckets.length-1))/buckets.length));
+        const totalInnerW = barW*buckets.length + gap*(buckets.length-1);
+        const startX = padL + (innerW-totalInnerW)/2;
+        const bars = buckets.map((b,i) => {
+          const x = startX + i*(barW+gap);
+          let yOff = H-padB;
+          const segs = AI_PRODUCT_DEFS.map((prod) => {
+            const v = b.byProd[prod.key]||0;
+            if(!v) return "";
+            const bh = Math.max(2, Math.round((v/maxVal)*innerH));
+            yOff -= bh;
+            return `<rect x="${x}" y="${yOff}" width="${barW}" height="${bh}" fill="${prod.color}" opacity="0.88" rx="2">
+              <animate attributeName="height" from="0" to="${bh}" dur="0.45s" begin="${i*0.03}s" fill="freeze"/>
+              <animate attributeName="y" from="${H-padB}" to="${yOff}" dur="0.45s" begin="${i*0.03}s" fill="freeze"/>
+            </rect>`;
+          }).join("");
+          const labelY = H-padB+14;
+          const valY = H-padB - Math.round((b.total/maxVal)*innerH) - 6;
+          return `${segs}
+            <text x="${x+barW/2}" y="${labelY}" text-anchor="middle" font-size="9.5" fill="#9e9489">${escapeHtml(b.label)}</text>
+            ${b.total?`<text x="${x+barW/2}" y="${valY}" text-anchor="middle" font-size="9" fill="#6b6259" font-weight="600">${b.total}</text>`:""}`;
+        }).join("");
         return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" aria-hidden="true">
-          <path d="${areaD}" fill="${color}" opacity="0.12"/>
-          <path d="${lineD}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>
-          ${dots}${labels}${values}
+          ${gridLines(W,H,padL,padT,padB,maxVal)}${bars}
         </svg>`;
       }
 
-      // --- SVG: horizontal dept bars ---
-      function renderDeptBars(entries, max) {
-        const H = 24, GAP = 6;
-        return entries.map(([dept, cnt]) => {
-          const pct = Math.max(8, Math.round((cnt / max) * 100));
-          return `<div style="margin-bottom:${GAP}px;">
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);margin-bottom:3px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${escapeHtml(dept)}</span><strong style="color:var(--text-1);">${cnt}</strong></div>
-            <div style="height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--primary);border-radius:3px;transition:width .4s var(--ease-out);"></div></div>
-          </div>`;
-        }).join("");
+      function renderAreaChart(buckets, prodKey, color) {
+        const W=700, H=220, padL=32, padT=16, padB=28;
+        const innerH=H-padT-padB, innerW=W-padL-8;
+        if(!buckets.length) return `<div style="height:${H}px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:12px;">暂无数据</div>`;
+        const vals = buckets.map((b)=> prodKey ? (b.byProd[prodKey]||0) : b.total);
+        const maxVal = Math.max(...vals, 1);
+        const pts = buckets.map((b,i)=>{
+          const v = vals[i];
+          const x = padL + (buckets.length===1 ? innerW/2 : (i/(buckets.length-1))*innerW);
+          const y = padT + innerH - Math.round((v/maxVal)*innerH);
+          return {x, y, v, label:b.label};
+        });
+        // smooth bezier
+        function bezierD(points) {
+          if(points.length<2) return points.map((p,i)=>`${i?"L":"M"} ${p.x} ${p.y}`).join(" ");
+          return points.map((p,i,arr)=>{
+            if(i===0) return `M ${p.x} ${p.y}`;
+            const cp = 0.35*(arr[i].x - arr[i-1].x);
+            return `C ${arr[i-1].x+cp} ${arr[i-1].y} ${p.x-cp} ${p.y} ${p.x} ${p.y}`;
+          }).join(" ");
+        }
+        const lineD = bezierD(pts);
+        const areaD = `${lineD} L ${pts[pts.length-1].x} ${H-padB} L ${pts[0].x} ${H-padB} Z`;
+        const gId = `ag${Math.floor(Math.random()*9999)}`;
+        const dots = pts.map((p)=>`<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}" stroke="white" stroke-width="1.5"/>`).join("");
+        const values = pts.map((p)=> p.v ? `<text x="${p.x}" y="${p.y-9}" text-anchor="middle" font-size="9" fill="#6b6259" font-weight="600">${p.v}</text>` : "").join("");
+        const labels = pts.map((p)=>`<text x="${p.x}" y="${H-padB+14}" text-anchor="middle" font-size="9.5" fill="#9e9489">${escapeHtml(p.label)}</text>`).join("");
+        return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" aria-hidden="true">
+          <defs>
+            <linearGradient id="${gId}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${color}" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          ${gridLines(W,H,padL,padT,padB,maxVal)}
+          <path d="${areaD}" fill="url(#${gId})"/>
+          <path d="${lineD}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          ${dots}${values}${labels}
+        </svg>`;
       }
 
-      // --- funnel stages ---
-      const funnelSteps = [
-        { label: "系统总申请", value: sysTotal || aiTotal, color: "var(--primary)" },
-        { label: "待发放", value: sysWait || aiWait, color: "var(--amber)" },
-        { label: "已完成发放", value: sysComplete || aiDelivered, color: "var(--green)" },
-        { label: "已关闭", value: sysClosed, color: "var(--text-3)" },
-      ];
-      const funnelMax = funnelSteps[0].value || 1;
+      // ── active product for chart ─────────────────────────
+      const chartProd = chartProdKey ? AI_PRODUCT_DEFS.find((p)=>p.key===chartProdKey) : null;
+      const chartColor = chartProd?.color || "#2F5CE8";
+      const periods = [{v:"3",l:"近3月"},{v:"6",l:"近6月"},{v:"12",l:"近12月"},{v:"all",l:"全部"}];
+      const chartTabLabel = chartProd ? escapeHtml(chartProd.label) : "全部产品";
 
-      // --- active product def ---
-      const activeProdDef = fst.activeProd ? AI_PRODUCT_DEFS.find((p) => p.key === fst.activeProd) : null;
-      const trendColor = activeProdDef?.color || "var(--primary)";
-
-      // --- period button helper ---
-      const periods = [{ v: "3", l: "近3月" }, { v: "6", l: "近6月" }, { v: "12", l: "近12月" }, { v: "all", l: "全部" }];
-
+      // ── render ────────────────────────────────────────────
       host.innerHTML = `
-        <section style="padding:0 0 32px;">
-          <!-- Header + filters -->
-          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:20px;">
-            <div>
-              <div style="font-size:15px;font-weight:700;color:var(--text-1);">AI 软件看板</div>
-              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">ChatGPT Business / Pro / Codex-only · Claude · Gemini</div>
+        <div style="padding-bottom:36px;">
+
+          <!-- ① Hero header -->
+          <div style="
+            background: linear-gradient(135deg, #0f141f 0%, #111b2e 55%, #0c1520 100%);
+            border-radius:20px;
+            padding:28px 32px;
+            margin-bottom:18px;
+            position:relative;
+            overflow:hidden;
+            box-shadow: 0 20px 48px rgba(10,14,28,0.28), 0 4px 12px rgba(10,14,28,0.18);
+          ">
+            <!-- glow blobs -->
+            <div style="position:absolute;top:-60px;left:-40px;width:280px;height:200px;background:radial-gradient(circle,rgba(47,92,232,0.18) 0%,transparent 70%);pointer-events:none;"></div>
+            <div style="position:absolute;bottom:-40px;right:60px;width:220px;height:180px;background:radial-gradient(circle,rgba(184,107,40,0.12) 0%,transparent 70%);pointer-events:none;"></div>
+
+            <div style="position:relative;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;justify-content:space-between;">
+              <div>
+                <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(47,92,232,0.18);border:1px solid rgba(47,92,232,0.32);border-radius:99px;padding:3px 10px 3px 7px;margin-bottom:12px;">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#4c74ff;box-shadow:0 0 6px #4c74ff;"></span>
+                  <span style="font-size:10px;font-weight:700;color:#8db0ff;letter-spacing:0.08em;text-transform:uppercase;">AI Software</span>
+                </div>
+                <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.03em;line-height:1.15;margin-bottom:6px;">AI 软件申请看板</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.38);font-weight:400;">ChatGPT Business · ChatGPT Pro · Codex-only · Claude · Gemini</div>
+              </div>
+              <!-- quick stats in header -->
+              <div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:4px;">
+                <div style="text-align:right;">
+                  <div style="font-size:32px;font-weight:800;color:#fff;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1;">${aiTotal}</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;text-transform:uppercase;letter-spacing:0.06em;">AI 申请</div>
+                </div>
+                <div style="width:1px;background:rgba(255,255,255,0.08);align-self:stretch;"></div>
+                <div style="text-align:right;">
+                  <div style="font-size:32px;font-weight:800;color:${aiDeliveryRate>=60?"#4ade80":"#fb923c"};letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1;">${aiDeliveryRate}%</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;text-transform:uppercase;letter-spacing:0.06em;">发放率</div>
+                </div>
+                <div style="width:1px;background:rgba(255,255,255,0.08);align-self:stretch;"></div>
+                <div style="text-align:right;">
+                  <div style="font-size:32px;font-weight:800;color:#fb923c;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1;">${aiNoPR}</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;text-transform:uppercase;letter-spacing:0.06em;">未提 PR</div>
+                </div>
+              </div>
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
-              <!-- period pills -->
-              <div style="display:flex;gap:4px;">
-                ${periods.map((p) => `<button data-ai-period="${p.v}" style="padding:4px 12px;border-radius:999px;border:1px solid ${fst.period === p.v ? "var(--primary)" : "var(--border-1)"};background:${fst.period === p.v ? "var(--primary)" : "var(--surface-1)"};color:${fst.period === p.v ? "#fff" : "var(--text-2)"};font-size:12px;cursor:pointer;transition:all .15s;">${escapeHtml(p.l)}</button>`).join("")}
-              </div>
-              <!-- product chips -->
-              <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                ${AI_PRODUCT_DEFS.map((prod) => {
-                  const active = fst.activeProd === prod.key;
-                  return `<button data-ai-prod="${prod.key}" style="padding:4px 10px;border-radius:999px;border:1px solid ${active ? prod.color : "var(--border-1)"};background:${active ? prod.accent : "var(--surface-1)"};color:${active ? prod.color : "var(--text-2)"};font-size:11px;font-weight:${active ? "600" : "400"};cursor:pointer;transition:all .15s;">${escapeHtml(prod.shortLabel)}</button>`;
-                }).join("")}
-              </div>
+
+            <!-- product dots legend -->
+            <div style="position:relative;display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+              ${AI_PRODUCT_DEFS.map((p)=>`
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,0.48);">
+                  <span style="width:8px;height:8px;border-radius:2px;background:${p.color};display:inline-block;opacity:0.9;"></span>
+                  ${escapeHtml(p.shortLabel)}
+                </span>`).join("")}
+              <span style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.24);align-self:center;">共 ${allItems.length} 条记录</span>
             </div>
           </div>
 
-          <!-- KPI strip -->
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px;">
-            <div class="metric-card" style="padding:14px 16px;">
-              <div style="font-size:11px;color:var(--text-3);margin-bottom:4px;">AI 申请总量</div>
-              <div style="font-size:28px;font-weight:800;color:var(--text-1);line-height:1;">${aiTotal}</div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:4px;">当前筛选范围</div>
-            </div>
-            <div class="metric-card" style="padding:14px 16px;">
-              <div style="font-size:11px;color:var(--text-3);margin-bottom:4px;">待发放</div>
-              <div style="font-size:28px;font-weight:800;color:var(--amber);line-height:1;">${aiWait}</div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:4px;">在采购流程中</div>
-            </div>
-            <div class="metric-card" style="padding:14px 16px;">
-              <div style="font-size:11px;color:var(--text-3);margin-bottom:4px;">已验收</div>
-              <div style="font-size:28px;font-weight:800;color:var(--green);line-height:1;">${aiDelivered}</div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:4px;">发放率 <strong style="color:var(--green);">${aiDeliveryRate}%</strong></div>
-            </div>
-            <div class="metric-card" style="padding:14px 16px;">
-              <div style="font-size:11px;color:var(--text-3);margin-bottom:4px;">未提 PR</div>
-              <div style="font-size:28px;font-weight:800;color:var(--red);line-height:1;">${aiNoPR}</div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:4px;">需尽快跟进</div>
-            </div>
-            <div class="metric-card" style="padding:14px 16px;">
-              <div style="font-size:11px;color:var(--text-3);margin-bottom:4px;">缺货单</div>
-              <div style="font-size:28px;font-weight:800;color:var(--text-1);line-height:1;">${aiOutStock}</div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:4px;">库存不足</div>
-            </div>
-            <div class="metric-card" style="padding:14px 16px;">
-              <div style="font-size:11px;color:var(--text-3);margin-bottom:4px;">平均等待天数</div>
-              <div style="font-size:28px;font-weight:800;color:var(--text-1);line-height:1;">${avgWait}</div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:4px;">未验收申请</div>
-            </div>
+          <!-- ② KPI row -->
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px;">
+            ${[
+              { label:"AI 申请总量", val:aiTotal,        sub:"当前筛选",          color:"var(--primary)",  bg:"var(--primary-light)" },
+              { label:"待发放",      val:aiWait,         sub:"采购流程中",        color:"var(--amber)",    bg:"var(--amber-light)"   },
+              { label:"已验收",      val:aiDelivered,    sub:`发放率 ${aiDeliveryRate}%`, color:"var(--green)", bg:"var(--green-light)" },
+              { label:"未提 PR",     val:aiNoPR,         sub:"需尽快跟进",        color:"var(--red)",      bg:"var(--red-light)"     },
+              { label:"缺货单",      val:aiOutStock,     sub:"库存不足",          color:"var(--violet)",   bg:"var(--violet-light)"  },
+              { label:"平均等待",    val:`${avgWait}d`,  sub:"天 · 未验收",       color:"var(--cyan)",     bg:"var(--cyan-light)"    },
+            ].map((k)=>`
+              <div class="metric-card" style="padding:14px 16px;border-top:3px solid ${k.color};">
+                <div style="font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px;">${k.label}</div>
+                <div style="font-size:26px;font-weight:800;color:${k.color};letter-spacing:-0.04em;line-height:1;font-variant-numeric:tabular-nums;">${k.val}</div>
+                <div style="font-size:10.5px;color:var(--text-3);margin-top:5px;">${k.sub}</div>
+              </div>`).join("")}
           </div>
 
-          <!-- Trend chart -->
+          <!-- ③ Trend chart card -->
           <div class="card" style="margin-bottom:16px;">
-            <div class="card-header">
-              <div class="card-title">${activeProdDef ? escapeHtml(activeProdDef.label) + " 月度申请趋势" : "月度申请趋势（按产品分层）"}</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-                ${activeProdDef ? `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-3);"><span style="width:10px;height:3px;border-radius:2px;background:${activeProdDef.color};display:inline-block;"></span>${escapeHtml(activeProdDef.shortLabel)}</span>` :
-                  AI_PRODUCT_DEFS.map((p) => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-3);"><span style="width:8px;height:8px;border-radius:2px;background:${p.color};opacity:.85;display:inline-block;"></span>${escapeHtml(p.shortLabel)}</span>`).join("")
-                }
+            <div class="card-header" style="flex-wrap:wrap;gap:10px;padding-bottom:0;border-bottom:none;">
+              <div>
+                <div class="card-title">月度申请趋势</div>
+                <div class="card-subtitle">点击产品切换单独视图 · 当前：<strong style="color:var(--text-1);">${chartTabLabel}</strong></div>
+              </div>
+              <!-- period filter -->
+              <div style="display:inline-flex;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--r10);padding:3px;gap:2px;margin-left:auto;">
+                ${periods.map((p)=>`
+                  <button data-ai-period="${p.v}" class="sub-tab${fst.period===p.v?" active":""}" style="padding:5px 11px;font-size:11.5px;">
+                    ${escapeHtml(p.l)}
+                  </button>`).join("")}
               </div>
             </div>
-            <div class="card-body" style="padding:8px 16px 16px;">
-              ${activeProdDef ? renderAreaTrend(monthBuckets, activeProdDef.color) : renderStackedTrend(monthBuckets)}
+
+            <!-- chart tabs -->
+            <div style="display:flex;gap:0;flex-wrap:wrap;padding:12px 20px 0;border-bottom:1px solid var(--border);">
+              <button data-chart-tab="all" style="
+                padding:8px 14px;font-size:12px;font-weight:${fst.chartTab==="all"?"700":"500"};
+                border:none;background:none;cursor:pointer;
+                color:${fst.chartTab==="all"?"var(--text-1)":"var(--text-3)"};
+                border-bottom:2px solid ${fst.chartTab==="all"?"var(--primary)":"transparent"};
+                margin-bottom:-1px;transition:all .15s;
+              ">全部产品</button>
+              ${AI_PRODUCT_DEFS.map((p)=>`
+                <button data-chart-tab="${p.key}" style="
+                  padding:8px 14px;font-size:12px;font-weight:${fst.chartTab===p.key?"700":"500"};
+                  border:none;background:none;cursor:pointer;
+                  color:${fst.chartTab===p.key?p.color:"var(--text-3)"};
+                  border-bottom:2px solid ${fst.chartTab===p.key?p.color:"transparent"};
+                  margin-bottom:-1px;transition:all .15s;
+                  display:inline-flex;align-items:center;gap:5px;
+                ">
+                  <span style="width:7px;height:7px;border-radius:2px;background:${p.color};display:inline-block;"></span>
+                  ${escapeHtml(p.shortLabel)}
+                </button>`).join("")}
+            </div>
+
+            <div style="padding:16px 20px 20px;">
+              ${chartProd ? renderAreaChart(monthBuckets, chartProdKey, chartColor) : renderStackedChart(monthBuckets)}
+              <!-- legend for stacked -->
+              ${!chartProd ? `<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;justify-content:center;">
+                ${AI_PRODUCT_DEFS.map((p)=>`
+                  <span style="display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-3);">
+                    <span style="width:10px;height:10px;border-radius:2px;background:${p.color};opacity:.88;display:inline-block;"></span>
+                    ${escapeHtml(p.shortLabel)}
+                  </span>`).join("")}
+              </div>` : ""}
             </div>
           </div>
 
-          <!-- Bottom row -->
+          <!-- ④ Bottom 3-col grid -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
-            <!-- Delivery funnel -->
+
+            <!-- Funnel -->
             <div class="card">
-              <div class="card-header"><div class="card-title">系统发放漏斗</div></div>
-              <div class="card-body" style="padding:12px 16px;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">系统发放漏斗</div>
+                  <div class="card-subtitle">系统全量数据${sysTotal?"":" · 基于 AI 子集"}</div>
+                </div>
+                ${sysTotal?`<span style="font-size:11px;font-weight:700;color:var(--green);background:var(--green-light);padding:3px 8px;border-radius:99px;">整体 ${deliveryRate}%</span>`:""}
+              </div>
+              <div class="card-body" style="padding:14px 18px 18px;">
                 ${funnelSteps.map((step, i) => {
-                  const pct = Math.round((step.value / funnelMax) * 100);
-                  const conv = i > 0 && funnelSteps[i - 1].value ? Math.round((step.value / funnelSteps[i - 1].value) * 100) : null;
-                  return `<div style="margin-bottom:14px;">
-                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-                      <span style="color:var(--text-2);">${escapeHtml(step.label)}</span>
-                      <span style="font-weight:700;color:var(--text-1);">${step.value}${conv !== null ? ` <span style="font-weight:400;font-size:10px;color:var(--text-3);">↓${conv}%</span>` : ""}</span>
+                  const pct = Math.max(2, Math.round((step.v/funnelMax)*100));
+                  const prev = funnelSteps[i-1];
+                  const conv = prev&&prev.v ? Math.round((step.v/prev.v)*100) : null;
+                  return `<div style="margin-bottom:16px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+                      <div style="display:flex;align-items:center;gap:7px;">
+                        <span style="width:10px;height:10px;border-radius:3px;background:${step.color};display:inline-block;flex-shrink:0;"></span>
+                        <span style="font-size:12px;color:var(--text-2);">${escapeHtml(step.label)}</span>
+                        ${conv!==null?`<span style="font-size:10px;color:var(--text-3);">↓${conv}%</span>`:""}
+                      </div>
+                      <strong style="font-size:14px;color:var(--text-1);font-variant-numeric:tabular-nums;">${step.v}</strong>
                     </div>
-                    <div style="height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;"><div style="height:100%;width:${pct}%;background:${step.color};border-radius:3px;transition:width .4s var(--ease-out);"></div></div>
+                    <div style="height:7px;border-radius:4px;background:var(--surface-3);overflow:hidden;">
+                      <div style="height:100%;width:${pct}%;background:${step.color};border-radius:4px;opacity:0.85;"></div>
+                    </div>
                   </div>`;
                 }).join("")}
-                ${sysTotal ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-1);font-size:11px;color:var(--text-3);">整体发放率 <strong style="color:var(--green);">${deliveryRate}%</strong> · 系统全量数据</div>` : ""}
               </div>
             </div>
 
             <!-- Dept breakdown -->
             <div class="card">
-              <div class="card-header"><div class="card-title">部门 Top ${deptEntries.length}</div></div>
-              <div class="card-body" style="padding:12px 16px;">
-                ${deptEntries.length ? renderDeptBars(deptEntries, deptMax) : `<div style="color:var(--text-3);font-size:12px;">暂无部门数据</div>`}
+              <div class="card-header">
+                <div class="card-title">部门分布 Top ${deptEntries.length}</div>
+              </div>
+              <div class="card-body" style="padding:14px 18px 18px;">
+                ${deptEntries.length ? deptEntries.map(([dept,cnt],i)=>{
+                  const pct = Math.max(6, Math.round((cnt/deptMax)*100));
+                  const colors=["var(--primary)","var(--violet)","var(--cyan)","var(--green)","var(--amber)","var(--red)"];
+                  const c = colors[i%colors.length];
+                  return `<div style="margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                      <span style="font-size:11.5px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%;">${escapeHtml(dept)}</span>
+                      <strong style="font-size:12px;color:var(--text-1);font-variant-numeric:tabular-nums;">${cnt}</strong>
+                    </div>
+                    <div style="height:7px;border-radius:4px;background:var(--surface-3);overflow:hidden;">
+                      <div style="height:100%;width:${pct}%;background:${c};border-radius:4px;opacity:0.8;"></div>
+                    </div>
+                  </div>`;
+                }).join("") : `<div style="color:var(--text-3);font-size:12px;padding:8px 0;">暂无部门数据</div>`}
               </div>
             </div>
 
-            <!-- Product comparison table -->
+            <!-- Product table -->
             <div class="card">
               <div class="card-header"><div class="card-title">产品对比</div></div>
               <div class="card-body" style="padding:0;">
                 <table style="width:100%;border-collapse:collapse;font-size:12px;">
                   <thead>
-                    <tr style="border-bottom:1px solid var(--border-1);">
-                      <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text-3);">产品</th>
-                      <th style="padding:8px 8px;text-align:right;font-weight:500;color:var(--text-3);">申请</th>
-                      <th style="padding:8px 8px;text-align:right;font-weight:500;color:var(--text-3);">有PR</th>
-                      <th style="padding:8px 8px;text-align:right;font-weight:500;color:var(--text-3);">缺货</th>
-                      <th style="padding:8px 12px 8px 4px;text-align:right;font-weight:500;color:var(--text-3);">PR率</th>
+                    <tr style="background:var(--surface-2);">
+                      <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:0.05em;text-transform:uppercase;">产品</th>
+                      <th style="padding:9px 10px;text-align:right;font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:0.05em;text-transform:uppercase;">申请</th>
+                      <th style="padding:9px 10px;text-align:right;font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:0.05em;text-transform:uppercase;">有PR</th>
+                      <th style="padding:9px 10px;text-align:right;font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:0.05em;text-transform:uppercase;">缺货</th>
+                      <th style="padding:9px 14px 9px 6px;text-align:right;font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:0.05em;text-transform:uppercase;">PR率</th>
                     </tr>
                   </thead>
                   <tbody>
-                    ${prodTableRows.map((r) => `
-                      <tr style="border-bottom:1px solid var(--border-1);">
-                        <td style="padding:8px 12px;display:flex;align-items:center;gap:7px;">
-                          <span style="width:8px;height:8px;border-radius:2px;background:${r.prod.color};display:inline-block;flex-shrink:0;"></span>
-                          <span style="color:var(--text-2);">${escapeHtml(r.prod.shortLabel)}</span>
+                    ${prodRows.map((r)=>`
+                      <tr style="border-top:1px solid var(--border);">
+                        <td style="padding:10px 14px;">
+                          <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="width:9px;height:9px;border-radius:2px;background:${r.prod.color};display:inline-block;flex-shrink:0;"></span>
+                            <span style="font-weight:600;color:var(--text-1);">${escapeHtml(r.prod.shortLabel)}</span>
+                          </div>
                         </td>
-                        <td style="padding:8px;text-align:right;font-weight:700;color:var(--text-1);">${r.total}</td>
-                        <td style="padding:8px;text-align:right;color:var(--amber);">${r.withPr}</td>
-                        <td style="padding:8px;text-align:right;color:var(--red);">${r.outStock || 0}</td>
-                        <td style="padding:8px 12px 8px 4px;text-align:right;color:${r.prRate >= 80 ? "var(--green)" : r.prRate >= 40 ? "var(--amber)" : "var(--red)"};">${r.prRate}%</td>
-                      </tr>
-                    `).join("")}
-                    ${!prodTableRows.length ? `<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--text-3);">暂无数据</td></tr>` : ""}
+                        <td style="padding:10px;text-align:right;font-weight:800;color:var(--text-1);font-variant-numeric:tabular-nums;">${r.total}</td>
+                        <td style="padding:10px;text-align:right;color:var(--amber);font-weight:600;">${r.withPr}</td>
+                        <td style="padding:10px;text-align:right;color:var(--red);font-weight:600;">${r.outStock}</td>
+                        <td style="padding:10px 14px 10px 6px;text-align:right;">
+                          <span style="font-weight:700;color:${r.prRate>=80?"var(--green)":r.prRate>=40?"var(--amber)":"var(--red)"};">${r.prRate}%</span>
+                        </td>
+                      </tr>`).join("")}
+                    ${!prodRows.length?`<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--text-3);">暂无数据</td></tr>`:""}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
-        </section>
+        </div>
       `;
 
-      // Attach filter events
+      // Attach events
       host.querySelectorAll("[data-ai-period]").forEach((btn) => {
         btn.addEventListener("click", () => { fst.period = btn.dataset.aiPeriod; renderAiToolsDashboard(); });
       });
-      host.querySelectorAll("[data-ai-prod]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          fst.activeProd = fst.activeProd === btn.dataset.aiProd ? null : btn.dataset.aiProd;
-          renderAiToolsDashboard();
-        });
+      host.querySelectorAll("[data-chart-tab]").forEach((btn) => {
+        btn.addEventListener("click", () => { fst.chartTab = btn.dataset.chartTab; renderAiToolsDashboard(); });
       });
     }
 
