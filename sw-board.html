@@ -755,7 +755,7 @@
 
     <button class="tab" data-tab="quick-pr">
       <svg class="tab-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3h12v10H3z M6 1v4M12 1v4M3 7h12"/></svg>
-      快速生成 PR
+      自动提需求单
     </button>
 
     <button class="tab" data-tab="deliver-op">
@@ -1319,7 +1319,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
     <section class="panel" data-panel="quick-pr">
       <div class="page-header">
         <div class="page-header-left">
-          <h1>🚀 快速生成采购需求单</h1>
+          <h1>🚀 自动提需求单</h1>
           <p>从待发放清单一键生成采购需求单草稿，支持单条或批量提交至 Neone</p>
         </div>
       </div>
@@ -1419,7 +1419,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
         
         <!-- 快速生成需求单（PR 自动填充） -->
         <div class="card" style="margin-bottom:16px;">
-          <div class="card-header"><div class="card-title">🚀 快速生成采购需求单</div></div>
+          <div class="card-header"><div class="card-title">🚀 自动提需求单</div></div>
           <div class="card-body">
             <div class="notice" style="margin-bottom:16px;border-left-color:#18805F;background:rgba(24,128,95,0.06);">
               <strong style="color:#0B7049;">✨ AI 辅助填充：</strong>
@@ -1584,7 +1584,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
       <div class="modal-card" style="width:min(640px,calc(100vw - 32px));max-height:90vh;overflow-y:auto;">
         <div class="section-head">
           <div>
-            <h2 class="section-title">🚀 快速生成采购需求单</h2>
+            <h2 class="section-title">🚀 自动提需求单</h2>
             <p class="modal-copy" style="margin-top:8px;font-size:12.5px;color:var(--text-3);">从待发放清单直接提交 PR 单，自动填充软件、申请人等信息</p>
           </div>
           <button type="button" class="btn btn-ghost" id="closeQuickPrModal" style="flex-shrink:0;">
@@ -1803,8 +1803,8 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
   <div class="modal-card" style="width:min(620px,calc(100vw - 32px));">
     <div class="section-head">
       <div>
-        <h2 class="section-title">提需求单 PR</h2>
-        <p class="modal-copy" id="prModalDesc">根据发放单信息自动填写并提交采购需求单。</p>
+        <h2 class="section-title">手动提需求单</h2>
+        <p class="modal-copy" id="prModalDesc">识别 req 内容自动填写表单，检查后点击提交，由后端 pr_tool 建草稿。</p>
       </div>
       <button type="button" class="btn btn-ghost" id="closePrModal" style="flex-shrink:0;">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M12.7 4.7l-1.4-1.4L8 6.6 4.7 3.3 3.3 4.7 6.6 8l-3.3 3.3 1.4 1.4L8 9.4l3.3 3.3 1.4-1.4L9.4 8z"/></svg>
@@ -1853,7 +1853,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
     </div>
     <div id="prStatus" style="font-size:12.5px;color:var(--text-3);margin-bottom:12px;display:none;font-family:var(--mono);"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-      <button type="button" id="prSubmitBtn" class="btn btn-primary" onclick="console.log('Button clicked!'); this.disabled=true; submitPr(false);">创建草稿并打开编辑页</button>
+      <button type="button" id="prSubmitBtn" class="btn btn-primary">创建草稿并打开编辑页</button>
       <button type="button" class="btn btn-ghost" id="prDraftBtn" style="display:none">暂存草稿</button>
     </div>
     <div id="prMarkPrSection" style="display:none;padding:16px;background:var(--surface-2);border-radius:var(--r10);border:1px solid var(--border);margin-bottom:12px;">
@@ -2403,7 +2403,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
        // 操作按钮
        const prBtn = row.prUrl
          ? `<a class="inline-link" href="${escapeHtml(row.prUrl)}" target="_blank" rel="noreferrer">打开 PR · ${escapeHtml(row.prCode)}</a>`
-         : `<button type="button" class="secondary" data-create-pr="${escapeHtml(row.docCode)}">提需求单 PR</button>`;
+         : `<button type="button" class="secondary" data-create-pr="${escapeHtml(row.docCode)}">手动提需求单</button>`;
        const markBtn = (row.stockFlag && !row.prCode)
          ? `<button type="button" class="secondary" data-mark-pr="${escapeHtml(row.sourceDocCode)}">标记缺货</button>`
          : "";
@@ -2415,7 +2415,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
         const quickPrBtn = !row.prCode
           ? `<button type="button" class="btn btn-primary" data-quick-pr="${escapeHtml(row.sourceDocCode)}" data-req-name="${escapeHtml(row.skuName)}" data-applicant="${escapeHtml(row.requesterName)}" data-currency="CNY" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;height:32px;border:none;border-radius:var(--r6);background:var(--primary);color:#fff;cursor:pointer;font-weight:600;transition:all .14s;">
                <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6 2.4a1.2 1.2 0 010 1.7L6 11.7 2 12l.3-4L9.9 2.4a1.2 1.2 0 011.7 0zM11 4l1 1"/></svg>
-               快速生成 PR
+               自动提需求单
              </button>`
           : "";
 
@@ -2704,7 +2704,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
         })();
         const deliverBtn = row.prCode
           ? `<button type="button" data-deliver-pr="${escapeHtml(row.prCode)}" data-deliver-req="${escapeHtml(row.sourceDocCode)}" style="background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:var(--r6);font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap;">发放</button>`
-          : `<button type="button" class="secondary" data-create-pr="${escapeHtml(row.docCode)}" style="font-size:12px;padding:4px 10px;white-space:nowrap;">提 PR</button>`;
+          : `<button type="button" class="secondary" data-create-pr="${escapeHtml(row.docCode)}" style="font-size:12px;padding:4px 10px;white-space:nowrap;">手动提需求单</button>`;
         return `
         <tr style="${isOverdue ? "background:rgba(220,50,50,.04);" : ""}">
           <td>
@@ -3711,152 +3711,51 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
 
       try {
         const note = row._note || "";
-        const title = buildPrTitle(row);
         const reason = buildPrReason(row, note);
-        const benefit = buildPrBenefit(row, note);
-        const nonProxy = isNonProxy(row);
-        const budget = nonProxy ? BUDGET_NON_PROXY : BUDGET_PROXY;
         const deptDisplay = $("prBenefitDept").value.trim() || getDeptDisplay(row);
 
-        // Step 1: 查 SAM 台账，取 sku_code / purchase_type_path_code / 价格
-        setPrStatus("Step 1/3  查询软件 SKU 信息…");
-        let skuCode = "";
-        let purchaseTypePathCode = "";
-        let ledgerUnitPrice = "";
-        let ledgerCurrency = "";
-        try {
-          const trySearch = async (keyword) => {
-            const r = await fetch(PTP_BASE + "/neone-sam-svc/v1/ledger/page", {
-              method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ page: 1, page_size: 10, sku_name: keyword }),
-            });
-            const d = await r.json();
-            return (d.code === 0 && d.data && d.data.list) ? d.data.list : [];
-          };
-          let list = await trySearch(row.skuName);
-          if (list.length === 0) list = await trySearch(row.skuName.slice(0, 10));
-          if (list.length > 0) {
-            const exact = list.find(s => s.sku_name === row.skuName && s.sw_version === row.version)
-              || list.find(s => s.sku_name === row.skuName)
-              || list[0];
-            skuCode             = exact.sku_code || "";
-            purchaseTypePathCode = exact.purchase_type_path_code || "";
-            // 台账价格优先，再回退到 deliver 行的价格
-            ledgerUnitPrice = String(exact.sw_unit_price || "").trim();
-            ledgerCurrency  = exact.sw_currency || "";
-          }
-        } catch (e) { /* 查不到就留空 */ }
-
-        // ③ 最终价格优先级：手动输入 > 台账 > deliver 行
+        // 单价：手动输入 > deliver 行
         const manualPrice = String($("prUnitPrice").value || "").trim();
         const finalUnitPrice = (manualPrice && parseFloat(manualPrice) > 0)
           ? manualPrice
-          : (ledgerUnitPrice && ledgerUnitPrice !== "0")
-            ? ledgerUnitPrice
-            : (String(row.unitPrice || "").trim() || "");
-        const finalCurrency = $("prCurrency").value || ledgerCurrency || row.currency || "CNY";
+          : (String(row.unitPrice || "").replace(/[^\d.]/g, "") || "");
+        const finalCurrency = $("prCurrency").value || row.currency || "CNY";
         if (!finalUnitPrice || parseFloat(finalUnitPrice) <= 0) {
           throw new Error("预估单价必须大于 0，请在弹窗中手动填写单价后重试");
         }
 
-        // Step 2: 查预算匹配受益部门 code
-        setPrStatus("Step 2/3  匹配受益部门…");
-        let expenseDeptCode = "";
-        try {
-          const budgetResp = await fetch(PTP_BASE + "/neone-ptp-svc/budget/selection/list", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ items: [{ budget_no: budget.no, space_id: BUDGET_COMMON.space_id }] }),
-          });
-          const budgetData = await budgetResp.json();
-          const deptList = (budgetData.data?.budget_selection_list?.[0]?.expense_department_list) || [];
-          if (deptList.length > 0) {
-            const normalize = s => s.replace(/\s/g, "").toLowerCase();
-            const parts = deptDisplay.split(">").map(p => p.trim()).filter(Boolean);
-            let best = null, bestScore = -1;
-            for (const dept of deptList) {
-              const dName = normalize(dept.value);
-              let score = 0;
-              for (const part of parts) { if (dName.includes(normalize(part))) score++; }
-              if (score > bestScore) { bestScore = score; best = dept; }
-            }
-            if (best) expenseDeptCode = best.key;
-          }
-        } catch (e) { /* 匹配失败留空 */ }
-
-        // Step 3: demand/add 直接携带完整明细行（type=2 软件行，含 sku_code）
-        // ✅ 关键：type=2 + sku_code 必须在 add 时一次性写入，update 无法修改 sku
-        setPrStatus("Step 3/3  创建 PR 并填入明细…");
-
-        const useDate = new Date();
-        useDate.setDate(useDate.getDate() + 1);
-        const useDateStr = useDate.toISOString().slice(0, 10);
-
-        const buildRow = (purchaseType, period) => {
-          const r = {
-            type: 2,   // ✅ type=2 软件行（type=1 是非软件行，不支持 sku_code）
-            purchase_type_path_code: purchaseTypePathCode,
-            business_type_path_code: BUDGET_COMMON.business_type_path_code,
-            quantity: String(months > 1 ? months : 1), quantity_unit_code: "U001",
-            use_date: useDateStr, use_date_timezone_type: 8,
-            benefit_center_code: "", is_pay_advance: 2,
-            attachment_list: [], description: "",
+        // 手动提需求单：走后端 pr_tool.py（/api/submit_pr_form）
+        // 由后端识别 req、组装明细并建草稿（不再在前端拼 demand/add）
+        setPrStatus("正在通过后端 pr_tool 建草稿…");
+        const resp = await fetch(PROXY_BASE + "/api/submit_pr_form", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            req_code: row.sourceDocCode,
+            soft_desc: reason,
             unit_price: finalUnitPrice,
+            qty: String(months > 0 ? months : 1),
+            note: note,
+            requester: row.claimUserName || row.requesterName || "",
+            requester_domain: row.claimUserDomain || row.requesterDomain || "",
+            dept_raw: deptDisplay,
             currency: finalCurrency,
-            counterpart_list: [], state: 1, company_code: "20", flow_type: 0,
-            budget_space_id: BUDGET_COMMON.space_id,
-            budget_no: budget.no,
-            channel_type_path_code: "", version_code: BUDGET_COMMON.version_code,
-            financial_tag: "BQ00001016", active_name: "",
-            receipt_address_type: 1, receipt_address: "",
-            receipt_warehouse_code: "", software_purchase_type: purchaseType,
-            subscribe_period: period, merch_usage_code: "",
-            outbound_warehouse_code: "", merch_collector_list: [],
-            activity_code: "",
-            expense_department_path_code: expenseDeptCode,
-            ip_code: "", budget_area_code: "", collection_pr_row_code: "",
-          };
-          // sku_code 在 add rows 里直接 flat 传（type=2 时有效）
-          if (skuCode) {
-            r.sku_code = skuCode;
-            r.sku = { sku_code: skuCode };
-          }
-          return r;
-        };
-
-        const addRows = [];
-        if (hasAdd) {
-          addRows.push(buildRow("account_add", 1));
-        }
-        if (hasRenewal) {
-          const renewalPeriod = hasAdd ? (months - 1) : months;
-          if (renewalPeriod > 0) {
-            addRows.push(buildRow("account_renewal", renewalPeriod));
-          }
-        }
-
-        const addData = await ptpFetch("/demand/add", {
-          demand_head: {
-            title, state: 1, demand_type: 1,
-            applicant: "yuqing.xie02",
-            department_code: "0780>2136>1396",
-            currency: "CNY",
-            apply_reason: reason,
-            expected_effect: benefit,
-            attachment_list: [],
-            source: "PTP", apply_type: "common",
-            merch_execute_method: "",
-            recipient_is_obtain_packing_list: 0,
-          },
-          rows: addRows,
+            purchase_add: hasAdd,
+            purchase_renewal: hasRenewal,
+            months: months,
+          }),
         });
-        const prCode = addData.data && addData.data.code;
-        if (!prCode) throw new Error("创建失败：未获取到 PR 单号");
+        let result;
+        try { result = await resp.json(); }
+        catch (e) { throw new Error("后端返回非 JSON（HTTP " + resp.status + "），确认已用 http://…/board 打开且 pr_tool 已加载"); }
+        if (result.ok === false || result.isSuccess === false) {
+          throw new Error(result.error || result.message || "pr_tool 建草稿失败");
+        }
+        const prCode = result.pr_code || result.code || (result.data && (result.data.code || result.data.pr_code)) || "";
+        if (!prCode) throw new Error(result.error || result.message || "未获取到 PR 单号");
 
         // PR 创建完成，显示标记缺货区域供用户点击
         const editUrl = `https://neone.mihoyo.com/procurement/demand-edit/edit/${prCode}?hide_company_name=y&hide_expense_attribute_name=y`;
-        const skuLine = skuCode ? `✅ 采购单品：${skuCode}（${row.skuName}）` : "⚠️ 采购单品未匹配，请手动选择";
-        const priceLine = finalUnitPrice ? `✅ 预估单价：${finalUnitPrice} ${finalCurrency}` : "⚠️ 单价未填入，请手动填写";
-        const deptLine = expenseDeptCode ? `✅ 受益部门：${deptDisplay}` : "⚠️ 受益部门未匹配，请手动选择";
 
         setPrStatus(`已创建 PR：${prCode}，请点击下方「标记缺货」按钮以在 SAM 中标记缺货`, false);
         showFlash(`已创建：${prCode}`);
@@ -3866,7 +3765,7 @@ Cursor Enterprise，Anysphere，按席位年费"></textarea>
         $("prFormPreview").innerHTML += `
           <div class="fact" style="background:rgba(45,124,89,0.08);border-color:rgba(45,124,89,0.2)">
             <div class="fact-label">PR 已创建：${escapeHtml(prCode)}</div>
-            <div class="fact-value" style="font-size:12px;line-height:2">${escapeHtml(skuLine)}<br>${escapeHtml(priceLine)}<br>${escapeHtml(deptLine)}<br>请在采购系统核查明细后点击「提交」。</div>
+            <div class="fact-value" style="font-size:12px;line-height:2">✅ 预估单价：${escapeHtml(finalUnitPrice)} ${escapeHtml(finalCurrency)}<br>后端 pr_tool 已建草稿，请在采购系统核查明细后点击「提交」。</div>
           </div>
         `;
 

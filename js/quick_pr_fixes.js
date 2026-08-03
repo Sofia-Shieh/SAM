@@ -1,26 +1,25 @@
 /**
- * quick_pr_fixes.js —— 「快速生成 PR」修复模块（同源化 + Neone MCP 建单）
+ * quick_pr_fixes.js —— 「自动提需求单」（原快速生成 PR）走 Neone PTP-MCP
  *
  * 职责边界（重要）：
- *   ● 蓝色「快速生成 PR」：行内按钮(data-quick-pr) + 列表页(quick-pr tab) + 弹窗(quickPrModal)
- *     —— 全部走 Neone MCP：同源 POST /messages（JSON-RPC tools/call），工具 create_pr / submit_pr。
- *   ● 灰色「提需求单 PR」：本模块【完全不接管】。仍由页面内联的 openPrModal/submitPr 处理
- *     （识别 req → 自动填表 → 建草稿，走 /neone-ptp-svc/demand/add，不经过 MCP）。
+ *   ● 蓝色「自动提需求单」：行内按钮(data-quick-pr) + 列表页(quick-pr tab) + 弹窗(quickPrModal)
+ *     —— 全部走 Neone PTP-MCP：同源 POST /messages（JSON-RPC tools/call），工具 add_demand。
+ *   ● 灰色「手动提需求单」：本模块【完全不接管】。由页面内联 openPrModal/submitPr 处理
+ *     （识别 req → 自动填表 → 检查 → 提交，走后端 /api/submit_pr_form → pr_tool.py，不经 MCP）。
  *
- * 前提（否则再对也建不出单）：
- *   1. 页面必须用 http://127.0.0.1:<端口>/board 打开，不能双击 file:// 打开；
- *      否则 /messages 会被解析成 file:///.../messages 而失败。
- *   2. server.py 需实现 POST /messages：接收 {jsonrpc,id,method:'tools/call',params:{name,arguments}}，
- *      转 oh-my-mcp / Neone，返回 {result:{content:[{type:'text',text:'<JSON字符串>'}]}}，
- *      其中 JSON 至少含 {code:'PR...'}（或 pr_code）。
- *   3. 若 server.py 的工具名不同，改下方 TOOLS 常量即可。
+ * 前提：
+ *   1. 页面必须用 http://127.0.0.1:<端口>/board 打开（server.py 已把 /js 静态托管、/messages 接 oh-my-mcp）；
+ *      双击 file:// 打开会让 /messages 变成 file:///…/messages 而失败。
+ *   2. server.py 的 /messages 会把 {name:'add_demand', arguments:{…}} 转给 NeonePTP MCP，
+ *      返回 {result:{content:[{type:'text',text:'<JSON字符串>'}]}}，JSON 里含 code / demand_code = 单号。
+ *   3. 若 MCP 工具名/字段不同，改下方 MCP_TOOL / buildArgs 即可。
  */
 (function () {
   'use strict';
 
   // ── 配置：同源、可调 ─────────────────────────────────────────────
-  var MCP_ENDPOINT = '/messages';           // 同源相对路径，随页面端口自动匹配
-  var TOOLS = { createPr: 'create_pr', submitPr: 'submit_pr' };
+  var MCP_ENDPOINT = '/messages';       // 同源相对路径，随页面端口自动匹配
+  var MCP_TOOL = 'add_demand';          // NeonePTP MCP 的提单工具
   var DEFAULT_APPLICANT = 'yuqing.xie02';
 
   // ── 小工具 ───────────────────────────────────────────────────────
@@ -44,10 +43,7 @@
   function mcpCall(tool, args) {
     var controller = new AbortController();
     var timer = setTimeout(function () { controller.abort(); }, 30000);
-    var payload = {
-      jsonrpc: '2.0', id: Date.now(), method: 'tools/call',
-      params: { name: tool, arguments: args || {} }
-    };
+    var payload = { jsonrpc: '2.0', id: Date.now(), method: 'tools/call', params: { name: tool, arguments: args || {} } };
     console.log('[MCP] call', tool, args);
     return fetch(MCP_ENDPOINT, {
       method: 'POST',
@@ -57,8 +53,11 @@
     }).then(function (resp) {
       clearTimeout(timer);
       if (!resp.ok) {
-        throw new Error('MCP 服务返回 HTTP ' + resp.status +
-          '（确认已用 http://…/board 打开，且 server.py 的 /messages 已接 oh-my-mcp）');
+        return resp.json().catch(function () { return null; }).then(function (j) {
+          var m = j && j.error && j.error.message;
+          throw new Error('MCP 返回 HTTP ' + resp.status + (m ? '：' + m : '') +
+            '（确认已用 http://…/board 打开，且 server.py 的 /messages 已接 oh-my-mcp）');
+        });
       }
       return resp.json();
     }).then(function (data) {
@@ -82,45 +81,39 @@
 
   function extractPrCode(res) {
     if (!res) return '';
-    return res.code || res.pr_code || res.prCode ||
-      (res.data && (res.data.code || res.data.pr_code)) || '';
+    return res.code || res.pr_code || res.prCode || res.demand_code || res.demandCode ||
+      (res.data && (res.data.code || res.data.pr_code || res.data.demand_code)) || '';
   }
 
-  // 生成 PR（MCP create_pr）。row 可来自快照，也可仅含表单字段
-  function createPr(row, opts) {
+  // 组装 MCP add_demand 参数（对齐 server.py /api/neone/add_demand 文档字段）
+  function buildArgs(row, opts) {
     opts = opts || {};
     var months = parseInt(opts.months, 10) || 1;
     var sw = (opts.softwareName || row.skuName || '').trim();
-    if (!sw) return Promise.reject(new Error('软件名称不能为空'));
-
-    var nonProxy = (typeof isNonProxy === 'function') ? isNonProxy(row) : false;
-    var budget = nonProxy
-      ? (typeof BUDGET_NON_PROXY !== 'undefined' ? BUDGET_NON_PROXY : { no: '' })
-      : (typeof BUDGET_PROXY !== 'undefined' ? BUDGET_PROXY : { no: '' });
-
     var price = (opts.unitPrice != null && opts.unitPrice !== '')
       ? String(opts.unitPrice)
       : String(row.unitPrice || row.sw_unit_price || '').replace(/[^\d.]/g, '');
-    var currency = opts.currency || row.currency || 'CNY';
-
-    var hasRow = !!row.sourceDocCode;
-    var today = new Date().toISOString().slice(0, 10);
-    var title = (hasRow && typeof buildPrTitle === 'function') ? buildPrTitle(row) : (sw + '-代采-' + today);
-    var reason = (typeof buildPrReason === 'function') ? buildPrReason(row, row._note || '') : ('申请采购 ' + sw);
-    var benefit = (typeof buildPrBenefit === 'function') ? buildPrBenefit(row, row._note || '') : ('保障正常使用 ' + sw);
-
-    var args = {
-      software_name: sw, sku_name: sw, version: row.version || '',
+    var reason = (typeof buildPrReason === 'function') ? buildPrReason(row, row._note || '') : ('申请使用 ' + sw);
+    var benefit = (typeof buildPrBenefit === 'function') ? buildPrBenefit(row, row._note || '') : ('获得 ' + sw + ' 的使用权');
+    return {
+      software_name: sw,
       applicant: opts.applicant || row.claimUserDomain || row.requesterDomain || DEFAULT_APPLICANT,
-      applicant_name: row.claimUserName || row.requesterName || '',
-      department: opts.department || row.requesterDepartment || '',
-      department_full: (typeof getDeptDisplay === 'function' ? getDeptDisplay(row) : '') || '',
-      req_code: row.sourceDocCode || '', deliver_code: row.docCode || '',
-      currency: currency, unit_price: price ? Number(price) : 0, quantity: 1, months: months,
-      is_non_proxy: nonProxy, budget_no: budget.no || '',
-      title: title, apply_reason: reason, description: reason, expected_effect: benefit
+      department: (typeof getDeptDisplay === 'function' ? getDeptDisplay(row) : '') || row.requesterDepartment || '',
+      currency: opts.currency || row.currency || 'CNY',
+      quantity: 1,
+      unit_price: price ? Number(price) : 0,
+      months: months,
+      description: reason,
+      expected_effect: benefit,
+      req_code: row.sourceDocCode || ''   // 便于后端/MCP 追溯，未用则忽略
     };
-    return mcpCall(TOOLS.createPr, args).then(function (res) {
+  }
+
+  // 自动提需求单（MCP add_demand）
+  function autoDemand(row, opts) {
+    var sw = ((opts && opts.softwareName) || row.skuName || '').trim();
+    if (!sw) return Promise.reject(new Error('软件名称不能为空'));
+    return mcpCall(MCP_TOOL, buildArgs(row, opts)).then(function (res) {
       var pr = extractPrCode(res);
       if (!pr) {
         var m = (res && (res.error || res.message || res.raw)) || '未获取到 PR 单号';
@@ -130,28 +123,15 @@
     });
   }
 
-  // 提交 PR 送审（MCP submit_pr）
-  function submitPrMcp(prCode, extra) {
-    if (!prCode) return Promise.reject(new Error('缺少 PR 单号'));
-    return mcpCall(TOOLS.submitPr, Object.assign({ pr_code: prCode, code: prCode }, extra || {}))
-      .then(function (res) {
-        if (res && (res.isSuccess === false || res.success === false)) {
-          throw new Error(res.error || res.message || '提交失败');
-        }
-        return res || { ok: true };
-      });
-  }
+  // 对外暴露
+  window.QuickPR = { autoDemand: autoDemand, tool: MCP_TOOL };
 
-  // 对外暴露（供其它脚本复用，不覆盖已有实现）
-  window.QuickPR = { createPr: createPr, submitPr: submitPrMcp, tools: TOOLS };
-
-  var NEONE_LIST_URL = 'https://neone.mihoyo.com/procurement/application';
   function editUrl(prCode) {
     return 'https://neone.mihoyo.com/procurement/demand-edit/edit/' + prCode +
       '?hide_company_name=y&hide_expense_attribute_name=y';
   }
 
-  // ══════════════ A. 弹窗（行内「快速生成 PR」触发）══════════════
+  // ══════════════ A. 弹窗（行内「自动提需求单」触发）══════════════
   var qprCurrentRow = null;
 
   function openModal(row) {
@@ -164,7 +144,7 @@
     $('qprPreviewArea').innerHTML = '';
     $('qprStatus').style.display = 'none';
     $('qprCreateBtn').style.display = 'none';
-    $('qprSubmitBtn').style.display = 'none';
+    if ($('qprSubmitBtn')) $('qprSubmitBtn').style.display = 'none'; // 自动流只有 add_demand 一步
     $('quickPrModal').classList.add('open');
   }
   function qprStatus(text, isError) {
@@ -174,34 +154,24 @@
     el.style.color = isError ? 'var(--red)' : 'var(--text-3)';
   }
 
-  function qprGenerate(alsoSubmit) {
+  function qprGenerate() {
     if (!qprCurrentRow) return;
-    var createBtn = $('qprCreateBtn'), submitBtn = $('qprSubmitBtn');
-    createBtn.disabled = true; submitBtn.disabled = true;
-    qprStatus(alsoSubmit ? '⏳ 正在生成并提交…' : '⏳ 正在生成草稿…', false);
+    var createBtn = $('qprCreateBtn');
+    createBtn.disabled = true;
+    qprStatus('⏳ 正在经 MCP 自动提需求单…', false);
     var months = parseInt($('qprMonths').value, 10) || 1;
-    var prCode = '';
-    createPr(qprCurrentRow, { months: months })
+    autoDemand(qprCurrentRow, { months: months })
       .then(function (r) {
-        prCode = r.prCode;
-        if (alsoSubmit) {
-          return submitPrMcp(prCode, qprCurrentRow.docCode ? { deliver_code: qprCurrentRow.docCode } : {})
-            .then(function () { return true; });
-        }
-        return false;
-      })
-      .then(function (submitted) {
         $('qprPreviewArea').innerHTML =
           '<div style="background:var(--green-light);border:1px solid rgba(17,148,99,0.2);border-radius:var(--r10);padding:12px;">' +
-          '<div style="color:var(--green);font-weight:600;margin-bottom:4px;">✅ ' +
-          (submitted ? '已生成并提交审批' : '需求单草稿已生成') + '</div>' +
-          '<div style="font-size:12px;color:var(--text-2);line-height:1.7;"><strong>PR 单号：</strong>' + esc(prCode) + '<br>' +
-          '<a href="' + editUrl(prCode) + '" target="_blank" style="color:var(--primary);text-decoration:underline;">打开 Neone 编辑页</a></div></div>';
-        qprStatus('✅ 成功：' + prCode, false);
-        var s = $('prSubmitCode'); if (s && !submitted) s.value = prCode;
+          '<div style="color:var(--green);font-weight:600;margin-bottom:4px;">✅ 已自动提需求单</div>' +
+          '<div style="font-size:12px;color:var(--text-2);line-height:1.7;"><strong>PR 单号：</strong>' + esc(r.prCode) + '<br>' +
+          (r.simulated ? '<strong style="color:var(--orange);">⚠️ 模拟模式（MCP 未连真实后端）</strong><br>' : '') +
+          '<a href="' + editUrl(r.prCode) + '" target="_blank" style="color:var(--primary);text-decoration:underline;">打开 Neone 查看</a></div></div>';
+        qprStatus('✅ 成功：' + r.prCode, false);
       })
-      .catch(function (err) { qprStatus('失败：' + err.message, true); console.error('[quickPr] modal', err); })
-      .then(function () { createBtn.disabled = false; submitBtn.disabled = false; });
+      .catch(function (err) { qprStatus('失败：' + err.message, true); console.error('[autoDemand] modal', err); })
+      .then(function () { createBtn.disabled = false; });
   }
 
   // ══════════════ B. 列表页（批量）══════════════
@@ -276,7 +246,7 @@
       }).join('') +
       '</tbody></table></div>' +
       '<div style="font-size:12px;color:var(--text-3);margin-top:8px;">共 ' + rows.length +
-      ' 条，将逐条经 MCP ' + TOOLS.createPr + ' 生成草稿（订阅默认 1 个月）。</div>';
+      ' 条，将逐条经 MCP ' + MCP_TOOL + ' 自动提需求单（订阅默认 1 个月）。</div>';
     card.style.display = 'block';
     $('quickPrSubmitStatus').textContent = '';
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -292,9 +262,9 @@
     var chain = Promise.resolve();
     rows.forEach(function (r, i) {
       chain = chain.then(function () {
-        statusEl.innerHTML = '⏳ 正在生成 ' + (i + 1) + '/' + rows.length + '：' +
+        statusEl.innerHTML = '⏳ 正在提单 ' + (i + 1) + '/' + rows.length + '：' +
           esc(r.skuName) + '（' + esc(r.sourceDocCode) + '）…';
-        return createPr(r, { months: 1 })
+        return autoDemand(r, { months: 1 })
           .then(function (x) { results.push({ req: r.sourceDocCode, sku: r.skuName, prCode: x.prCode, ok: true }); })
           .catch(function (err) { results.push({ req: r.sourceDocCode, sku: r.skuName, error: err.message, ok: false }); });
       });
@@ -322,23 +292,23 @@
       var row = qprCurrentRow, months = parseInt($('qprMonths').value, 10) || 1;
       $('qprPreviewArea').innerHTML =
         '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r10);padding:12px;">' +
-        '<div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">需求单草稿预览</div>' +
+        '<div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">需求单预览</div>' +
         '<div style="font-size:12.5px;color:var(--text-1);line-height:1.9;">' +
         '<strong>软件：</strong>' + esc(row.skuName) + (row.version ? ' ' + esc(row.version) : '') + '<br>' +
         '<strong>申请人：</strong>' + esc(row.claimUserName || row.requesterName) + ' · <strong>申请单：</strong>' + esc(row.sourceDocCode) + '<br>' +
         '<strong>币种/单价：</strong>' + esc(row.currency || 'CNY') + ' ' + esc(row.unitPrice || '自动查询') + '<br>' +
-        '<strong>订阅期限：</strong>' + months + ' 个月' + (months > 1 ? '（新增 1 + 续费 ' + (months - 1) + '）' : '') + '<br>' +
-        '<span style="color:var(--text-3);">提交后经 MCP ' + TOOLS.createPr + ' 生成草稿</span></div></div>';
+        '<strong>订阅期限：</strong>' + months + ' 个月<br>' +
+        '<span style="color:var(--text-3);">确认后经 MCP ' + MCP_TOOL + ' 自动提需求单</span></div></div>';
       $('qprCreateBtn').style.display = 'inline-flex';
-      $('qprSubmitBtn').style.display = 'inline-flex';
-      qprStatus('确认无误后：「生成需求单」只建草稿，「生成并提交」建草稿并直接送审。', false);
+      if ($('qprSubmitBtn')) $('qprSubmitBtn').style.display = 'none';
+      qprStatus('确认无误后点击「生成需求单」自动提单。', false);
       return;
     }
-    if (e.target.closest('#qprCreateBtn')) { qprGenerate(false); return; }
-    if (e.target.closest('#qprSubmitBtn')) { qprGenerate(true); return; }
+    if (e.target.closest('#qprCreateBtn')) { qprGenerate(); return; }
+    if (e.target.closest('#qprSubmitBtn')) { qprGenerate(); return; } // 兜底：即使显示也只做 add_demand
     if (e.target.closest('#closeQuickPrModal')) { $('quickPrModal').classList.remove('open'); return; }
 
-    // 行内「快速生成 PR」按钮
+    // 行内「自动提需求单」按钮
     var quickBtn = e.target.closest('[data-quick-pr]');
     if (quickBtn) {
       var reqCode = quickBtn.getAttribute('data-quick-pr');
@@ -369,7 +339,7 @@
     }
     if (e.target.closest('#quickPrSubmitAll')) { runBatch(); return; }
 
-    // 切到「快速生成 PR」标签时刷新列表
+    // 切到「自动提需求单」标签时刷新列表
     if (e.target.closest('[data-tab="quick-pr"]')) { setTimeout(renderTable, 0); return; }
   });
 
@@ -405,5 +375,5 @@
   } else {
     renderTable();
   }
-  console.log('✓ quick_pr_fixes.js 已加载：快速生成 PR → Neone MCP（提需求单 PR 不受影响）');
+  console.log('✓ quick_pr_fixes.js 已加载：自动提需求单 → Neone PTP-MCP(add_demand)（手动提需求单不受影响）');
 })();
