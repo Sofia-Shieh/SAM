@@ -104,8 +104,7 @@
       unit_price: price ? Number(price) : 0,
       months: months,
       description: reason,
-      expected_effect: benefit,
-      req_code: row.sourceDocCode || ''   // 便于后端/MCP 追溯，未用则忽略
+      expected_effect: benefit
     };
   }
 
