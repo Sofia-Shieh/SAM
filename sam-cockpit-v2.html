@@ -7,6 +7,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+/* 首屏前落地主题，避免闪烁：记忆 > 系统偏好 > 深色 */
+(function(){try{
+  var t=localStorage.getItem('cockpit-theme');
+  if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}
+  document.documentElement.setAttribute('data-theme',t);
+}catch(e){}})();
+</script>
 <style>
 :root{
   --void:#0A0E16; --panel:#111725; --panel-2:#161E2F; --panel-3:#1C2740;
@@ -18,9 +26,40 @@
   --rose:#FF6B7E; --rose-dim:rgba(255,107,126,0.15);
   --violet:#9C8CFF; --violet-dim:rgba(156,140,255,0.15);
   --grid:rgba(140,165,210,0.05);
+  --pop:0 8px 24px rgba(0,0,0,.5);
+  --glow-cyan:rgba(54,214,224,0.5);
   --disp:"Sora","Noto Sans SC",sans-serif;
   --body:"Noto Sans SC","Sora",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+/* 浅色主题：点右上角切换（data-theme），未手动选择时跟随系统偏好 */
+:root[data-theme="light"]{
+  --void:#EDF1F8; --panel:#FBFCFE; --panel-2:#F2F5FA; --panel-3:#E2E9F4;
+  --line:rgba(40,70,120,0.13); --line-2:rgba(40,70,120,0.22);
+  --ink:#1A2434; --ink-2:#4C5B75; --ink-3:#7E8CA6;
+  --cyan:#0B98A6; --cyan-dim:rgba(11,152,166,0.11);
+  --lime:#478F1C; --lime-dim:rgba(71,143,28,0.12);
+  --amber:#B4710E; --amber-dim:rgba(180,113,14,0.12);
+  --rose:#D9304C; --rose-dim:rgba(217,48,76,0.10);
+  --violet:#6353D6; --violet-dim:rgba(99,83,214,0.11);
+  --grid:rgba(40,70,120,0.045);
+  --pop:0 8px 24px rgba(30,50,90,.18);
+  --glow-cyan:rgba(11,152,166,0.35);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --void:#EDF1F8; --panel:#FBFCFE; --panel-2:#F2F5FA; --panel-3:#E2E9F4;
+    --line:rgba(40,70,120,0.13); --line-2:rgba(40,70,120,0.22);
+    --ink:#1A2434; --ink-2:#4C5B75; --ink-3:#7E8CA6;
+    --cyan:#0B98A6; --cyan-dim:rgba(11,152,166,0.11);
+    --lime:#478F1C; --lime-dim:rgba(71,143,28,0.12);
+    --amber:#B4710E; --amber-dim:rgba(180,113,14,0.12);
+    --rose:#D9304C; --rose-dim:rgba(217,48,76,0.10);
+    --violet:#6353D6; --violet-dim:rgba(99,83,214,0.11);
+    --grid:rgba(40,70,120,0.045);
+    --pop:0 8px 24px rgba(30,50,90,.18);
+    --glow-cyan:rgba(11,152,166,0.35);
+  }
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{background:var(--void);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;}
@@ -51,7 +90,7 @@ select{font-family:inherit;}
 }
 .brand-mark::before{content:"";width:14px;height:14px;border-radius:50%;
   background:conic-gradient(from 200deg,var(--cyan),var(--violet),var(--lime),var(--cyan));
-  box-shadow:0 0 14px rgba(54,214,224,0.5);}
+  box-shadow:0 0 14px var(--glow-cyan);}
 .brand-name{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:-0.01em;}
 .brand-sub{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:0.16em;text-transform:uppercase;margin-top:1px;}
 .nav{display:flex;gap:3px;margin-left:8px;background:var(--panel);padding:4px;border-radius:11px;border:1px solid var(--line);flex-wrap:wrap;}
@@ -64,6 +103,9 @@ select{font-family:inherit;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
 .demo-pill{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--amber);background:var(--amber-dim);border:1px solid rgba(246,182,85,0.3);padding:5px 11px;border-radius:7px;}
+.theme-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--ink-2);transition:.18s;flex-shrink:0;}
+.theme-btn:hover{color:var(--cyan);border-color:var(--line-2);transform:translateY(-1px);}
+.theme-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;}
 
 /* ---- global filters ---- */
 .gfilters{display:flex;align-items:center;gap:10px;margin:2px 0 20px;flex-wrap:wrap;}
@@ -109,7 +151,7 @@ select{font-family:inherit;}
 .rev:hover{transform:translateX(-50%) translateY(-3px);}
 .rev .stalk{width:1.5px;background:var(--line-2);}
 .rev .dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--void);position:relative;z-index:2;}
-.rev .tag{position:absolute;bottom:100%;margin-bottom:7px;white-space:nowrap;background:var(--panel-3);border:1px solid var(--line-2);border-radius:7px;padding:5px 9px;font-size:10.5px;opacity:0;transform:translateY(4px);transition:.18s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:5;}
+.rev .tag{position:absolute;bottom:100%;margin-bottom:7px;white-space:nowrap;background:var(--panel-3);border:1px solid var(--line-2);border-radius:7px;padding:5px 9px;font-size:10.5px;opacity:0;transform:translateY(4px);transition:.18s;pointer-events:none;box-shadow:var(--pop);z-index:5;}
 .rev:hover .tag{opacity:1;transform:none;}
 .rev .tag b{font-family:var(--disp);}
 .rev.r30 .dot{background:var(--rose);box-shadow:0 0 12px var(--rose);}
@@ -198,7 +240,7 @@ select{font-family:inherit;}
 /* ---- line charts (trend) ---- */
 .tchart{position:relative;}
 .tchart svg{display:block;width:100%;height:auto;}
-.tchart .tt{position:absolute;pointer-events:none;background:var(--panel-3);border:1px solid var(--line-2);border-radius:7px;padding:6px 9px;font-size:10.5px;font-family:var(--mono);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .12s;z-index:5;}
+.tchart .tt{position:absolute;pointer-events:none;background:var(--panel-3);border:1px solid var(--line-2);border-radius:7px;padding:6px 9px;font-size:10.5px;font-family:var(--mono);white-space:nowrap;box-shadow:var(--pop);opacity:0;transition:opacity .12s;z-index:5;}
 .tchart .tt b{color:var(--ink);}
 .tchart-title{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:7px;}
 .tchart-title .sw{width:9px;height:9px;border-radius:3px;}
@@ -440,7 +482,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .pipe-title{font-family:var(--disp);font-size:15px;font-weight:700;margin-bottom:4px;}
 .pipe-desc{font-size:11px;color:var(--ink-3);line-height:1.5;margin-bottom:14px;min-height:32px;}
 .pipe-body{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px;min-height:240px;}
-.pipe-stage.active .pipe-body{border-color:rgba(156,140,255,0.35);box-shadow:0 0 0 1px rgba(156,140,255,0.2),0 12px 30px rgba(0,0,0,0.3);}
+.pipe-stage.active .pipe-body{border-color:rgba(156,140,255,0.35);box-shadow:0 0 0 1px rgba(156,140,255,0.2),var(--pop);}
 .feed-item{padding:10px;border-radius:9px;background:var(--panel-2);border:1px solid var(--line);margin-bottom:8px;cursor:pointer;transition:.15s;}
 .feed-item:hover{border-color:var(--violet);}
 .feed-src{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
@@ -517,6 +559,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
     <div class="top-right">
       <div class="demo-pill">演示数据 · 非真实</div>
       <div class="live"><span class="dot"></span><span class="time-txt">—</span></div>
+      <button class="theme-btn" id="btn-theme" title="切换深色 / 浅色" aria-label="切换深色 / 浅色主题"></button>
     </div>
   </div>
 
@@ -1800,6 +1843,23 @@ document.querySelectorAll('thead th[data-sort]').forEach(th=>{
   th.addEventListener('click',()=>{ const k=th.dataset.sort; if(curSort===k)sortDir*=-1;else{curSort=k;sortDir=-1;} loadTable(); });
 });
 document.getElementById('btn-export').addEventListener('click',()=>window.print());
+
+/* ---- 深浅主题切换 ---- */
+const ICON_SUN = '<svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3.2"/><path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1"/></svg>';
+const ICON_MOON = '<svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.2 9.8A5.6 5.6 0 116.2 2.8a4.4 4.4 0 007 7z"/></svg>';
+const themeBtn = document.getElementById('btn-theme');
+function syncThemeBtn(){
+  const t = document.documentElement.getAttribute('data-theme');
+  themeBtn.innerHTML = t==='light' ? ICON_MOON : ICON_SUN;
+  themeBtn.title = t==='light' ? '切换到深色' : '切换到浅色';
+}
+themeBtn.addEventListener('click', ()=>{
+  const next = document.documentElement.getAttribute('data-theme')==='light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem('cockpit-theme', next); }catch(e){}
+  syncThemeBtn();
+});
+syncThemeBtn();
 ['f-time','f-dept','f-cur'].forEach(id=>{
   document.getElementById(id).addEventListener('change',()=>{
     document.getElementById('filter-note').textContent='筛选为演示交互 · 接入真实 API 后生效';
