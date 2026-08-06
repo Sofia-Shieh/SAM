@@ -34,31 +34,39 @@
 }
 /* 浅色主题：点右上角切换（data-theme），未手动选择时跟随系统偏好 */
 :root[data-theme="light"]{
-  --void:#F2F5FB; --panel:#FFFFFF; --panel-2:#F6F8FD; --panel-3:#E9EEF8;
-  --line:rgba(30,60,120,0.14); --line-2:rgba(30,60,120,0.24);
-  --ink:#101A2C; --ink-2:#3D4D6B; --ink-3:#71809C;
-  --cyan:#0284C7; --cyan-dim:rgba(2,132,199,0.10);
-  --lime:#16A34A; --lime-dim:rgba(22,163,74,0.10);
-  --amber:#EA580C; --amber-dim:rgba(234,88,12,0.10);
-  --rose:#DB2777; --rose-dim:rgba(219,39,119,0.09);
-  --violet:#7C3AED; --violet-dim:rgba(124,58,237,0.09);
-  --grid:rgba(30,60,120,0.05);
-  --pop:0 8px 24px rgba(20,40,90,.16);
-  --glow-cyan:rgba(2,132,199,0.30);
+  --void:#DFE8F5;
+  --panel:rgba(255,255,255,0.72);
+  --panel-2:rgba(245,249,255,0.65);
+  --panel-3:rgba(225,236,252,0.78);
+  --line:rgba(80,120,200,0.16);
+  --line-2:rgba(60,100,180,0.28);
+  --ink:#0B1628; --ink-2:#243A5E; --ink-3:#5E7494;
+  --cyan:#0088CC; --cyan-dim:rgba(0,136,204,0.13);
+  --lime:#13975A; --lime-dim:rgba(19,151,90,0.13);
+  --amber:#D97220; --amber-dim:rgba(217,114,32,0.12);
+  --rose:#C81F6E; --rose-dim:rgba(200,31,110,0.11);
+  --violet:#5C28DC; --violet-dim:rgba(92,40,220,0.11);
+  --grid:rgba(60,100,200,0.045);
+  --pop:0 8px 32px rgba(10,40,110,.15);
+  --glow-cyan:rgba(0,136,204,0.38);
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
-    --void:#F2F5FB; --panel:#FFFFFF; --panel-2:#F6F8FD; --panel-3:#E9EEF8;
-    --line:rgba(30,60,120,0.14); --line-2:rgba(30,60,120,0.24);
-    --ink:#101A2C; --ink-2:#3D4D6B; --ink-3:#71809C;
-    --cyan:#0284C7; --cyan-dim:rgba(2,132,199,0.10);
-    --lime:#16A34A; --lime-dim:rgba(22,163,74,0.10);
-    --amber:#EA580C; --amber-dim:rgba(234,88,12,0.10);
-    --rose:#DB2777; --rose-dim:rgba(219,39,119,0.09);
-    --violet:#7C3AED; --violet-dim:rgba(124,58,237,0.09);
-    --grid:rgba(30,60,120,0.05);
-    --pop:0 8px 24px rgba(20,40,90,.16);
-    --glow-cyan:rgba(2,132,199,0.30);
+    --void:#DFE8F5;
+    --panel:rgba(255,255,255,0.72);
+    --panel-2:rgba(245,249,255,0.65);
+    --panel-3:rgba(225,236,252,0.78);
+    --line:rgba(80,120,200,0.16);
+    --line-2:rgba(60,100,180,0.28);
+    --ink:#0B1628; --ink-2:#243A5E; --ink-3:#5E7494;
+    --cyan:#0088CC; --cyan-dim:rgba(0,136,204,0.13);
+    --lime:#13975A; --lime-dim:rgba(19,151,90,0.13);
+    --amber:#D97220; --amber-dim:rgba(217,114,32,0.12);
+    --rose:#C81F6E; --rose-dim:rgba(200,31,110,0.11);
+    --violet:#5C28DC; --violet-dim:rgba(92,40,220,0.11);
+    --grid:rgba(60,100,200,0.045);
+    --pop:0 8px 32px rgba(10,40,110,.15);
+    --glow-cyan:rgba(0,136,204,0.38);
   }
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -163,8 +171,10 @@ select{font-family:inherit;}
 
 /* ---- kpi strip ---- */
 .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px;}
-.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 17px;position:relative;overflow:hidden;transition:.2s;}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 17px;position:relative;transition:.2s;}
 .kpi:hover{border-color:var(--line-2);transform:translateY(-2px);}
+/* 悬停时提层，否则口径气泡会被后续带 backdrop-filter 的卡片盖住 */
+.kpi:hover,.kpi:focus-within{z-index:70;}
 .kpi .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
 .kpi .name{font-size:11px;color:var(--ink-2);font-weight:500;}
 .kpi .spark{display:flex;align-items:flex-end;gap:2px;height:18px;}
@@ -173,7 +183,7 @@ select{font-family:inherit;}
 .kpi .val small{font-size:13px;font-weight:500;color:var(--ink-3);margin-left:3px;}
 .kpi .delta{font-family:var(--mono);font-size:10.5px;margin-top:7px;display:flex;align-items:center;gap:5px;}
 .kpi .delta.up{color:var(--lime);} .kpi .delta.down{color:var(--rose);} .kpi .delta.flat{color:var(--ink-3);}
-.kpi .edge{position:absolute;left:0;top:0;bottom:0;width:3px;}
+.kpi .edge{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:14px 0 0 14px;}
 .kpi.k-cost .edge{background:var(--cyan);}
 .kpi.k-renew .edge{background:var(--amber);}
 .kpi.k-save .edge{background:var(--lime);} .kpi.k-save .val{color:var(--lime);}
@@ -527,9 +537,128 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
   .pipe{grid-template-columns:1fr;}
   .pipe-stage::after{display:none !important;}
   .radar-grid,.lever-grid,.usage-kpis,.comp-kpis,.vendor-grid,.jml{grid-template-columns:1fr;}
+  .idle-wrap{grid-template-columns:1fr;gap:20px;}
+  .doccols{grid-template-columns:1fr 1fr;}
   .grid,.grid.g11,.grid.g111{grid-template-columns:1fr;}
   .kpis{grid-template-columns:1fr 1fr;}
   .detail-grid{grid-template-columns:1fr;}
+}
+
+/* ---- 指标口径说明气泡 ---- */
+.info{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--line-2);
+  color:var(--ink-3);font-size:9.5px;font-family:var(--mono);cursor:help;position:relative;flex-shrink:0;vertical-align:middle;font-weight:500;}
+.info:hover,.info:focus-visible{color:var(--cyan);border-color:var(--cyan);outline:none;}
+.info .pop{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translate(-50%,5px);width:290px;
+  background:var(--panel-3);border:1px solid var(--line-2);border-radius:10px;padding:12px 14px;
+  font-family:var(--body);font-size:11.5px;line-height:1.65;color:var(--ink-2);text-align:left;font-weight:400;
+  box-shadow:var(--pop);opacity:0;pointer-events:none;transition:.16s;z-index:60;white-space:normal;}
+.info:hover .pop,.info:focus-visible .pop{opacity:1;transform:translate(-50%,0);}
+/* 右对齐：靠近页面右缘时避免溢出 */
+.info.pop-r .pop{left:auto;right:-10px;transform:translate(0,5px);}
+.info.pop-r:hover .pop,.info.pop-r:focus-visible .pop{transform:translate(0,0);}
+/* 向下弹出：用于页面顶部的 KPI 条 */
+.info.pop-b .pop{bottom:auto;top:calc(100% + 9px);transform:translate(-50%,-5px);}
+.info.pop-b:hover .pop,.info.pop-b:focus-visible .pop{transform:translate(-50%,0);}
+.info.pop-b.pop-r .pop{transform:translate(0,-5px);}
+.info.pop-b.pop-r:hover .pop,.info.pop-b.pop-r:focus-visible .pop{transform:translate(0,0);}
+.info .pop b{color:var(--ink);font-weight:600;}
+.info .pop .f{display:block;font-family:var(--mono);font-size:10.5px;color:var(--cyan);
+  background:var(--cyan-dim);border-radius:6px;padding:7px 9px;margin:7px 0 6px;line-height:1.5;}
+.info .pop .src{display:block;font-family:var(--mono);font-size:9.5px;color:var(--ink-3);margin-top:6px;}
+
+/* ---- 软件闲置率模块 ---- */
+.idle-wrap{display:grid;grid-template-columns:210px 1fr 1.1fr;gap:26px;align-items:start;}
+.idle-hero .big{font-family:var(--disp);font-size:46px;font-weight:800;letter-spacing:-0.03em;line-height:1;color:var(--amber);font-variant-numeric:tabular-nums;}
+.idle-hero .sub{font-size:11.5px;color:var(--ink-3);margin-top:8px;line-height:1.6;}
+.idle-hero .mom{font-family:var(--mono);font-size:11px;color:var(--lime);margin-top:9px;}
+.idle-seats .bartitle{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px;}
+.idle-stack{display:flex;height:26px;border-radius:7px;overflow:hidden;gap:2px;background:var(--panel-3);}
+.idle-stack i{display:block;height:100%;}
+.idle-stack .act{background:var(--cyan);border-radius:7px 0 0 7px;}
+.idle-stack .idl{background:var(--amber);border-radius:0 7px 7px 0;}
+.idle-legend{display:flex;flex-direction:column;gap:9px;margin-top:14px;}
+.idle-legend .row{display:flex;align-items:center;gap:9px;font-size:11.5px;}
+.idle-legend .row .sw{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+.idle-legend .row .lt{color:var(--ink-2);flex:1;}
+.idle-legend .row .ln{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;}
+.idle-excl{margin-top:14px;padding:10px 12px;border-radius:9px;background:var(--panel-2);border:1px dashed var(--line-2);
+  font-size:11px;line-height:1.6;color:var(--ink-3);}
+.idle-excl b{color:var(--ink-2);font-weight:600;}
+.idle-type{display:flex;flex-direction:column;gap:11px;}
+.idle-type .bartitle{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;}
+.itrow{display:grid;grid-template-columns:76px 1fr 96px;align-items:center;gap:12px;}
+.itrow .nm{font-size:11.5px;color:var(--ink-2);white-space:nowrap;}
+.itrow .tk{height:9px;background:var(--panel-3);border-radius:5px;overflow:hidden;}
+.itrow .fl{height:100%;border-radius:5px;transition:width .8s cubic-bezier(.2,.7,.3,1);}
+.itrow .vl{font-family:var(--mono);font-size:11px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+/* ---- 今日单据：分类分栏 ---- */
+.doccols{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.doccol{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.doccol-head{display:flex;align-items:center;gap:9px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+.doccol-head .dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;}
+.doccol-head .nm{font-size:12.5px;font-weight:600;flex:1;}
+.doccol-head .ct{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+.doccol-head .ct b{color:var(--rose);font-weight:600;}
+.docitem{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);transition:.14s;}
+.docitem:hover{border-color:var(--line-2);}
+.docitem.hid{display:none;}
+.docitem .bd{flex:1;min-width:0;}
+.docitem .cd{font-family:var(--mono);font-size:10.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.docitem .mt{font-size:10px;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.docitem .st2{font-family:var(--mono);font-size:9px;padding:3px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0;}
+.doc-more{font-family:var(--mono);font-size:10.5px;color:var(--cyan);padding:8px;border-radius:8px;
+  border:1px dashed var(--line-2);text-align:center;transition:.14s;width:100%;margin-top:2px;}
+.doc-more:hover{background:var(--cyan-dim);border-color:var(--cyan);}
+.doc-more:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;}
+.doc-empty{font-size:11px;color:var(--ink-3);text-align:center;padding:16px 0;font-family:var(--mono);}
+
+/* ── 浅色玻璃拟态增强 ── */
+[data-theme="light"] body{
+  background: linear-gradient(145deg,#c8d9f0 0%,#dceaf8 30%,#e8f1fb 60%,#d4e5f5 100%) !important;
+  background-attachment: fixed !important;
+}
+@media(prefers-color-scheme:light){
+  :root:not([data-theme="dark"]) body{
+    background: linear-gradient(145deg,#c8d9f0 0%,#dceaf8 30%,#e8f1fb 60%,#d4e5f5 100%) !important;
+    background-attachment: fixed !important;
+  }
+}
+[data-theme="light"] .card,
+[data-theme="light"] .kpi,
+[data-theme="light"] .ai-card,
+[data-theme="light"] .lever,
+[data-theme="light"] .vcard,
+[data-theme="light"] .dcard,
+[data-theme="light"] .budget-hero,
+[data-theme="light"] .bucket,
+[data-theme="light"] .table-wrap,
+[data-theme="light"] .jml-box {
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+}
+[data-theme="light"] .card,
+[data-theme="light"] .ai-card,
+[data-theme="light"] .lever,
+[data-theme="light"] .vcard,
+[data-theme="light"] .dcard {
+  box-shadow: 0 2px 12px rgba(30,80,180,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+[data-theme="light"] .kpi {
+  box-shadow: 0 2px 10px rgba(30,80,180,0.07), inset 0 1px 0 rgba(255,255,255,0.55);
+}
+[data-theme="light"] .topbar {
+  background: linear-gradient(180deg, rgba(223,232,245,0.95) 70%, transparent) !important;
+  backdrop-filter: blur(12px);
+}
+[data-theme="light"] .q-item {
+  background: rgba(245,249,255,0.7);
+  backdrop-filter: blur(10px);
+}
+[data-theme="light"] .nav {
+  background: rgba(255,255,255,0.60);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(30,80,180,0.08);
 }
 </style>
 </head>
@@ -551,7 +680,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       <button data-go="usage">使用治理</button>
       <button data-go="compliance">合规风险</button>
       <button data-go="finance">财务预算</button>
-      <button data-go="vendor">供应商360</button>
+      <button data-go="vendor">供应商洞察</button>
       <button data-go="actions">行动中心</button>
       <button data-go="alt">AI平替</button>
       <button data-go="inventory">资产清单</button>
@@ -568,7 +697,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
     <div class="gsel"><span class="lb">时间</span>
       <select id="f-time"><option>近 12 个月</option><option>本财年</option><option>近 90 天</option><option>近 30 天</option></select>
     </div>
-    <div class="gsel"><span class="lb">部门</span>
+    <div class="gsel"><span class="lb">受益部门</span>
       <select id="f-dept"><option>全公司</option><option>引擎技术部</option><option>美术中心</option><option>平台研发部</option><option>QA 测试部</option><option>市场与发行</option><option>职能与行政</option></select>
     </div>
     <div class="gsel"><span class="lb">币种</span>
@@ -616,17 +745,32 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       </div>
     </div>
 
+    <!-- 软件闲置率 -->
+    <div class="grid g1">
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.6a6.4 6.4 0 106.4 6.4M8 8V2.2M8 8l4.2 3"/></svg></span>软件闲置率
+            <span class="info" tabindex="0">i<span class="pop"><b>软件闲置率</b>：花了钱但没人用的席位占比，是"浪费"的直接度量。<span class="f">闲置率 = 闲置席位 ÷ 有效分配席位<br>闲置席位 = 有效分配席位 − 近 30 天活跃席位</span><b>只统计"生效中"的资产</b>。已过期、已停用的席位属于正常使用结束，<b>不计入分子也不计入分母</b>，避免把正常下线算成浪费。<span class="src">数据来源：台账 seats / 近 30 天登录活跃</span></span></span>
+          </h3>
+          <span class="meta">仅统计生效中资产 · 已过期/已停用不计入</span>
+        </div>
+        <div class="idle-wrap" id="idle-wrap"></div>
+      </div>
+    </div>
+
     <div class="grid">
       <div class="card">
         <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M5 13V8M8.5 13V5M12 13V9"/></svg></span>部门年度化成本排行</h3>
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M5 13V8M8.5 13V5M12 13V9"/></svg></span>受益部门成本排行</h3>
           <span class="meta">TOP 7 · 点击下钻</span>
         </div>
         <div class="dept" id="dept"></div>
       </div>
       <div class="card">
         <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 2"/></svg></span>软件健康度结构</h3>
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 2"/></svg></span>台账状态分布
+            <span class="info" tabindex="0">i<span class="pop"><b>台账状态分布</b>：按合同/授权的生命周期状态，把全部软件资产分成三类，用来判断台账本身干不干净。<span class="f">生效中 = 已开通且在合同有效期内<br>待生效 = 已采购、尚未到启用日<br>已过期 = 已过合同到期日、未续约</span>圆心百分比 = 生效中 ÷ 资产总数。已过期占比越高，说明台账清理越不及时。<span class="src">数据来源：台账 state + po_end_at</span></span></span>
+          </h3>
           <span class="meta" id="health-meta">—</span>
         </div>
         <div class="health">
@@ -657,9 +801,9 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       <div class="card">
         <div class="card-head">
           <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h10v12H3zM5 5h6M5 8h6M5 11h4"/></svg></span>今日单据动态</h3>
-          <span class="meta">实时 · 软管MCP</span>
+          <span class="meta" id="doc-meta">按单据类型分栏 · 每栏默认 5 条</span>
         </div>
-        <div class="queue" id="doc-feed"></div>
+        <div class="doccols" id="doc-feed"></div>
       </div>
     </div>
   </section>
@@ -683,7 +827,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       <div class="card-head"><h3>续约谈判优先级</h3><span class="meta">合同信息 · 使用率支撑 · 按到期日升序</span></div>
       <div class="table-scroll">
         <table class="renew-table"><thead><tr>
-          <th>软件 / 供应商</th><th>合同周期</th><th class="num">剩余天</th><th class="num">席位</th><th>使用率</th><th class="num">续约预估</th><th>是否支撑</th><th>PO 号</th><th>建议</th>
+          <th>软件 / 供应商</th><th>采购模式</th><th>合同周期</th><th class="num">剩余天</th><th class="num">席位</th><th>使用率</th><th class="num">续约预估</th><th>是否支撑</th><th>PO 号</th><th>建议</th>
         </tr></thead><tbody id="renew-tbody"></tbody></table>
       </div>
     </div>
@@ -719,8 +863,16 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       <p>识别浪费和真实需求。对比分配/活跃/闲置账号，以及"消耗进度 vs 时间进度"，暴露消耗过快或不足的总包合同。</p>
     </div>
     <div class="usage-kpis" id="usage-kpis"></div>
+    <!-- 席位构成说明 -->
+    <div class="card" style="margin-bottom:18px" id="seat-breakdown-card" style="display:none">
+      <div class="card-head">
+        <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 2"/></svg></span>席位构成说明</h3>
+        <span class="meta">非所有闲置均为浪费 · 点击查看定义</span>
+      </div>
+      <div id="seat-breakdown"></div>
+    </div>
     <div class="card">
-      <div class="card-head"><h3>总包消耗 vs 时间进度</h3><span class="meta">上=消耗进度 · 下=时间进度 · 偏离即预警</span></div>
+      <div class="card-head"><h3>席位使用情况</h3><span class="meta">1:1 个人席位 · 字体/永久授权已排除</span></div>
       <div id="consume-list"></div>
     </div>
   </section>
@@ -763,7 +915,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
     <div class="crumb"><a data-go="overview">经营总览</a><span class="sep">/</span><span>财务预算</span></div>
     <div class="board-head">
       <h2>财务与预算</h2>
-      <p>老板视角的"钱"：预算烧到哪了、未来 12 个月要付多少、外币合同的汇率敞口有多大、各部门该分摊多少。</p>
+      <p>预算执行全景：已付款及承诺进度、未来 12 个月到期付款节奏、外币合同汇率风险敞口、跨部门成本分摊核算。</p>
     </div>
     <div class="budget-hero">
       <div class="budget-top">
@@ -790,10 +942,10 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><h3>部门成本分摊（Chargeback）</h3><span class="meta">年化 · 含共享软件按人头分摊</span></div>
+      <div class="card-head"><h3>受益部门成本分摊</h3><span class="meta">年化 · 含共享软件按人头分摊</span></div>
       <div class="table-scroll">
         <table><thead><tr>
-          <th>部门</th><th class="num">直接成本</th><th class="num">分摊成本</th><th class="num">合计</th><th class="num">人均</th><th>环比</th>
+          <th>受益部门</th><th class="num">直接成本</th><th class="num">分摊成本</th><th class="num">合计</th><th class="num">人均</th><th>环比</th>
         </tr></thead><tbody id="chargeback-tbody"></tbody></table>
       </div>
     </div>
@@ -801,9 +953,9 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 
   <!-- ============ VENDOR 360 ============ -->
   <section class="view" id="v-vendor">
-    <div class="crumb"><a data-go="overview">经营总览</a><span class="sep">/</span><span>供应商360</span></div>
+    <div class="crumb"><a data-go="overview">经营总览</a><span class="sep">/</span><span>供应商洞察</span></div>
     <div class="board-head">
-      <h2>供应商 360</h2>
+      <h2>供应商洞察</h2>
       <p>谈判前先看全局：单一供应商占我们多少支出、我们占它多少议价筹码、历年涨价节奏如何。集中度过高的供应商要提前布局替代方案。</p>
     </div>
     <div class="grid">
@@ -903,6 +1055,8 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       </div>
       <div class="filters" id="tfilters">
         <button class="chip on" data-f="all">全部</button>
+        <button class="chip" data-f="proxy">代采</button>
+        <button class="chip" data-f="bulk">集采</button>
         <button class="chip" data-f="ai">AI 工具</button>
         <button class="chip" data-f="dev">研发</button>
         <button class="chip" data-f="design">设计</button>
@@ -915,7 +1069,8 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
         <thead><tr>
           <th class="sortable" data-sort="name">软件 / 厂商</th>
           <th class="sortable" data-sort="type">类型</th>
-          <th class="sortable" data-sort="dept">归属部门</th>
+          <th data-sort="proxy">采购模式</th>
+          <th class="sortable" data-sort="dept">受益部门</th>
           <th class="num sortable" data-sort="seats">席位</th>
           <th class="sortable" data-sort="util">使用率</th>
           <th class="sortable" data-sort="expiry">到期</th>
@@ -1062,11 +1217,46 @@ MOCK['/api/usage'] = {
     {soft:'Zoom 商业版', sub:'席位 · 年约', consume:31, time:58, flag:'under', flagtx:'消耗不足'}],
 };
 
-MOCK['/api/documents'] = {list: [
-  {type:'离职回收单', code:'OFF-20260805-014', creator:'系统自动', dept:'美术中心', time:'15:00', state:'待发放'},
-  {type:'采购申请', code:'REQ-20260805-207', creator:'王工', dept:'引擎技术部', time:'11:32', state:'审核中'},
-  {type:'席位调拨', code:'TRF-20260805-089', creator:'李萌', dept:'平台研发部', time:'10:15', state:'已完成'},
-  {type:'续约立项', code:'RNW-20260804-031', creator:'采购组', dept:'全公司共享', time:'昨日', state:'待修改'}]};
+MOCK['/api/documents'] = {groups: [
+  {key:'off', name:'离职回收单', color:'var(--rose)', items:[
+    {code:'OFF-20260805-014', creator:'系统自动', dept:'美术中心', time:'15:00', state:'待发放'},
+    {code:'OFF-20260805-013', creator:'系统自动', dept:'平台研发部', time:'15:00', state:'待发放'},
+    {code:'OFF-20260805-012', creator:'系统自动', dept:'QA 测试部', time:'15:00', state:'待发放'},
+    {code:'OFF-20260805-011', creator:'HRBP 张', dept:'市场与发行', time:'14:20', state:'审核中'},
+    {code:'OFF-20260805-010', creator:'系统自动', dept:'引擎技术部', time:'11:00', state:'已完成'},
+    {code:'OFF-20260805-009', creator:'系统自动', dept:'美术中心', time:'10:30', state:'已完成'},
+    {code:'OFF-20260804-008', creator:'HRBP 李', dept:'职能与行政', time:'昨日', state:'已完成'},
+    {code:'OFF-20260804-007', creator:'系统自动', dept:'平台研发部', time:'昨日', state:'已完成'}]},
+  {key:'req', name:'采购申请', color:'var(--cyan)', items:[
+    {code:'REQ-20260805-207', creator:'王工', dept:'引擎技术部', time:'11:32', state:'审核中'},
+    {code:'REQ-20260805-206', creator:'陈静', dept:'美术中心', time:'11:05', state:'审核中'},
+    {code:'REQ-20260805-205', creator:'刘洋', dept:'平台研发部', time:'10:48', state:'待修改'},
+    {code:'REQ-20260805-204', creator:'赵敏', dept:'市场与发行', time:'09:52', state:'审核中'},
+    {code:'REQ-20260805-203', creator:'孙浩', dept:'QA 测试部', time:'09:20', state:'已完成'},
+    {code:'REQ-20260804-202', creator:'周琳', dept:'美术中心', time:'昨日', state:'已完成'}]},
+  {key:'trf', name:'席位调拨', color:'var(--violet)', items:[
+    {code:'TRF-20260805-089', creator:'李萌', dept:'平台研发部', time:'10:15', state:'已完成'},
+    {code:'TRF-20260805-088', creator:'李京', dept:'引擎技术部', time:'09:40', state:'已完成'},
+    {code:'TRF-20260805-087', creator:'IT 运维', dept:'美术中心', time:'09:10', state:'审核中'},
+    {code:'TRF-20260804-086', creator:'李京', dept:'QA 测试部', time:'昨日', state:'已完成'}]},
+  {key:'rnw', name:'续约立项', color:'var(--amber)', items:[
+    {code:'RNW-20260804-031', creator:'采购组', dept:'全公司共享', time:'昨日', state:'待修改'},
+    {code:'RNW-20260804-030', creator:'采购组', dept:'引擎技术部', time:'昨日', state:'审核中'},
+    {code:'RNW-20260803-029', creator:'采购组', dept:'美术中心', time:'8-03', state:'审核中'},
+    {code:'RNW-20260803-028', creator:'王工', dept:'平台研发部', time:'8-03', state:'已完成'},
+    {code:'RNW-20260802-027', creator:'采购组', dept:'全公司共享', time:'8-02', state:'已完成'}]},
+]};
+
+MOCK['/api/idle'] = {
+  rate: 18.6, momDelta: '-1.4pt 环比',
+  allocSeats: 12480, activeSeats: 10157, idleSeats: 2323,
+  excluded: {expired: 64, disabled: 23, seats: 1860},
+  byType: [
+    {name:'办公协同', idle:1180, alloc:3782},
+    {name:'AI 工具',  idle:398,  alloc:1624},
+    {name:'设计创意', idle:412,  alloc:2452},
+    {name:'研发工具', idle:333,  alloc:4622}],
+};
 
 MOCK['/api/compliance'] = {
   kpis: [
@@ -1147,7 +1337,7 @@ MOCK['/api/actions'] = {
     {title:'Maya 超部署补采 + 外包账号回收', type:'t-comp', typeTx:'合规', owner:'陈静', amt:'¥210万', due:'08-20', st:'over', stTx:'超期 3 天'},
     {title:'Unity 续约谈判：200 席方案与底价测算', type:'t-renew', typeTx:'续约', owner:'采购组', amt:'¥336万', due:'08-25', st:'doing', stTx:'进行中'},
     {title:'Midjourney 降席（120→50）或退订评估', type:'t-renew', typeTx:'续约', owner:'美术中心', amt:'¥51万', due:'08-28', st:'doing', stTx:'进行中'},
-    {title:'Copilot 闲置 216 席回收', type:'t-reclaim', typeTx:'回收', owner:'IT 运维', amt:'¥53万/年', due:'09-05', st:'doing', stTx:'进行中'},
+    {title:'Copilot 闲置 216 席回收', type:'t-reclaim', typeTx:'回收', owner:'李京', amt:'¥53万/年', due:'09-05', st:'doing', stTx:'进行中'},
     {title:'Zoom 退订方案与飞书迁移公告', type:'t-merge', typeTx:'整合', owner:'IT 运维', amt:'¥68万/年', due:'09-12', st:'todo', stTx:'待办'},
     {title:'Perforce 3 年锁价商务谈判', type:'t-renew', typeTx:'续约', owner:'采购组', amt:'¥380万', due:'09-15', st:'todo', stTx:'待办'},
     {title:'影子 IT：ChatGPT Plus 收编为企业版', type:'t-comp', typeTx:'合规', owner:'安全合规部', amt:'¥29万/年', due:'09-20', st:'todo', stTx:'待办'},
@@ -1274,23 +1464,46 @@ async function loadOverview() {
     lineChart(document.getElementById('trend-cost'), {labels:t.months, values:t.cost, color:'var(--cyan)', unit:'万'});
     lineChart(document.getElementById('trend-idle'), {labels:t.months, values:t.idle, color:'var(--amber)', unit:'%', decimals:1});
   } catch (e) { console.error('overview load error', e); }
+  loadIdle();
   loadDocuments();
 }
 
 function renderKPIs(d) {
   const KPI = [
-    {cls:'k-cost', name:'年化总成本', val:fmtW(d.annualCost), delta:`同比 ${d.costYoY}`, dir:'down', spark:[5,6,6,7,7,8,8,9,10]},
-    {cls:'k-total', name:'预算执行率', val:d.budgetPct+'<small>%</small>', delta:`已付+承诺 ${fmtW(d.budgetUsed)}`, dir:'flat', spark:[3,4,5,6,7,8,8,9,10]},
-    {cls:'k-renew', name:'90天内到期金额', val:fmtW(d.renew90Amt), delta:`${d.renew90Cnt} 项合同`, dir:'down', spark:[3,5,4,7,6,9,8,11,10]},
-    {cls:'k-save', name:'潜在节省空间', val:fmtW(d.saveAmt), delta:`${d.saveCnt} 项可执行动作`, dir:'up', spark:[2,3,4,4,6,7,8,10,12]},
-    {cls:'k-risk', name:'合规审计敞口', val:fmtW(d.compAmt), delta:`${d.compVendors} 家高审计厂商`, dir:'down', spark:[4,3,5,4,6,5,7,6,8]},
+    {cls:'k-cost', name:'年化总成本', val:fmtW(d.annualCost), delta:`同比 ${d.costYoY}`, dir:'down', spark:[5,6,6,7,7,8,8,9,10],
+     tip:`<b>年化总成本</b>：把所有在用软件合同折算成"一年要花多少钱"，口径统一后才能跨部门、跨软件比较。
+          <span class="f">年化总成本 = Σ（合同总额 ÷ 合同月数 × 12）</span>
+          多年合同按年摊销；外币合同按合同签订日汇率折成 CNY。不含一次性实施费。
+          <span class="src">数据来源：合同金额 + 合同周期 + 记账汇率</span>`},
+    {cls:'k-total', name:'预算执行率', val:d.budgetPct+'<small>%</small>', delta:`已付+承诺 ${fmtW(d.budgetUsed)}`, dir:'flat', spark:[3,4,5,6,7,8,8,9,10],
+     tip:`<b>预算执行率</b>：本财年软件预算已经用掉多少，用来判断会不会超支或年底突击花钱。
+          <span class="f">执行率 = （已支付 + 已承诺未付）÷ 年度软件预算</span>
+          <b>已支付</b>=财务实际付款；<b>已承诺未付</b>=PO 已下、合同已签但尚未到付款节点的金额（这部分钱事实上已经锁死，所以计入）。
+          当前 ${fmtW(d.budgetUsed)} ÷ ${fmtW(d.budgetTotal)} = ${d.budgetPct}%。
+          <span class="src">数据来源：付款流水 + 未清 PO + 财务预算表</span>`},
+    {cls:'k-renew', name:'90天内到期金额', val:fmtW(d.renew90Amt), delta:`${d.renew90Cnt} 项合同`, dir:'down', spark:[3,5,4,7,6,9,8,11,10],
+     tip:`<b>90 天内到期金额</b>：未来 90 天需要做续约决策的合同年化金额合计，是谈判排期的依据。
+          <span class="f">Σ 到期日 ≤ 今天+90 天 的合同年化金额</span>
+          金额越大越要提前进谈判——留给议价的时间越少，越容易被动接受涨价。
+          <span class="src">数据来源：合同到期日 po_end_at</span>`},
+    {cls:'k-save', name:'潜在节省空间', val:fmtW(d.saveAmt), delta:`${d.saveCnt} 项可执行动作`, dir:'up', spark:[2,3,4,4,6,7,8,10,12],
+     tip:`<b>潜在节省空间</b>：已识别、但还没执行的省钱机会年化金额，四类杠杆之和。
+          <span class="f">回收闲置 + 降配退订 + 重复工具整合 + 总包消耗治理</span>
+          是"理论上限"而非承诺值——实际能省多少取决于业务方是否配合。明细见「成本优化」。
+          <span class="src">数据来源：使用率分析 + 同类工具比对</span>`},
+    {cls:'k-risk', name:'合规审计敞口', val:fmtW(d.compAmt), delta:`${d.compVendors} 家高审计厂商`, dir:'down', spark:[4,3,5,4,6,5,7,6,8], right:true,
+     tip:`<b>合规审计敞口</b>：假如厂商<b>今天</b>来审计，我们需要补钱的金额——衡量"用超了多少"的风险。
+          <span class="f">敞口 = Σ（超部署席位 × 厂商目录补购单价）<br>超部署席位 = 实际部署数 − 已购权益数</span>
+          只统计部署 &gt; 权益的软件（少装不冲抵多装，厂商不按净额算）。按目录价而非折扣价估，因为被动 true-up 通常拿不到折扣。
+          <span class="src">数据来源：部署扫描 + 权益台账 + 厂商目录价</span>`},
   ];
   document.getElementById('kpis').innerHTML = KPI.map(k=>{
     const max=Math.max(...k.spark);
     const bars=k.spark.map(s=>`<i style="height:${(s/max)*18}px"></i>`).join('');
     const arrow=k.dir==='up'?'▲':k.dir==='down'?'▼':'■';
+    const info=k.tip?`<span class="info pop-b ${k.right?'pop-r':''}" tabindex="0">i<span class="pop">${k.tip}</span></span>`:'';
     return `<div class="kpi ${k.cls}"><div class="edge"></div>
-      <div class="top"><span class="name">${k.name}</span><span class="spark">${bars}</span></div>
+      <div class="top"><span class="name" style="display:flex;align-items:center;gap:6px">${k.name}${info}</span><span class="spark">${bars}</span></div>
       <div class="val">${k.val}</div>
       <div class="delta ${k.dir}">${arrow} ${k.delta}</div></div>`;
   }).join('');
@@ -1302,7 +1515,12 @@ function renderRunway(runway) {
   const ticks=[0,90,180,270,365];
   let html=`<div class="runway-zone z30" style="left:0;width:${(30/365)*100}%"></div>`;
   html+=`<div class="runway-axis"></div>`;
-  ticks.forEach(t=>{ html+=`<div class="runway-tick" style="left:${(t/365)*100}%"><div class="bar"></div><div class="lbl">${t}天</div></div>`; });
+  const BASE_DATE = new Date('2026-08-03');
+  ticks.forEach(t=>{
+    const d = new Date(BASE_DATE); d.setDate(d.getDate()+t);
+    const lbl = t===0 ? '今天' : (d.getFullYear()%100)+'/'+(d.getMonth()+1)+'月';
+    html+=`<div class="runway-tick" style="left:${(t/365)*100}%"><div class="bar"></div><div class="lbl">${lbl}</div></div>`;
+  });
   const maxSeats = Math.max(...runway.map(r => r.seats || 1), 1);
   runway.forEach(r=>{
     const h=20+(r.seats/maxSeats)*62;
@@ -1363,17 +1581,118 @@ function renderAI(d) {
     </div>`).join('');
 }
 
+/* ---- 今日单据：按类型分栏，每栏默认 5 条，可展开 ---- */
+const DOC_PAGE = 5;
+const stateCls = s => s==='已完成' ? 't-reclaim' : s==='审核中' ? 't-merge' : 't-renew';
+
 async function loadDocuments() {
   const el = document.getElementById('doc-feed');
   try {
     const data = await api('/api/documents');
-    el.innerHTML = (data.list||[]).map(d=>`
-      <div class="q-item">
-        <div class="q-pri ${d.state==='已完成'?'p3':d.state==='审核中'?'p2':'p1'}"></div>
-        <div class="q-body"><div class="q-title">${d.type} · ${d.code}</div><div class="q-meta">${d.creator} · ${d.dept} · ${d.time}</div></div>
-        <span class="q-tag ${d.state==='已完成'?'t-reclaim':d.state==='审核中'?'t-merge':'t-renew'}">${d.state}</span>
-      </div>`).join('') || '<div style="color:var(--ink-3);padding:20px;font-size:12px">今日暂无单据</div>';
-  } catch(e) { el.innerHTML=`<div style="color:var(--rose);padding:20px;font-size:12px">⚠ ${e.message}</div>`; }
+    // 兼容旧接口：平铺 list 时按 type 自动分组
+    let groups = data.groups;
+    if (!groups && data.list) {
+      const m = new Map();
+      data.list.forEach(d=>{
+        if(!m.has(d.type)) m.set(d.type, {key:d.type, name:d.type, color:'var(--cyan)', items:[]});
+        m.get(d.type).items.push(d);
+      });
+      groups = [...m.values()];
+    }
+    groups = groups || [];
+    if (!groups.length) { el.innerHTML='<div class="doc-empty">今日暂无单据</div>'; return; }
+
+    el.innerHTML = groups.map(g=>{
+      const items = g.items || [];
+      const pending = items.filter(i=>i.state!=='已完成').length;
+      const rows = items.map((d,i)=>`
+        <div class="docitem ${i>=DOC_PAGE?'hid':''}">
+          <div class="bd">
+            <div class="cd">${d.code}</div>
+            <div class="mt">${d.creator} · ${d.dept} · ${d.time}</div>
+          </div>
+          <span class="st2 q-tag ${stateCls(d.state)}">${d.state}</span>
+        </div>`).join('') || '<div class="doc-empty">今日无此类单据</div>';
+      const more = items.length > DOC_PAGE
+        ? `<button class="doc-more" data-doc-more="${g.key}" aria-expanded="false">展开全部 ${items.length} 条 ▾</button>` : '';
+      return `<div class="doccol" data-doc-col="${g.key}">
+        <div class="doccol-head">
+          <span class="dot" style="background:${g.color}"></span>
+          <span class="nm">${g.name}</span>
+          <span class="ct">${items.length} 条${pending?` · 待处理 <b>${pending}</b>`:''}</span>
+        </div>
+        ${rows}${more}
+      </div>`;
+    }).join('');
+
+    const total = groups.reduce((s,g)=>s+(g.items||[]).length,0);
+    const meta = document.getElementById('doc-meta');
+    if (meta) meta.textContent = `${groups.length} 类 · 共 ${total} 条 · 每栏默认 5 条`;
+  } catch(e) { el.innerHTML=`<div class="doc-empty" style="color:var(--rose)">⚠ ${e.message}</div>`; }
+}
+
+/* 展开/收起（事件委托，重渲染后仍生效） */
+document.addEventListener('click', e=>{
+  const btn = e.target.closest('[data-doc-more]');
+  if(!btn) return;
+  const col = btn.closest('.doccol');
+  const hidden = col.querySelectorAll('.docitem.hid');
+  if (hidden.length) {
+    hidden.forEach(x=>x.classList.remove('hid'));
+    btn.textContent = '收起 ▴';
+    btn.setAttribute('aria-expanded','true');
+  } else {
+    const all = col.querySelectorAll('.docitem');
+    all.forEach((x,i)=>{ if(i>=DOC_PAGE) x.classList.add('hid'); });
+    btn.textContent = `展开全部 ${all.length} 条 ▾`;
+    btn.setAttribute('aria-expanded','false');
+  }
+});
+
+/* ---- 软件闲置率 ---- */
+async function loadIdle() {
+  const el = document.getElementById('idle-wrap');
+  if (!el) return;
+  try {
+    const d = await api('/api/idle');
+    const actPct = d.allocSeats ? (d.activeSeats/d.allocSeats*100) : 0;
+    const idlPct = d.allocSeats ? (d.idleSeats/d.allocSeats*100) : 0;
+    const rateColor = d.rate>=25 ? 'var(--rose)' : d.rate>=15 ? 'var(--amber)' : 'var(--lime)';
+    const types = (d.byType||[]).map(t=>({...t, rate: t.alloc ? t.idle/t.alloc*100 : 0}))
+                                 .sort((a,b)=>b.rate-a.rate);
+    const maxRate = Math.max(...types.map(t=>t.rate), 1);
+    el.innerHTML = `
+      <div class="idle-hero">
+        <div class="big" style="color:${rateColor}">${d.rate}<span style="font-size:24px">%</span></div>
+        <div class="sub">全公司软件闲置率<br>闲置 ${d.idleSeats.toLocaleString()} 席 ÷ 有效分配 ${d.allocSeats.toLocaleString()} 席</div>
+        <div class="mom">▼ ${d.momDelta||''}</div>
+      </div>
+      <div class="idle-seats">
+        <div class="bartitle">有效分配席位构成</div>
+        <div class="idle-stack">
+          <i class="act" style="width:${actPct}%"></i>
+          <i class="idl" style="width:${idlPct}%"></i>
+        </div>
+        <div class="idle-legend">
+          <div class="row"><span class="sw" style="background:var(--cyan)"></span><span class="lt">活跃席位（近 30 天有登录）</span><span class="ln">${d.activeSeats.toLocaleString()} · ${actPct.toFixed(1)}%</span></div>
+          <div class="row"><span class="sw" style="background:var(--amber)"></span><span class="lt">闲置席位（30 天零登录）</span><span class="ln">${d.idleSeats.toLocaleString()} · ${idlPct.toFixed(1)}%</span></div>
+        </div>
+        <div class="idle-excl">
+          <b>已排除，不计入闲置率：</b>已过期 ${d.excluded.expired} 项、已停用 ${d.excluded.disabled} 项，合计 ${d.excluded.seats.toLocaleString()} 席。
+          这些属于软件正常使用结束，不算浪费。
+        </div>
+      </div>
+      <div class="idle-type">
+        <div class="bartitle">分类型闲置率 · 高到低</div>
+        ${types.map(t=>{
+          const c = t.rate>=25 ? 'var(--rose)' : t.rate>=15 ? 'var(--amber)' : 'var(--lime)';
+          return `<div class="itrow">
+            <span class="nm">${t.name}</span>
+            <div class="tk"><div class="fl" style="width:${t.rate/maxRate*100}%;background:${c}"></div></div>
+            <span class="vl" style="color:${c}">${t.rate.toFixed(1)}% · ${t.idle}席</span>
+          </div>`;}).join('')}
+      </div>`;
+  } catch(e) { el.innerHTML=`<div class="doc-empty" style="color:var(--rose)">⚠ ${e.message}</div>`; }
 }
 
 /* ============ RENEWAL RADAR ============ */
@@ -1431,11 +1750,14 @@ function renderRadar(data) {
     const contractAmt = r.htAmt ? fmtRenewAmt(r.htAmt, r.htCurrency) : fmtRenewAmt(r.renewAmt, r.currency);
     const remainAmt = r.htRemain && parseFloat(r.htRemain) > 0
       ? `<div style="font-family:var(--mono);font-size:9px;color:var(--lime);margin-top:2px">剩余 ${fmtRenewAmt(r.htRemain, r.htCurrency)}</div>` : '';
-    return `<tr style="${r.htCode ? 'background:rgba(156,140,255,0.03)' : ''}">
+    const isProxy = r.proxy;
+    const rowBg = isProxy ? 'background:rgba(157,232,91,0.03)' : (r.htCode ? 'background:rgba(156,140,255,0.03)' : '');
+    return `<tr style="${rowBg}">
       <td><div class="sw-cell" style="gap:8px">
         <div class="sw-logo" style="width:26px;height:26px;font-size:10px">${(r.sku||'').slice(0,2)}</div>
         <div><div class="sw-name" style="font-size:12px">${r.sku}</div><div class="sw-vendor">${r.vendor||'—'}</div>${htBadge}</div>
       </div></td>
+      <td><span style="font-family:var(--mono);font-size:9.5px;padding:3px 9px;border-radius:6px;display:inline-block;background:${isProxy?'rgba(157,232,91,0.13)':'rgba(156,140,255,0.13)'};color:${isProxy?'var(--lime)':'var(--violet)'};border:1px solid ${isProxy?'rgba(157,232,91,0.3)':'rgba(156,140,255,0.25)'}">${r.procureMode||'集采'}</span>${isProxy?'<div style=\'font-family:var(--mono);font-size:9px;color:var(--ink-3);margin-top:3px\'>官网直采·提醒</div>':''}</td>
       <td style="font-family:var(--mono);font-size:10.5px;color:var(--ink-2);white-space:nowrap">
         ${r.poStart||'—'}<br><span style="color:var(--ink-3)">→ ${r.poEnd||'—'}</span>
         ${r.htExpiry && r.htExpiry !== r.poEnd ? `<br><span style="color:var(--violet);font-size:9px">合同: → ${r.htExpiry}</span>` : ''}
@@ -1509,24 +1831,66 @@ function renderCost() {
 }
 
 /* ============ USAGE ============ */
+const BREAKDOWN_COLOR = {
+  '活跃使用':                'var(--lime)',
+  '正版化保留（Unity/Adobe）':  'var(--cyan)',
+  '免费账号管理（Figma只读/Cursor）': 'var(--violet)',
+  '已到期（正常）':            'var(--ink-3)',
+  '真实闲置':                'var(--rose)',
+};
+const IDLE_CAT_COLOR = {
+  recyclable:'var(--rose)', reserve:'var(--cyan)', free_iam:'var(--violet)',
+  expired_lifecycle:'var(--ink-3)', expired_renew:'var(--amber)',
+  font_perpetual:'var(--ink-3)', no_track:'var(--ink-3)', active:'var(--lime)',
+};
+
 async function loadUsage() {
   try {
     const data = await api('/api/usage');
     document.getElementById('usage-kpis').innerHTML=data.kpis.map(k=>`
       <div class="ukpi ${k.cls}"><div class="v">${k.v}</div><div class="l">${k.l}</div></div>`).join('');
+
+    // 席位构成说明
+    const bd = data.breakdown;
+    if (bd && bd.length) {
+      const bdCard = document.getElementById('seat-breakdown-card');
+      if (bdCard) bdCard.style.display = '';
+      const total = bd.reduce((s,b)=>s+(b.seats||0),0)||1;
+      document.getElementById('seat-breakdown').innerHTML = `
+        <div style="display:flex;gap:4px;height:10px;border-radius:5px;overflow:hidden;margin-bottom:16px">
+          ${bd.map(b=>`<div style="flex:${b.seats||0};background:${BREAKDOWN_COLOR[b.label]||'var(--ink-3)'}"></div>`).join('')}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${bd.map(b=>`
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--line)">
+              <span style="width:9px;height:9px;border-radius:3px;background:${BREAKDOWN_COLOR[b.label]||'var(--ink-3)'};flex-shrink:0"></span>
+              <span style="flex:1;color:var(--ink-2)">${b.label}</span>
+              <span style="font-family:var(--mono);color:var(--ink)">${(b.seats||0).toLocaleString()} 席</span>
+              <span style="font-family:var(--mono);font-size:10px;color:var(--ink-3);width:36px;text-align:right">${Math.round((b.seats||0)/total*100)}%</span>
+              ${b.note ? `<span style="font-family:var(--mono);font-size:9.5px;color:var(--ink-3);padding:2px 8px;border-radius:5px;background:var(--panel-3)">${b.note}</span>` : '<span style="min-width:80px"></span>'}
+            </div>`).join('')}
+        </div>`;
+    }
+
+    // 消耗列表
     document.getElementById('consume-list').innerHTML=data.consume.map(c=>{
-      const col = c.flag==='under'?'var(--amber)':c.flag==='over'?'var(--rose)':'var(--cyan)';
+      const cat = c.idleCategory || '';
+      const catColor = IDLE_CAT_COLOR[cat] || 'var(--ink-3)';
+      const col = cat === 'reserve' ? 'var(--cyan)'
+        : cat === 'expired_lifecycle' ? 'var(--ink-3)'
+        : c.flag==='under' ? 'var(--amber)' : c.flag==='over' ? 'var(--rose)' : 'var(--cyan)';
       return `
       <div class="consume-row">
-        <div class="cr-name">${c.soft}<small>${c.sub}</small></div>
+        <div class="cr-name">${c.soft}
+          <small>${c.sub} · <span style="color:${catColor}">${c.flagtx}</span></small>
+        </div>
         <div class="dual-bar">
-          <span class="lab">消耗 ${c.consume}%</span>
-          <div class="dual-track" style="top:13px"></div><div class="dual-fill" style="top:13px;width:${c.consume}%;background:${col}"></div>
-          <div class="dual-track" style="top:24px"></div><div class="dual-fill" style="top:24px;width:${c.time||0}%;background:var(--ink-3)"></div>
-          <span class="lab2">时间 ${c.time||0}%</span>
+          <span class="lab">使用率 ${c.consume}%</span>
+          <div class="dual-track" style="top:13px"></div>
+          <div class="dual-fill" style="top:13px;width:${c.consume}%;background:${col}"></div>
         </div>
         <span class="cr-flag flag-${c.flag}">${c.flagtx}</span>
-      </div>`;}).join('');
+      </div>`;}).join('') || '<div style="color:var(--ink-3);padding:20px;font-size:12px">暂无席位数据</div>';
   } catch(e) { console.error('usage error', e); }
 }
 </script>
@@ -1729,22 +2093,25 @@ async function loadTable() {
     if (usingMock['/api/ledger']) {
       if (curQ) { const q=curQ.toLowerCase(); rows=rows.filter(s=>(s.name+s.vendor+s.dept).toLowerCase().includes(q)); }
       if (curFilter==='hi') rows=rows.filter(s=>s.risk==='hi');
+      else if (curFilter==='proxy') rows=rows.filter(s=>s.proxy===true);
+      else if (curFilter==='bulk') rows=rows.filter(s=>s.proxy===false);
       else if (curFilter!=='all') rows=rows.filter(s=>s.type===curFilter);
       const key={name:'name',type:'type',dept:'dept',seats:'seats',util:'util',expiry:'expiryDays',risk:'risk'}[curSort]||'util';
       rows=[...rows].sort((a,b)=>{const av=a[key],bv=b[key];return (av>bv?1:av<bv?-1:0)*sortDir*-1;});
     }
-    if (!rows.length) { tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--ink-3)">无匹配结果</td></tr>`; return; }
+    if (!rows.length) { tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--ink-3)">无匹配结果</td></tr>`; return; }
     tbody.innerHTML = rows.map(s=>`
       <tr class="clickable" data-detail="${s.id}|${encodeURIComponent(JSON.stringify(s))}">
         <td><div class="sw-cell"><div class="sw-logo">${s.logo}</div>
           <div><div class="sw-name">${s.name}</div><div class="sw-vendor">${s.vendor||''}</div></div></div></td>
         <td><span class="badge ${TYPE_CLASS[s.type]||'b-office'}">${TYPE_LABEL[s.type]||s.type}</span></td>
+        <td><span style="font-family:var(--mono);font-size:9.5px;padding:3px 9px;border-radius:6px;background:${s.proxy?'rgba(157,232,91,0.12)':'rgba(156,140,255,0.12)'};color:${s.proxy?'var(--lime)':'var(--violet)'};border:1px solid ${s.proxy?'rgba(157,232,91,0.3)':'rgba(156,140,255,0.25)'}">${s.procureMode||'—'}</span></td>
         <td style="color:var(--ink-2)">${s.dept}</td>
         <td class="num">${s.seats} 席</td>
         <td><div class="util-bar"><div class="util-track"><div class="util-fill" style="width:${s.util}%;background:${utilColor(s.util)}"></div></div>
           <span class="util-tx" style="color:${utilColor(s.util)}">${s.util}%</span></div></td>
         <td class="num" style="color:${s.expiryDays!==null&&s.expiryDays<90?'var(--amber)':'var(--ink-2)'}">${s.expiryLabel}</td>
-        <td><span class="risk-dot risk-${s.risk}"><i></i>${RISK_LABEL[s.risk]||'—'}</span></td>
+        <td><span class="risk-dot risk-${s.risk}" title="${s.idleLabel||''}"><i></i>${s.idleLabel||RISK_LABEL[s.risk]||'—'}</span></td>
       </tr>`).join('');
   } catch(e) {
     tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--rose)">⚠ ${e.message}</td></tr>`;
