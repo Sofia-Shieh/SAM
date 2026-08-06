@@ -6,7 +6,7 @@
 <title>软件资产经营驾驶舱 v2 · 原型</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <script>
 /* 首屏前落地主题，避免闪烁：记忆 > 系统偏好 > 深色 */
 (function(){try{
@@ -17,61 +17,53 @@
 </script>
 <style>
 :root{
-  --void:#0A0E16; --panel:#111725; --panel-2:#161E2F; --panel-3:#1C2740;
-  --line:rgba(140,165,210,0.12); --line-2:rgba(140,165,210,0.20);
-  --ink:#EAF0FB; --ink-2:#9DAAC4; --ink-3:#5F6C86;
-  --cyan:#36D6E0; --cyan-dim:rgba(54,214,224,0.14);
-  --lime:#9DE85B; --lime-dim:rgba(157,232,91,0.14);
-  --amber:#F6B655; --amber-dim:rgba(246,182,85,0.15);
-  --rose:#FF6B7E; --rose-dim:rgba(255,107,126,0.15);
-  --violet:#9C8CFF; --violet-dim:rgba(156,140,255,0.15);
-  --grid:rgba(140,165,210,0.05);
-  --pop:0 8px 24px rgba(0,0,0,.5);
-  --glow-cyan:rgba(54,214,224,0.5);
+  --void:#101119; --panel:#191B24; --panel-2:#1F2230; --panel-3:#2A2E3E;
+  --line:#252838; --line-2:#333850;
+  --ink:#EDEEF5; --ink-2:#A2A7BE; --ink-3:#6E7492;
+  --cyan:#37BFD6;   --cyan-dim:rgba(55,191,214,0.16);
+  --lime:#35C795;   --lime-dim:rgba(53,199,149,0.16);
+  --amber:#E0A040;  --amber-dim:rgba(224,160,64,0.16);
+  --rose:#F0759A;   --rose-dim:rgba(240,117,154,0.16);
+  --violet:#7B83F0; --violet-dim:rgba(123,131,240,0.18);
+  --grid:transparent;
+  --pop:0 1px 2px rgba(0,0,0,.28),0 12px 32px -16px rgba(0,0,0,.6);
+  --glow-cyan:rgba(55,191,214,0.35);
   /* 语义色：只表达状态，与品牌色分离。青=中性/品牌，不代表好坏 */
   --good:var(--lime); --warn:var(--amber); --crit:var(--rose);
   --neutral:var(--cyan); --ai:var(--violet);
   /* 间距刻度：所有结构性间距只从这里取值 */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
-  --disp:"Sora","Noto Sans SC",sans-serif;
-  --body:"Noto Sans SC","Sora",sans-serif;
+  --disp:"Plus Jakarta Sans","Noto Sans SC",sans-serif;
+  --body:"Plus Jakarta Sans","Noto Sans SC",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,monospace;
 }
 /* 浅色主题：点右上角切换（data-theme），未手动选择时跟随系统偏好 */
 :root[data-theme="light"]{
-  --void:#DFE8F5;
-  --panel:rgba(255,255,255,0.72);
-  --panel-2:rgba(245,249,255,0.65);
-  --panel-3:rgba(225,236,252,0.78);
-  --line:rgba(80,120,200,0.16);
-  --line-2:rgba(60,100,180,0.28);
-  --ink:#0B1628; --ink-2:#243A5E; --ink-3:#5E7494;
-  --cyan:#0088CC; --cyan-dim:rgba(0,136,204,0.13);
-  --lime:#13975A; --lime-dim:rgba(19,151,90,0.13);
-  --amber:#D97220; --amber-dim:rgba(217,114,32,0.12);
-  --rose:#C81F6E; --rose-dim:rgba(200,31,110,0.11);
-  --violet:#5C28DC; --violet-dim:rgba(92,40,220,0.11);
-  --grid:rgba(60,100,200,0.045);
-  --pop:0 8px 32px rgba(10,40,110,.15);
-  --glow-cyan:rgba(0,136,204,0.38);
+  --void:#F4F5FA; --panel:#FFFFFF; --panel-2:#F7F8FC; --panel-3:#EDEFF7;
+  --line:#EFF1F8; --line-2:#E2E6F2;
+  --ink:#15161D; --ink-2:#5A6076; --ink-3:#989EB4;
+  --cyan:#1595A8;   --cyan-dim:#DDF2F6;
+  --lime:#12A87A;   --lime-dim:#D9F3EB;
+  --amber:#C0761A;  --amber-dim:#FAEBD8;
+  --rose:#D93A63;   --rose-dim:#FCE2E9;
+  --violet:#5A63D8; --violet-dim:#E7E8FC;
+  --grid:transparent;
+  --pop:0 1px 2px rgba(21,22,45,.04),0 10px 30px -14px rgba(21,22,45,.14);
+  --glow-cyan:rgba(21,149,168,0.28);
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
-    --void:#DFE8F5;
-    --panel:rgba(255,255,255,0.72);
-    --panel-2:rgba(245,249,255,0.65);
-    --panel-3:rgba(225,236,252,0.78);
-    --line:rgba(80,120,200,0.16);
-    --line-2:rgba(60,100,180,0.28);
-    --ink:#0B1628; --ink-2:#243A5E; --ink-3:#5E7494;
-    --cyan:#0088CC; --cyan-dim:rgba(0,136,204,0.13);
-    --lime:#13975A; --lime-dim:rgba(19,151,90,0.13);
-    --amber:#D97220; --amber-dim:rgba(217,114,32,0.12);
-    --rose:#C81F6E; --rose-dim:rgba(200,31,110,0.11);
-    --violet:#5C28DC; --violet-dim:rgba(92,40,220,0.11);
-    --grid:rgba(60,100,200,0.045);
-    --pop:0 8px 32px rgba(10,40,110,.15);
-    --glow-cyan:rgba(0,136,204,0.38);
+    --void:#F4F5FA; --panel:#FFFFFF; --panel-2:#F7F8FC; --panel-3:#EDEFF7;
+    --line:#EFF1F8; --line-2:#E2E6F2;
+    --ink:#15161D; --ink-2:#5A6076; --ink-3:#989EB4;
+    --cyan:#1595A8;   --cyan-dim:#DDF2F6;
+    --lime:#12A87A;   --lime-dim:#D9F3EB;
+    --amber:#C0761A;  --amber-dim:#FAEBD8;
+    --rose:#D93A63;   --rose-dim:#FCE2E9;
+    --violet:#5A63D8; --violet-dim:#E7E8FC;
+    --grid:transparent;
+    --pop:0 1px 2px rgba(21,22,45,.04),0 10px 30px -14px rgba(21,22,45,.14);
+    --glow-cyan:rgba(21,149,168,0.28);
   }
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -123,7 +115,7 @@ select{font-family:inherit;}
 .theme-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;}
 
 /* ---- global filters ---- */
-.gfilters{display:flex;align-items:center;gap:10px;margin:2px 0 20px;flex-wrap:wrap;}
+.gfilters{display:flex;align-items:center;gap:10px;margin:0 0 var(--s4);flex-wrap:wrap;}
 .gsel{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:12px;color:var(--ink-2);}
 .gsel select{background:none;border:none;color:var(--ink);font-size:12px;outline:none;cursor:pointer;}
 .gsel select option{background:var(--panel-2);color:var(--ink);}
@@ -183,7 +175,7 @@ select{font-family:inherit;}
 .runway-zone.z30{background:linear-gradient(180deg,var(--rose-dim),transparent);}
 
 /* ---- kpi strip ---- */
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s3);margin-bottom:var(--s4);}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s4);margin-bottom:var(--s4);}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:var(--s3) var(--s4);position:relative;transition:.2s;}
 .kpi:hover{border-color:var(--line-2);transform:translateY(-2px);}
 /* 悬停时提层，否则口径气泡会被后续带 backdrop-filter 的卡片盖住 */
@@ -204,7 +196,7 @@ select{font-family:inherit;}
 .kpi.k-total .edge{background:var(--violet);}
 
 /* ---- main grid & cards ---- */
-.grid{display:grid;grid-template-columns:1.35fr 1fr;gap:var(--s3);margin-bottom:var(--s4);align-items:start;}
+.grid{display:grid;grid-template-columns:1.35fr 1fr;gap:var(--s4);margin-bottom:var(--s4);align-items:start;}
 .grid.g11{grid-template-columns:1fr 1fr;}
 .grid.g1{grid-template-columns:1fr;}
 .grid.g111{grid-template-columns:1fr 1fr 1fr;}
@@ -273,8 +265,8 @@ select{font-family:inherit;}
 /* ---- line charts (trend) ---- */
 .tchart{position:relative;}
 .tchart svg{display:block;width:100%;height:auto;}
-.tchart .tt{position:absolute;pointer-events:none;background:var(--panel-3);border:1px solid var(--line-2);border-radius:7px;padding:6px 9px;font-size:10.5px;font-family:var(--mono);white-space:nowrap;box-shadow:var(--pop);opacity:0;transition:opacity .12s;z-index:5;}
-.tchart .tt b{color:var(--ink);}
+.tchart .tt{position:absolute;pointer-events:none;background:var(--ink);color:#fff;border:none;border-radius:999px;padding:7px 13px;font-size:11px;font-family:var(--body);font-weight:600;white-space:nowrap;box-shadow:0 8px 20px -8px rgba(0,0,0,.5);opacity:0;transition:opacity .12s;z-index:5;}
+.tchart .tt b{color:#fff;}
 .tchart-title{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:7px;}
 .tchart-title .sw{width:9px;height:9px;border-radius:3px;}
 .tchart-end{font-family:var(--disp);font-size:16px;font-weight:700;}
@@ -344,7 +336,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .dh-stat .l{font-size:10px;color:var(--ink-3);font-family:var(--mono);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
 .dh-status{align-self:flex-start;z-index:1;}
 .status-pill{font-family:var(--mono);font-size:11px;padding:7px 13px;border-radius:9px;background:var(--amber-dim);color:var(--amber);border:1px solid rgba(246,182,85,0.3);}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--s4);margin-bottom:var(--s4);}
 .dcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px 20px;}
 .dcard h4{font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:15px;display:flex;align-items:center;gap:8px;}
 .dcard h4 .ic{color:var(--cyan);}
@@ -370,7 +362,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .board-head p{font-size:12.5px;color:var(--ink-3);margin-top:5px;max-width:680px;line-height:1.55;}
 
 /* ---- radar ---- */
-.radar-grid{display:grid;grid-template-columns:340px 1fr;gap:18px;margin-bottom:18px;}
+.radar-grid{display:grid;grid-template-columns:340px 1fr;gap:var(--s4);margin-bottom:var(--s4);}
 .radar-rings{position:relative;aspect-ratio:1;display:grid;place-items:center;}
 .bucket-list{display:flex;flex-direction:column;gap:11px;}
 .bucket{display:grid;grid-template-columns:54px 1fr auto;align-items:center;gap:14px;padding:14px 16px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:.15s;}
@@ -405,7 +397,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .save-summary .big{font-family:var(--disp);font-size:38px;font-weight:800;color:var(--lime);letter-spacing:-0.03em;}
 .save-summary .lbl{font-size:13px;color:var(--ink-2);}
 .save-summary .lbl b{color:var(--ink);}
-.lever-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:18px;}
+.lever-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s4);margin-bottom:var(--s4);}
 .lever{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px 21px;}
 .lever-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .lever-name{font-family:var(--disp);font-size:14px;font-weight:600;display:flex;align-items:center;gap:9px;}
@@ -420,7 +412,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .li-save{font-family:var(--mono);color:var(--lime);white-space:nowrap;}
 
 /* ---- usage ---- */
-.usage-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.usage-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s4);margin-bottom:var(--s4);}
 .ukpi{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 18px;}
 .ukpi .v{font-family:var(--disp);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;}
 .ukpi .l{font-size:11px;color:var(--ink-3);margin-top:5px;}
@@ -437,7 +429,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .dual-fill{position:absolute;height:5px;border-radius:3px;}
 
 /* ---- compliance ---- */
-.comp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.comp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s4);margin-bottom:var(--s4);}
 .gap-cell{display:flex;align-items:center;gap:9px;}
 .gap-track{width:80px;height:7px;background:var(--panel-3);border-radius:4px;overflow:hidden;display:flex;}
 .gap-ok{height:100%;background:var(--cyan);opacity:.55;}
@@ -469,15 +461,15 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .monthbars{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:8px;}
 .mb{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;cursor:pointer;}
 .mb .stack{width:100%;max-width:38px;display:flex;flex-direction:column;gap:2px;justify-content:flex-end;}
-.mb .seg{width:100%;border-radius:4px 4px 0 0;transition:.15s;}
-.mb .seg.s2{border-radius:0;}
+.mb .seg{width:100%;border-radius:9px 9px 0 0;transition:.15s;}
+.mb .seg.s2{border-radius:0 0 9px 9px;}
 .mb:hover .seg{filter:brightness(1.25);}
 .mb .lbl{font-family:var(--mono);font-size:9px;color:var(--ink-3);}
 .mb .amt{font-family:var(--mono);font-size:9px;color:var(--ink-2);}
 .fx-wrap{display:flex;align-items:center;gap:24px;}
 
 /* ---- vendor ---- */
-.vendor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:18px;}
+.vendor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4);margin-bottom:var(--s4);}
 .vcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;cursor:pointer;transition:.16s;}
 .vcard:hover{border-color:var(--line-2);transform:translateY(-2px);}
 .vcard-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
@@ -689,7 +681,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .itrow .vl{font-family:var(--mono);font-size:11px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
 
 /* ---- 今日单据：分类分栏 ---- */
-.doccols{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.doccols{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s4);}
 .doccol{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 .doccol-head{display:flex;align-items:center;gap:9px;padding-bottom:10px;border-bottom:1px solid var(--line);}
 .doccol-head .dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;}
@@ -783,40 +775,213 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
   backdrop-filter: blur(12px);
   box-shadow: 0 2px 8px rgba(30,80,180,0.08);
 }
+
+/* ============================================================
+   参考风格层：浅底留白 · 无边框圆角白卡 · 柔和马卡龙 · 左侧图标栏
+   放在最后，统一覆盖早期的"深色驾驶舱"材质。
+   ============================================================ */
+body{background:var(--void);background-image:none;}
+[data-theme="dark"] body::before{display:none;}
+
+/* ---- 卡片：去边框，靠留白和极轻投影分隔 ---- */
+.card,.ai-card,.kpi,.lever,.vcard,.dcard,.table-wrap,.jml-box,.bucket,
+.budget-hero,.save-summary,.why-card,.hero,.pipe-body,.doccol,.ukpi{
+  border:none !important;border-radius:18px;box-shadow:var(--pop);
+}
+.card{padding:var(--s5) var(--s5);}
+.hero{background:var(--panel);padding:var(--s5);}
+.hero::after{display:none;}
+.ai-card{background:var(--panel);}
+.card.t1,.ai-card.t1{background:var(--panel);box-shadow:0 2px 6px rgba(21,22,45,.05),0 18px 40px -20px rgba(21,22,45,.22);}
+[data-theme="dark"] .card.t1,[data-theme="dark"] .ai-card.t1{
+  background:var(--panel-2);box-shadow:0 2px 6px rgba(0,0,0,.35),0 18px 44px -22px rgba(0,0,0,.9);}
+.card.t3{background:transparent;box-shadow:none;padding:var(--s2) 0 0;}
+.card.t3 > .card-head{border-bottom:none;padding-bottom:var(--s2);}
+[data-theme="dark"] .card,[data-theme="dark"] .kpi,[data-theme="dark"] .ai-card,
+[data-theme="dark"] .lever,[data-theme="dark"] .vcard,[data-theme="dark"] .dcard,
+[data-theme="dark"] .budget-hero,[data-theme="dark"] .bucket,[data-theme="dark"] .table-wrap,
+[data-theme="dark"] .jml-box,[data-theme="dark"] .doccol,[data-theme="dark"] .hero{box-shadow:var(--pop);}
+[data-theme="light"] .card,[data-theme="light"] .kpi,[data-theme="light"] .ai-card,
+[data-theme="light"] .lever,[data-theme="light"] .vcard,[data-theme="light"] .dcard,
+[data-theme="light"] .budget-hero,[data-theme="light"] .bucket,[data-theme="light"] .table-wrap,
+[data-theme="light"] .jml-box,[data-theme="light"] .doccol{backdrop-filter:none;-webkit-backdrop-filter:none;}
+[data-theme="light"] body{background:var(--void) !important;}
+
+/* 顶部已有页面标题，板块内不再重复主标题，只保留说明文字 */
+.board-head h2{display:none;}
+.board-head{margin-bottom:var(--s4);}
+.board-head p{max-width:760px;margin-top:0;}
+/* 顶部全局搜索已覆盖清单检索，隐藏表内重复搜索框 */
+.toolbar > .search{display:none;}
+.toolbar{gap:var(--s3);}
+
+/* ---- 标题层级 ---- */
+.card-head h3{font-size:15px;font-weight:700;letter-spacing:-0.01em;}
+.card-head h3 .ic{color:var(--violet);}
+.card-head .meta{font-family:var(--body);font-size:11.5px;letter-spacing:0;color:var(--ink-3);font-weight:500;}
+.board-head h2{font-size:26px;font-weight:800;letter-spacing:-0.025em;}
+.board-head p{font-size:13px;color:var(--ink-2);}
+.bartitle,.dcard h4,thead th{font-family:var(--body) !important;letter-spacing:.02em !important;
+  text-transform:none !important;font-weight:600 !important;}
+thead th{font-size:11.5px;color:var(--ink-3);background:transparent;border-bottom:1px solid var(--line);}
+.hk .l,.dh-stat .l,.kpi .name{font-family:var(--body);letter-spacing:0;text-transform:none;}
+
+/* ---- KPI：白卡 + 顶部彩色小标，替代左侧色条 ---- */
+.kpi{padding:18px 20px;border-radius:16px;}
+.kpi .edge{left:20px;right:auto;top:0;bottom:auto;width:26px;height:3px;border-radius:0 0 3px 3px;}
+.kpi .val{font-size:26px;font-weight:800;letter-spacing:-0.03em;}
+.kpi .delta{font-family:var(--body);font-size:11.5px;font-weight:500;}
+.kpi .name{font-size:12px;font-weight:600;color:var(--ink-2);}
+.kpi .spark i{background:var(--panel-3);border-radius:2px;}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 4px 10px rgba(21,22,45,.06),0 20px 40px -20px rgba(21,22,45,.25);}
+
+/* ---- 胶囊：马卡龙底 + 同色深字 ---- */
+.q-tag,.badge,.cr-flag,.audit-tag,.st,.shadow-src,.feed-tag,.decide-badge,
+.why-verdict,.status-pill,.demo-pill,.support{border-radius:999px !important;font-family:var(--body) !important;
+  font-weight:600;letter-spacing:0;padding:4px 11px;font-size:10.5px;border:none !important;}
+.chip{border-radius:999px;border:1px solid var(--line-2);font-weight:600;}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--panel);}
+.b-office{background:var(--panel-3);color:var(--ink-2);}
+.b-sec{background:var(--panel-3);color:var(--ink-2);box-shadow:none !important;}
+.b-art{background:var(--violet-dim);color:var(--violet);}
+.b-dev{background:var(--cyan-dim);color:var(--cyan);}
+
+/* ---- 列表行：浅底无边框 ---- */
+.q-item,.docitem,.shadow-item,.feed-item,.distill-item,.link-item,.decide-item{
+  border:none !important;border-radius:12px;background:var(--panel-2);}
+.q-item:hover,.docitem:hover{background:var(--panel-3);transform:none;}
+.q-pri{border-radius:999px;}
+.doccol{background:var(--panel-2);}
+.doccol .docitem{background:var(--panel);}
+[data-theme="dark"] .doccol .docitem{background:var(--panel-3);}
+
+/* ---- 输入 / 按钮：白胶囊 + 主按钮黑胶囊 ---- */
+.search,.gsel{border-radius:999px;border:1px solid var(--line-2);background:var(--panel);box-shadow:none;}
+.search{height:42px;}
+.gbtn{border-radius:999px;background:var(--ink);color:var(--panel);border:none;font-weight:600;padding:10px 18px;}
+.gbtn:hover{background:var(--ink);filter:brightness(1.25);}
+.gbtn.ghost{background:var(--panel);color:var(--ink-2);border:1px solid var(--line-2);}
+.back-btn{border-radius:999px;background:var(--panel);border:1px solid var(--line-2);font-family:var(--body);font-weight:600;}
+.doc-more{border-radius:999px;border:1px solid var(--line-2);font-family:var(--body);font-weight:600;color:var(--violet);}
+.doc-more:hover{background:var(--violet-dim);border-color:var(--violet-dim);}
+
+/* ---- 轨道 / 条：更圆更厚 ---- */
+.dept-track,.conc-track,.gauge-track,.lever-bar,.util-track,.dual-track,.gap-track,.idle-stack,.budget-bar{
+  border-radius:999px;background:var(--panel-3);}
+.dept-fill,.conc-fill,.gauge-fill,.lever-bar i,.util-fill,.dual-fill,.idle-stack i,.budget-bar i{border-radius:999px;}
+.dept-track{height:10px;} .dept-fill{background:var(--violet);}
+.conc-fill{background:var(--violet);}
+.idle-stack{height:28px;gap:3px;}
+.util-track{width:52px;height:7px;}
+
+/* ---- 表格：无竖线，行更松 ---- */
+.table-wrap{overflow:hidden;}
+tbody tr{border-bottom:1px solid var(--line);}
+tbody td{padding:14px 16px;}
+thead th{padding:12px 16px;}
+tbody tr:nth-child(even){background:transparent;}
+tbody tr:hover{background:var(--panel-2);}
+.sw-logo{border:none;background:var(--panel-3);color:var(--violet);border-radius:10px;font-weight:700;}
+.sw-vendor{font-family:var(--body);font-size:11px;}
+
+/* ---- 环图中心 / 数字 ---- */
+.donut .center .n{font-size:30px;font-weight:800;letter-spacing:-0.03em;}
+.donut .center .t{font-family:var(--body);letter-spacing:0;text-transform:none;}
+.hk .v,.idle-hero .big,.save-summary .big,.budget-top .big,.ukpi .v,.jml-box .n,.bucket-day{font-weight:800;letter-spacing:-0.03em;}
+
+/* ============================================================
+   左侧图标导航栏
+   ============================================================ */
+.app{display:flex;min-height:100vh;}
+.rail{width:88px;flex-shrink:0;background:var(--panel);position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;align-items:center;gap:var(--s2);padding:18px 0 16px;z-index:50;}
+[data-theme="light"] .rail{box-shadow:1px 0 0 var(--line);}
+[data-theme="dark"] .rail{box-shadow:1px 0 0 var(--line);}
+.rail-logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex-shrink:0;
+  background:var(--ink);color:var(--panel);font-family:var(--disp);font-weight:800;font-size:17px;margin-bottom:var(--s2);}
+.rail-nav{display:flex;flex-direction:column;gap:2px;width:100%;align-items:center;overflow-y:auto;flex:1;padding:0 6px;}
+.rail-nav::-webkit-scrollbar{width:0;}
+.rail-nav button{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:9px 2px;border-radius:14px;color:var(--ink-3);transition:.16s;font-family:var(--body);}
+.rail-nav button span{font-size:10px;font-weight:600;letter-spacing:.01em;white-space:nowrap;}
+.rail-nav button:hover:not(.on){background:var(--panel-2);color:var(--ink-2);}
+.rail-nav button.on{background:var(--ink);color:var(--panel);}
+.rail-nav button svg{width:19px;height:19px;}
+.rail-foot{display:flex;flex-direction:column;align-items:center;gap:var(--s2);padding-top:var(--s3);width:100%;}
+.rail-av{width:36px;height:36px;border-radius:50%;background:var(--violet-dim);color:var(--violet);
+  display:grid;place-items:center;font-weight:700;font-size:13px;}
+.theme-btn{width:36px;height:36px;border-radius:12px;border:none;background:var(--panel-2);color:var(--ink-2);}
+.theme-btn:hover{background:var(--panel-3);color:var(--ink);transform:none;}
+
+.main{flex:1;min-width:0;padding:0 var(--s6) 56px;max-width:1560px;}
+.page-head{display:flex;align-items:center;gap:var(--s4);padding:var(--s5) 0 var(--s4);flex-wrap:wrap;
+  position:sticky;top:0;z-index:40;background:linear-gradient(180deg,var(--void) 74%,transparent);}
+.page-head h1{font-family:var(--disp);font-size:27px;font-weight:800;letter-spacing:-0.03em;}
+.ph-right{margin-left:auto;display:flex;align-items:center;gap:var(--s3);}
+.ph-search{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line-2);
+  border-radius:999px;padding:0 16px;height:42px;min-width:230px;box-shadow:var(--pop);}
+.ph-search input{flex:1;background:none;border:none;outline:none;color:var(--ink);font-size:13px;font-family:var(--body);}
+.ph-search input::placeholder{color:var(--ink-3);}
+.ph-search .kbd{font-family:var(--mono);font-size:10px;color:var(--ink-3);background:var(--panel-3);
+  padding:3px 7px;border-radius:6px;}
+.live{font-family:var(--body);font-weight:600;letter-spacing:0;font-size:11.5px;}
+.crumb{display:none;}
+.foot{color:var(--ink-3);font-family:var(--body);}
+
+@media(max-width:1240px){
+  .rail{width:66px;}
+  .rail-nav button span{display:none;}
+  .rail-nav button{padding:11px 2px;}
+  .main{padding:0 var(--s5) 48px;}
+  .ph-search{min-width:0;width:150px;}
+}
+@media(max-width:900px){
+  .app{flex-direction:column;}
+  .rail{width:100%;height:auto;flex-direction:row;position:static;padding:10px var(--s4);}
+  .rail-nav{flex-direction:row;overflow-x:auto;flex:1;}
+  .rail-nav button{width:auto;padding:8px 12px;}
+  .rail-foot{flex-direction:row;padding-top:0;width:auto;}
+}
+
 </style>
 </head>
 <body>
-<div class="shell">
+<div class="app">
 
-  <div class="topbar">
-    <div class="brand">
-      <div class="brand-mark"></div>
-      <div>
-        <div class="brand-name">软件资产经营驾驶舱</div>
-        <div class="brand-sub">SAM · Operating Cockpit · v2</div>
-      </div>
-    </div>
-    <nav class="nav">
-      <button class="on" data-go="overview">经营总览</button>
-      <button data-go="radar">续约雷达</button>
-      <span class="nav-sep" aria-hidden="true"></span>
-      <button data-go="cost">成本优化</button>
-      <button data-go="usage">使用治理</button>
-      <span class="nav-sep" aria-hidden="true"></span>
-      <button data-go="compliance">合规风险</button>
-      <button data-go="finance">财务预算</button>
-      <button data-go="vendor">供应商洞察</button>
-      <button data-go="actions">行动中心</button>
-      <span class="nav-sep" aria-hidden="true"></span>
-      <button data-go="alt">AI平替</button>
-      <button data-go="inventory">资产清单</button>
+  <aside class="rail">
+    <div class="rail-logo">SAM</div>
+    <nav class="rail-nav">
+      <button data-go="overview" class="on" title="总览"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="6" height="6" rx="2"/><rect x="11.5" y="2.5" width="6" height="6" rx="2"/><rect x="2.5" y="11.5" width="6" height="6" rx="2"/><rect x="11.5" y="11.5" width="6" height="6" rx="2"/></svg><span>总览</span></button>
+      <button data-go="radar" title="续约"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.2"/><circle cx="10" cy="10" r="3.6"/><path d="M10 10l5.1-5.1"/></svg><span>续约</span></button>
+      <button data-go="cost" title="成本"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15.5l4.5-4.5 3 3 6.5-6.5"/><path d="M13 7.5h4v4"/></svg><span>成本</span></button>
+      <button data-go="usage" title="使用"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="6.5" r="2.8"/><path d="M2.5 16.5c0-2.8 2.2-4.6 5-4.6s5 1.8 5 4.6"/><path d="M13.5 6.2a2.6 2.6 0 010 5.2M15 16.5c0-2-.7-3.4-1.8-4.3"/></svg><span>使用</span></button>
+      <button data-go="compliance" title="合规"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5l6 2.3v4.6c0 3.7-2.5 6.9-6 8.1-3.5-1.2-6-4.4-6-8.1V4.8z"/><path d="M7.5 10l1.8 1.8 3.5-3.6"/></svg><span>合规</span></button>
+      <button data-go="finance" title="财务"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="15" height="11" rx="2.6"/><path d="M2.5 8.8h15"/><path d="M13.5 12.6h2"/></svg><span>财务</span></button>
+      <button data-go="vendor" title="供应商"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5L4.4 3.5h11.2L17 7.5"/><path d="M3 7.5c0 1.4 1 2.3 2.3 2.3S7.6 8.9 7.6 7.5c0 1.4 1 2.3 2.4 2.3s2.4-.9 2.4-2.3c0 1.4 1 2.3 2.3 2.3S17 8.9 17 7.5"/><path d="M4.6 10v6.5h10.8V10"/></svg><span>供应商</span></button>
+      <button data-go="actions" title="行动"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="3.2"/><path d="M6.8 10l2.2 2.2 4.2-4.4"/></svg><span>行动</span></button>
+      <button data-go="alt" title="AI平替"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.6l1.9 4.3 4.3 1.9-4.3 1.9L10 15l-1.9-4.3L3.8 8.8l4.3-1.9z"/><path d="M15.6 13.4l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z"/></svg><span>AI平替</span></button>
+      <button data-go="inventory" title="清单"><svg viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10M7 10h10M7 15h7"/><circle cx="3.6" cy="5" r="1.1"/><circle cx="3.6" cy="10" r="1.1"/><circle cx="3.6" cy="15" r="1.1"/></svg><span>清单</span></button>
     </nav>
-    <div class="top-right">
-      <div class="demo-pill" style="background:var(--lime-dim);color:var(--lime);border-color:rgba(157,232,91,0.3)">实时数据 · MCP 接入</div>
-      <div class="live"><span class="dot"></span><span class="time-txt">—</span></div>
+    <div class="rail-foot">
       <button class="theme-btn" id="btn-theme" title="切换深色 / 浅色" aria-label="切换深色 / 浅色主题"></button>
+      <div class="rail-av" title="当前用户">李</div>
     </div>
-  </div>
+  </aside>
+
+  <main class="main">
+
+  <header class="page-head">
+    <h1 id="page-title">经营总览</h1>
+    <div class="ph-right">
+      <div class="ph-search">
+        <svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6L14 14"/></svg>
+        <input id="g-search" placeholder="搜索软件、厂商、部门…" aria-label="全局搜索" />
+        <span class="kbd">&#8984;K</span>
+      </div>
+      <div class="demo-pill" style="background:var(--lime-dim);color:var(--lime)">实时数据 · MCP 接入</div>
+      <div class="live"><span class="dot"></span><span class="time-txt">—</span></div>
+    </div>
+  </header>
 
   <!-- global filters -->
   <div class="gfilters">
@@ -1256,6 +1421,8 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
   </section>
 
   <div class="foot">软件资产经营驾驶舱 v2 · 静态原型 · 数据为演示用途，不代表真实台账</div>
+
+  </main>
 </div>
 
 <script>
@@ -1689,12 +1856,12 @@ function lineChart(el, {labels, values, prev, color, unit='', decimals=0, goodDi
 
   el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="趋势图">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${color}" stop-opacity="0.20"/><stop offset="1" stop-color="${color}" stop-opacity="0"/>
+      <stop offset="0" stop-color="${color}" stop-opacity="0.26"/><stop offset="1" stop-color="${color}" stop-opacity="0"/>
     </linearGradient></defs>
     ${grid}
     <path d="${area}" fill="url(#${gid})"/>
     ${prevPath}
-    <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
     ${peak(iMax,'峰值')}${peak(iMin,'谷值')}
     <circle cx="${x(values.length-1)}" cy="${y(last)}" r="4" fill="${color}" stroke="var(--panel)" stroke-width="2"/>
     <text x="${x(values.length-1)+8}" y="${y(last)-2}" fill="var(--ink)" font-size="12.5" font-weight="700" font-family="var(--disp)">${fmt(last)}${unit}</text>
@@ -1733,11 +1900,11 @@ function lineChart(el, {labels, values, prev, color, unit='', decimals=0, goodDi
 /* ---- 通用：环图 ---- */
 function donutChart(el, data, centerTxt, centerLbl) {
   const total=data.reduce((s,h)=>s+h.n,0)||1;
-  let acc=0; const R=58, C=2*Math.PI*R;
+  let acc=0; const R=56, C=2*Math.PI*R;
   const segs=data.map(h=>{
-    const frac=h.n/total, len=Math.max(frac*C-2,0), off=acc*C; acc+=frac;
-    return `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${h.color}" stroke-width="14"
-      stroke-dasharray="${len} ${C-len+2}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;
+    const frac=h.n/total, len=Math.max(frac*C-5,0), off=acc*C; acc+=frac;
+    return `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${h.color}" stroke-width="17" stroke-linecap="round"
+      stroke-dasharray="${len} ${C-len+5}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;
   }).join('');
   el.innerHTML=`<svg width="140" height="140" role="img">${segs}</svg>
     <div class="center"><div class="n">${centerTxt}</div><div class="t">${centerLbl}</div></div>`;
@@ -1928,7 +2095,7 @@ function squarify(items, W, H){
   return out;
 }
 
-const FAM_COLOR = {'b-dev':'var(--neutral)','b-art':'var(--ai)','b-office':'var(--ink-3)','b-sec':'var(--warn)'};
+const FAM_COLOR = {'b-dev':'var(--cyan)','b-art':'var(--violet)','b-office':'var(--ink-3)','b-sec':'var(--amber)'};
 const FAM_NAME  = {'b-dev':'技术类','b-art':'创意类','b-office':'办公与资源','b-sec':'安全类'};
 
 /* 全局筛选：受益部门下拉按一级组织生成 */
@@ -2380,8 +2547,8 @@ async function loadFinance() {
       return `<div class="mb" title="${m.m}：续约 ${m.renew}万 + 分期 ${m.inst}万 = ${total}万">
         ${peak?`<span class="amt">${total.toLocaleString()}</span>`:''}
         <div class="stack">
-          ${m.renew?`<div class="seg" style="height:${m.renew/maxM*100}px;background:var(--cyan)"></div>`:''}
-          ${m.inst?`<div class="seg s2" style="height:${m.inst/maxM*100}px;background:var(--violet)"></div>`:''}
+          ${m.renew?`<div class="seg" style="height:${m.renew/maxM*100}px;background:linear-gradient(180deg,var(--cyan),color-mix(in srgb,var(--cyan) 22%,var(--panel)))"></div>`:''}
+          ${m.inst?`<div class="seg s2" style="height:${m.inst/maxM*100}px;background:linear-gradient(180deg,color-mix(in srgb,var(--violet) 70%,var(--panel)),color-mix(in srgb,var(--violet) 25%,var(--panel)))"></div>`:''}
         </div>
         <span class="lbl" style="${peak?'color:var(--amber)':''}">${m.m}</span>
       </div>`;}).join('');
@@ -2664,7 +2831,11 @@ function go(view) {
   if(!target) return;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   target.classList.add('on');
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===view));
+  document.querySelectorAll('.rail-nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===view));
+  const T={overview:'经营总览',radar:'续约雷达',cost:'成本优化',usage:'使用治理',compliance:'合规风险',
+           finance:'财务预算',vendor:'供应商洞察',actions:'行动中心',alt:'AI 平替与市场情报',
+           inventory:'资产清单',detail:'软件详情'};
+  const h=document.getElementById('page-title'); if(h&&T[view]) h.textContent=T[view];
   window.scrollTo({top:0,behavior:'smooth'});
   if(viewLoaders[view] && (!loaded[view] || view==='inventory')) { viewLoaders[view](); loaded[view]=true; }
 }
@@ -2707,6 +2878,23 @@ document.querySelectorAll('thead th[data-sort]').forEach(th=>{
   th.addEventListener('click',()=>{ const k=th.dataset.sort; if(curSort===k)sortDir*=-1;else{curSort=k;sortDir=-1;} loadTable(); });
 });
 document.getElementById('btn-export').addEventListener('click',()=>window.print());
+
+/* 顶部全局搜索 → 直达资产清单 */
+(function(){
+  const g=document.getElementById('g-search'); if(!g) return;
+  let t; g.addEventListener('input',e=>{
+    clearTimeout(t);
+    t=setTimeout(()=>{
+      curQ=e.target.value.trim();
+      const ts=document.getElementById('tsearch'); if(ts) ts.value=curQ;
+      if(!document.getElementById('v-inventory').classList.contains('on')) go('inventory');
+      else loadTable();
+    },350);
+  });
+  document.addEventListener('keydown',e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();g.focus();}
+  });
+})();
 
 /* ---- 深浅主题切换 ---- */
 const ICON_SUN = '<svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3.2"/><path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M12.8 3.2l-1.1 1.1M4.3 11.7l-1.1 1.1"/></svg>';
