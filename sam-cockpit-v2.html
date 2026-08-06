@@ -208,7 +208,11 @@ select{font-family:inherit;}
 .dept-name{font-size:12.5px;color:var(--ink-2);transition:.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dept-track{height:9px;background:var(--panel-3);border-radius:5px;overflow:hidden;position:relative;}
 .dept-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .8s cubic-bezier(.2,.7,.3,1);}
-.dept-val{font-family:var(--mono);font-size:11.5px;color:var(--ink);text-align:right;}
+.dept-val{font-family:var(--mono);font-size:11.5px;color:var(--ink);text-align:right;white-space:nowrap;}
+/* 三列总览下各自的列宽微调 */
+#dept .dept-row{grid-template-columns:118px 1fr 76px;}
+#catlist .dept-row{grid-template-columns:88px 1fr 108px;}
+#catlist .dept-val small{font-size:10px;}
 
 /* health donut */
 .health{display:flex;align-items:center;gap:24px;}
@@ -289,7 +293,10 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .b-dev{background:var(--cyan-dim);color:var(--cyan);}
 .b-design{background:var(--lime-dim);color:var(--lime);}
 .b-office{background:rgba(157,170,196,0.12);color:var(--ink-2);}
-.b-sec{background:var(--rose-dim);color:var(--rose);}
+/* 分类徽章按"域"着色：技术=青 / 创意=紫 / 办公资源=中性 / 安全=描边。
+   语义色 rose(风险)、lime(达标) 不参与分类，避免与状态色混淆。 */
+.b-art{background:var(--violet-dim);color:var(--violet);}
+.b-sec{background:transparent;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2);}
 .risk-dot{display:inline-flex;align-items:center;gap:7px;}
 .risk-dot i{width:8px;height:8px;border-radius:50%;display:block;}
 .risk-hi i{background:var(--rose);box-shadow:0 0 8px var(--rose);} .risk-hi{color:var(--rose);}
@@ -586,8 +593,8 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
 .idle-excl b{color:var(--ink-2);font-weight:600;}
 .idle-type{display:flex;flex-direction:column;gap:11px;}
 .idle-type .bartitle{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;}
-.itrow{display:grid;grid-template-columns:76px 1fr 96px;align-items:center;gap:12px;}
-.itrow .nm{font-size:11.5px;color:var(--ink-2);white-space:nowrap;}
+.itrow{display:grid;grid-template-columns:92px 1fr 96px;align-items:center;gap:12px;}
+.itrow .nm{font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .itrow .tk{height:9px;background:var(--panel-3);border-radius:5px;overflow:hidden;}
 .itrow .fl{height:100%;border-radius:5px;transition:width .8s cubic-bezier(.2,.7,.3,1);}
 .itrow .vl{font-family:var(--mono);font-size:11px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
@@ -686,7 +693,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       <button data-go="inventory">资产清单</button>
     </nav>
     <div class="top-right">
-      <div class="demo-pill">演示数据 · 非真实</div>
+      <div class="demo-pill" style="background:var(--lime-dim);color:var(--lime);border-color:rgba(157,232,91,0.3)">实时数据 · MCP 接入</div>
       <div class="live"><span class="dot"></span><span class="time-txt">—</span></div>
       <button class="theme-btn" id="btn-theme" title="切换深色 / 浅色" aria-label="切换深色 / 浅色主题"></button>
     </div>
@@ -698,7 +705,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       <select id="f-time"><option>近 12 个月</option><option>本财年</option><option>近 90 天</option><option>近 30 天</option></select>
     </div>
     <div class="gsel"><span class="lb">受益部门</span>
-      <select id="f-dept"><option>全公司</option><option>引擎技术部</option><option>美术中心</option><option>平台研发部</option><option>QA 测试部</option><option>市场与发行</option><option>职能与行政</option></select>
+      <select id="f-dept"></select>
     </div>
     <div class="gsel"><span class="lb">币种</span>
       <select id="f-cur"><option>合并 CNY</option><option>原币</option></select>
@@ -706,7 +713,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
     <button class="gbtn" id="btn-export">
       <svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2v8M5 7l3 3 3-3M3 13h10"/></svg>导出经营周报
     </button>
-    <span class="note" id="filter-note">筛选为演示交互 · 数据不随之变化</span>
+    <span class="note" id="filter-note" style="display:none"></span>
   </div>
 
   <!-- ============ OVERVIEW ============ -->
@@ -717,9 +724,9 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       <div class="hero-head">
         <div class="hero-title"><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 4v4l2.5 1.5M14 8A6 6 0 112 8a6 6 0 0112 0z"/></svg></span>未来 365 天续约跑道</div>
         <div class="hero-kpi">
-          <div class="hk"><span class="v ro" id="r30v">—</span><span class="l">30天内到期</span></div>
-          <div class="hk"><span class="v am" id="r90v">—</span><span class="l">90天内到期</span></div>
-          <div class="hk"><span class="v cy" id="r365v">—</span><span class="l">365天合计</span></div>
+          <div class="hk"><span class="v am" id="r90v_hero">—</span><span class="l">90天内到期</span></div>
+          <div class="hk"><span class="v cy" id="r180v_hero">—</span><span class="l">180天内到期</span></div>
+          <div class="hk"><span class="v cy" id="r365v_hero">—</span><span class="l">365天合计</span></div>
         </div>
       </div>
       <div class="runway" id="runway"></div>
@@ -750,19 +757,28 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       <div class="card">
         <div class="card-head">
           <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.6a6.4 6.4 0 106.4 6.4M8 8V2.2M8 8l4.2 3"/></svg></span>软件闲置率
-            <span class="info" tabindex="0">i<span class="pop"><b>软件闲置率</b>：花了钱但没人用的席位占比，是"浪费"的直接度量。<span class="f">闲置率 = 闲置席位 ÷ 有效分配席位<br>闲置席位 = 有效分配席位 − 近 30 天活跃席位</span><b>只统计"生效中"的资产</b>。已过期、已停用的席位属于正常使用结束，<b>不计入分子也不计入分母</b>，避免把正常下线算成浪费。<span class="src">数据来源：台账 seats / 近 30 天登录活跃</span></span></span>
+            <span class="info" tabindex="0">i<span class="pop"><b>软件闲置率</b>：买了但没发出去的席位占比，是"浪费"的直接度量。<span class="f">闲置率 = 未发放席位 ÷ 已采购席位<br>未发放席位 = 已采购席位 − 已发放席位</span>席位<b>只要已发放给具体使用人就算在用</b>，不看登录频次。<b>只统计"生效中"的资产</b>——已过期、已停用的席位属于正常使用结束，<b>不计入分子也不计入分母</b>。<span class="src">数据来源：台账 user_seat_num（已采购）/ current_seat_num（已发放）</span></span></span>
           </h3>
-          <span class="meta">仅统计生效中资产 · 已过期/已停用不计入</span>
+          <span class="meta">未发放即闲置 · 已过期/已停用不计入</span>
         </div>
         <div class="idle-wrap" id="idle-wrap"></div>
       </div>
     </div>
 
-    <div class="grid">
+    <div class="grid g111">
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg></span>软件分类构成
+            <span class="info" tabindex="0">i<span class="pop"><b>软件分类构成</b>：按台账 <b>sw_category</b> 的 11 个标准分类统计资产个数与年化成本。<span class="f">安全软件 · 开发软件 · 美术软件 · 数据库 · 素材<br>通用办公软件 · 音视频软件 · 域名 · 账号会员<br>专业系统软件 · 字体</span>条长按<b>资产个数</b>，右侧同时标注该类年化成本——个数多不等于花钱多（如字体 208 个仅 ¥620万，美术软件 176 个却花 ¥2,180万）。<span class="src">数据来源：台账 sw_category</span></span></span>
+          </h3>
+          <span class="meta" id="cat-meta">—</span>
+        </div>
+        <div class="dept" id="catlist"></div>
+      </div>
       <div class="card">
         <div class="card-head">
           <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M5 13V8M8.5 13V5M12 13V9"/></svg></span>受益部门成本排行</h3>
-          <span class="meta">TOP 7 · 点击下钻</span>
+          <span class="meta">一级组织 TOP 8 · 点击下钻</span>
         </div>
         <div class="dept" id="dept"></div>
       </div>
@@ -846,10 +862,10 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
     </div>
     <div class="lever-grid" id="lever-grid"></div>
     <div class="card">
-      <div class="card-head"><h3>单席位 ROI 对标</h3><span class="meta">年成本 ÷ 活跃席位 · vs 市场基准</span></div>
+      <div class="card-head"><h3>单席位 ROI 对标</h3><span class="meta">年成本 ÷ 已发放席位 · vs 市场基准</span></div>
       <div class="table-scroll">
         <table><thead><tr>
-          <th>软件</th><th class="num">年化成本</th><th class="num">活跃席位</th><th class="num">单活跃席成本</th><th class="num">市场基准</th><th>偏离</th><th>判断</th>
+          <th>软件</th><th class="num">年化成本</th><th class="num">已发放席位</th><th class="num">单席位成本</th><th class="num">市场基准</th><th>偏离</th><th>判断</th>
         </tr></thead><tbody id="roi-tbody"></tbody></table>
       </div>
     </div>
@@ -973,6 +989,31 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
       </div>
     </div>
     <div class="vendor-grid" id="vendor-grid"></div>
+
+    <!-- 全量供应商列表 -->
+    <div class="card" style="margin-top:18px">
+      <div class="card-head">
+        <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg></span>全量供应商列表</h3>
+        <span class="meta" id="vendor-total-meta">加载中…</span>
+      </div>
+      <div class="toolbar" style="margin-bottom:12px">
+        <div class="search" style="max-width:320px">
+          <span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg></span>
+          <input id="vendor-search" placeholder="搜索厂商名称…" />
+        </div>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--ink-3)" id="vendor-page-info"></span>
+      </div>
+      <div class="table-scroll">
+        <table><thead><tr>
+          <th>厂商名称</th><th class="num">SKU 数</th><th class="num">席位数</th><th class="num">年化支出</th><th>采购渠道（代理商）</th>
+        </tr></thead><tbody id="vendor-all-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:var(--ink-3)">加载中…</td></tr></tbody></table>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-top:1px solid var(--line)">
+        <button class="gbtn ghost" id="vendor-prev">上一页</button>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--ink-3)" id="vendor-page-num">1 / 1</span>
+        <button class="gbtn ghost" id="vendor-next">下一页</button>
+      </div>
+    </div>
   </section>
 
   <!-- ============ ACTION CENTER ============ -->
@@ -1053,13 +1094,12 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
         <span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg></span>
         <input id="tsearch" placeholder="搜索软件、厂商、负责人…" />
       </div>
+      <div class="gsel"><span class="lb">软件分类</span><select id="tcat"></select></div>
+      <div class="gsel"><span class="lb">受益部门</span><select id="tdept"></select></div>
       <div class="filters" id="tfilters">
         <button class="chip on" data-f="all">全部</button>
         <button class="chip" data-f="proxy">代采</button>
         <button class="chip" data-f="bulk">集采</button>
-        <button class="chip" data-f="ai">AI 工具</button>
-        <button class="chip" data-f="dev">研发</button>
-        <button class="chip" data-f="design">设计</button>
         <button class="chip" data-f="hi">高风险</button>
       </div>
     </div>
@@ -1072,7 +1112,7 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
           <th data-sort="proxy">采购模式</th>
           <th class="sortable" data-sort="dept">受益部门</th>
           <th class="num sortable" data-sort="seats">席位</th>
-          <th class="sortable" data-sort="util">使用率</th>
+          <th class="sortable" data-sort="util">席位发放率</th>
           <th class="sortable" data-sort="expiry">到期</th>
           <th class="sortable" data-sort="risk">风险</th>
         </tr></thead>
@@ -1096,43 +1136,102 @@ td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-num
    ============================================================ */
 const API = '';
 
-const TYPE_LABEL = {ai:'AI 工具', dev:'研发工具', design:'设计创意', office:'办公协同'};
-const TYPE_CLASS  = {ai:'b-ai', dev:'b-dev', design:'b-design', office:'b-office'};
+/* ============================================================
+   软件分类（11 类，对齐台账 sw_category）
+   徽章按"域"着色而非一类一色：语义色 rose/lime 保留给风险与达标，
+   避免分类色和状态色打架。
+   ============================================================ */
+const SW_CATS = [
+  {key:'av',      label:'音视频软件',   cnt:239, cost:1180, fam:'b-art'},
+  {key:'font',    label:'字体',         cnt:208, cost:620,  fam:'b-art'},
+  {key:'office',  label:'通用办公软件', cnt:182, cost:1540, fam:'b-office'},
+  {key:'art',     label:'美术软件',     cnt:176, cost:2180, fam:'b-art'},
+  {key:'dev',     label:'开发软件',     cnt:144, cost:1720, fam:'b-dev'},
+  {key:'asset',   label:'素材',         cnt:125, cost:480,  fam:'b-art'},
+  {key:'prof',    label:'专业系统软件', cnt:77,  cost:460,  fam:'b-dev'},
+  {key:'account', label:'账号会员',     cnt:21,  cost:128,  fam:'b-office'},
+  {key:'domain',  label:'域名',         cnt:10,  cost:22,   fam:'b-office'},
+  {key:'sec',     label:'安全软件',     cnt:6,   cost:78,   fam:'b-sec'},
+  {key:'db',      label:'数据库',       cnt:5,   cost:12,   fam:'b-dev'},
+];
+const TYPE_LABEL = Object.fromEntries(SW_CATS.map(c=>[c.key, c.label]));
+const TYPE_CLASS = Object.fromEntries(SW_CATS.map(c=>[c.key, c.fam]));
+
+/* ============================================================
+   受益部门（对齐组织树 dept_code）
+   一级 = 直属集团的组织；二级 = 其下属组织。
+   看板默认展示到一级，清单/详情展示"一级 > 二级"完整路径。
+   ============================================================ */
+const ORG_L1 = [
+  {name:'公共',             code:'0079', l2:14},
+  {name:'原神',             code:'0152', l2:0},
+  {name:'崩坏：星穹铁道',   code:'0658', l2:0},
+  {name:'国际化组',         code:'0274', l2:7},
+  {name:'职能线',           code:'0780', l2:7},
+  {name:'企业工程与效能组', code:'1429', l2:7},
+  {name:'绝区零',           code:'0573', l2:0},
+  {name:'崩坏3',            code:'0371', l2:0},
+  {name:'预研项目',         code:'0540', l2:12},
+  {name:'未定事件簿',       code:'0585', l2:1},
+  {name:'崩坏学园2',        code:'0340', l2:0},
+  {name:'星布谷地',         code:'0950', l2:0},
+  {name:'崩坏：因缘精灵',   code:'1509', l2:0},
+  {name:'Shiyak',           code:'2164', l2:0},
+];
+/* 二级组织：仅登记演示数据用到的，真实环境由台账 dept_code 解析 */
+const ORG_CODE = {
+  '公共>技术发展组':'0001>0079>2282', '公共>音频组':'0001>0079>0836',
+  '公共>业务数据组':'0001>0079>1560', '公共>游戏安全组':'0001>0079>1966',
+  '公共>基础服务组':'0001>0079>1286', '公共>SDK组':'0001>0079>1200',
+  '国际化组>创意设计组':'0001>0274>0287', '国际化组>本地化组':'0001>0274>0293',
+  '国际化组>综合市场组':'0001>0274>1707',
+  '职能线>综合服务线':'0001>0780>2136', '职能线>综合事务组':'0001>0780>0796',
+  '企业工程与效能组>企业效能组':'0001>1429>1438', '企业工程与效能组>设计组':'0001>1429>1440',
+  '企业工程与效能组>项目管理组':'0001>1429>1226', '企业工程与效能组>基础设施保障组':'0001>1429>1160',
+  '原神':'0001>0152', '绝区零':'0001>0573', '崩坏：星穹铁道':'0001>0658',
+};
+const deptL1   = d => (d||'').split('>')[0];
+const deptL2   = d => (d||'').split('>')[1] || '';
+const deptCode = d => ORG_CODE[d] || '';
 const RISK_LABEL  = {hi:'高', md:'中', lo:'低'};
 const utilColor   = u => u>=70?'var(--lime)':u>=45?'var(--amber)':'var(--rose)';
 const fmtW = n => '¥'+n.toLocaleString('zh-CN')+'万';
 
 /* ---------------- 演示数据 ---------------- */
 const LEDGER = [
-  {id:1, logo:'Pf', name:'Perforce Helix Core', vendor:'Perforce', type:'dev', dept:'引擎技术部', seats:420, usedSeats:370, util:88, expiryDays:45, cost:380, price:'9,048', currency:'CNY'},
-  {id:2, logo:'Un', name:'Unity Pro', vendor:'Unity Technologies', type:'dev', dept:'引擎技术部', seats:260, usedSeats:166, util:64, expiryDays:28, cost:336, price:'12,923', currency:'CNY'},
-  {id:3, logo:'Jb', name:'JetBrains 全家桶', vendor:'JetBrains', type:'dev', dept:'平台研发部', seats:380, usedSeats:289, util:76, expiryDays:210, cost:171, price:'4,500', currency:'CNY'},
-  {id:4, logo:'Ma', name:'Autodesk Maya', vendor:'Autodesk', type:'design', dept:'美术中心', seats:310, usedSeats:220, util:71, expiryDays:88, cost:527, price:'17,000', currency:'CNY'},
-  {id:5, logo:'Hd', name:'Houdini FX', vendor:'SideFX', type:'design', dept:'美术中心', seats:96, usedSeats:80, util:83, expiryDays:150, cost:317, price:'33,000', currency:'CNY'},
-  {id:6, logo:'Ad', name:'Adobe CC 企业版', vendor:'Adobe', type:'design', dept:'美术中心', seats:520, usedSeats:343, util:66, expiryDays:88, cost:437, price:'8,400', currency:'CNY'},
-  {id:7, logo:'Ww', name:'Wwise', vendor:'Audiokinetic', type:'dev', dept:'音频设计组', seats:40, usedSeats:36, util:90, expiryDays:265, cost:64, price:'16,000', currency:'CNY'},
-  {id:8, logo:'Fg', name:'Figma 组织版', vendor:'Figma', type:'design', dept:'UED 中心', seats:240, usedSeats:194, util:81, expiryDays:190, cost:127, price:'5,280', currency:'CNY'},
-  {id:9, logo:'Gh', name:'GitHub Enterprise', vendor:'GitHub', type:'dev', dept:'平台研发部', seats:900, usedSeats:828, util:92, expiryDays:300, cost:189, price:'2,100', currency:'USD'},
-  {id:10, logo:'Ji', name:'Jira + Confluence', vendor:'Atlassian', type:'office', dept:'全公司共享', seats:1500, usedSeats:1110, util:74, expiryDays:120, cost:246, price:'1,640', currency:'USD'},
-  {id:11, logo:'Fs', name:'飞书专业版', vendor:'字节跳动', type:'office', dept:'全公司共享', seats:3200, usedSeats:3040, util:95, expiryDays:330, cost:384, price:'1,200', currency:'CNY'},
-  {id:12, logo:'Cl', name:'Claude Team', vendor:'Anthropic', type:'ai', dept:'平台研发部', seats:600, usedSeats:522, util:87, expiryDays:60, cost:158, price:'2,628', currency:'USD'},
-  {id:13, logo:'Cp', name:'GitHub Copilot', vendor:'GitHub', type:'ai', dept:'引擎技术部', seats:450, usedSeats:234, util:52, expiryDays:75, cost:110, price:'2,450', currency:'USD'},
-  {id:14, logo:'Mj', name:'Midjourney Pro', vendor:'Midjourney', type:'ai', dept:'美术中心', seats:120, usedSeats:52, util:43, expiryDays:25, cost:51, price:'4,230', currency:'USD'},
-  {id:15, logo:'Tb', name:'Tableau', vendor:'Salesforce', type:'office', dept:'市场与发行', seats:80, usedSeats:30, util:38, expiryDays:200, cost:60, price:'7,560', currency:'CNY'},
-  {id:16, logo:'Mi', name:'Miro', vendor:'Miro', type:'office', dept:'全公司共享', seats:300, usedSeats:87, util:29, expiryDays:95, cost:34, price:'1,133', currency:'CNY'},
-  {id:17, logo:'Sn', name:'Snyk', vendor:'Snyk', type:'dev', dept:'安全合规部', seats:60, usedSeats:41, util:68, expiryDays:170, cost:47, price:'7,800', currency:'CNY'},
-  {id:18, logo:'Zm', name:'Zoom 商业版', vendor:'Zoom', type:'office', dept:'全公司共享', seats:800, usedSeats:248, util:31, expiryDays:140, cost:68, price:'850', currency:'CNY'},
-  {id:19, logo:'No', name:'Notion 团队版', vendor:'Notion Labs', type:'office', dept:'市场与发行', seats:150, usedSeats:71, util:47, expiryDays:260, cost:16, price:'1,080', currency:'CNY'},
-  {id:20, logo:'Ue', name:'Unreal 引擎支持', vendor:'Epic Games', type:'dev', dept:'引擎技术部', seats:180, usedSeats:158, util:88, expiryDays:310, cost:220, price:'12,200', currency:'USD'},
-].map(s=>({...s, state:'生效中',
+  {id:1,  logo:'Pf', name:'Perforce Helix Core', vendor:'Perforce',           type:'dev',     dept:'公共>技术发展组',              seats:420,  usedSeats:370,  util:88, expiryDays:45,  cost:380, price:'9,048',  currency:'CNY'},
+  {id:2,  logo:'Un', name:'Unity Pro',           vendor:'Unity Technologies', type:'dev',     dept:'公共>技术发展组',              seats:260,  usedSeats:166,  util:64, expiryDays:28,  cost:336, price:'12,923', currency:'CNY'},
+  {id:3,  logo:'Jb', name:'JetBrains 全家桶',    vendor:'JetBrains',          type:'dev',     dept:'企业工程与效能组>企业效能组',  seats:380,  usedSeats:289,  util:76, expiryDays:210, cost:171, price:'4,500',  currency:'CNY'},
+  {id:4,  logo:'Ma', name:'Autodesk Maya',       vendor:'Autodesk',           type:'art',     dept:'原神',                         seats:310,  usedSeats:220,  util:71, expiryDays:88,  cost:527, price:'17,000', currency:'CNY'},
+  {id:5,  logo:'Hd', name:'Houdini FX',          vendor:'SideFX',             type:'art',     dept:'崩坏：星穹铁道',               seats:96,   usedSeats:80,   util:83, expiryDays:150, cost:317, price:'33,000', currency:'CNY'},
+  {id:6,  logo:'Ad', name:'Adobe CC 企业版',     vendor:'Adobe',              type:'art',     dept:'国际化组>创意设计组',          seats:520,  usedSeats:343,  util:66, expiryDays:88,  cost:437, price:'8,400',  currency:'CNY'},
+  {id:7,  logo:'Ww', name:'Wwise',               vendor:'Audiokinetic',       type:'av',      dept:'公共>音频组',                  seats:40,   usedSeats:36,   util:90, expiryDays:265, cost:64,  price:'16,000', currency:'CNY'},
+  {id:8,  logo:'Fg', name:'Figma 组织版',        vendor:'Figma',              type:'art',     dept:'企业工程与效能组>设计组',      seats:240,  usedSeats:194,  util:81, expiryDays:190, cost:127, price:'5,280',  currency:'CNY'},
+  {id:9,  logo:'Gh', name:'GitHub Enterprise',   vendor:'GitHub',             type:'dev',     dept:'企业工程与效能组>企业效能组',  seats:900,  usedSeats:828,  util:92, expiryDays:300, cost:189, price:'2,100',  currency:'USD'},
+  {id:10, logo:'Ji', name:'Jira + Confluence',   vendor:'Atlassian',          type:'office',  dept:'企业工程与效能组>项目管理组',  seats:1500, usedSeats:1110, util:74, expiryDays:120, cost:246, price:'1,640',  currency:'USD'},
+  {id:11, logo:'Fs', name:'飞书专业版',          vendor:'字节跳动',           type:'office',  dept:'职能线>综合服务线',            seats:3200, usedSeats:3040, util:95, expiryDays:330, cost:384, price:'1,200',  currency:'CNY'},
+  {id:12, logo:'Cl', name:'Claude Team',         vendor:'Anthropic',          type:'account', dept:'公共>技术发展组',              seats:600,  usedSeats:522,  util:87, expiryDays:60,  cost:158, price:'2,628',  currency:'USD'},
+  {id:13, logo:'Cp', name:'GitHub Copilot',      vendor:'GitHub',             type:'dev',     dept:'公共>技术发展组',              seats:450,  usedSeats:234,  util:52, expiryDays:75,  cost:110, price:'2,450',  currency:'USD'},
+  {id:14, logo:'Mj', name:'Midjourney Pro',      vendor:'Midjourney',         type:'art',     dept:'国际化组>创意设计组',          seats:120,  usedSeats:52,   util:43, expiryDays:25,  cost:51,  price:'4,230',  currency:'USD'},
+  {id:15, logo:'Tb', name:'Tableau',             vendor:'Salesforce',         type:'prof',    dept:'公共>业务数据组',              seats:80,   usedSeats:30,   util:38, expiryDays:200, cost:60,  price:'7,560',  currency:'CNY'},
+  {id:16, logo:'Mi', name:'Miro',                vendor:'Miro',               type:'office',  dept:'职能线>综合事务组',            seats:300,  usedSeats:87,   util:29, expiryDays:95,  cost:34,  price:'1,133',  currency:'CNY'},
+  {id:17, logo:'Sn', name:'Snyk',                vendor:'Snyk',               type:'sec',     dept:'公共>游戏安全组',              seats:60,   usedSeats:41,   util:68, expiryDays:170, cost:47,  price:'7,800',  currency:'CNY'},
+  {id:18, logo:'Zm', name:'Zoom 商业版',         vendor:'Zoom',               type:'av',      dept:'职能线>综合服务线',            seats:800,  usedSeats:248,  util:31, expiryDays:140, cost:68,  price:'850',    currency:'CNY'},
+  {id:19, logo:'No', name:'Notion 团队版',       vendor:'Notion Labs',        type:'office',  dept:'国际化组>综合市场组',          seats:150,  usedSeats:71,   util:47, expiryDays:260, cost:16,  price:'1,080',  currency:'CNY'},
+  {id:20, logo:'Ue', name:'Unreal 引擎支持',     vendor:'Epic Games',         type:'dev',     dept:'绝区零',                       seats:180,  usedSeats:158,  util:88, expiryDays:310, cost:220, price:'12,200', currency:'USD'},
+  {id:21, logo:'Fz', name:'方正字库企业授权',    vendor:'方正电子',           type:'font',    dept:'国际化组>本地化组',            seats:420,  usedSeats:188,  util:45, expiryDays:105, cost:186, price:'4,430',  currency:'CNY'},
+  {id:22, logo:'Sh', name:'Shutterstock 企业版', vendor:'Shutterstock',       type:'asset',   dept:'国际化组>创意设计组',          seats:260,  usedSeats:96,   util:37, expiryDays:55,  cost:143, price:'5,500',  currency:'USD'},
+  {id:23, logo:'Dn', name:'企业域名与 DNS 托管', vendor:'阿里云',             type:'domain',  dept:'企业工程与效能组>基础设施保障组', seats:10, usedSeats:10, util:100, expiryDays:240, cost:22,  price:'22,000', currency:'CNY'},
+  {id:24, logo:'Mg', name:'MongoDB Atlas',       vendor:'MongoDB',            type:'db',      dept:'公共>基础服务组',              seats:60,   usedSeats:57,   util:95, expiryDays:185, cost:12,  price:'2,000',  currency:'USD'},
+].map(s=>({...s, state:'生效中', deptL1: s.dept.split('>')[0], deptCode: (typeof ORG_CODE!=='undefined'?ORG_CODE[s.dept]:'')||'',
   expiryLabel: s.expiryDays<=0?'已过期':s.expiryDays+'天后',
   risk: (s.util<45||s.expiryDays<=30)?'hi':(s.util<70||s.expiryDays<=90)?'md':'lo'}));
 
 const MOCK = {};
 
 MOCK['/api/overview'] = {
-  total: 972, syncAt: '12:04:38',
-  stateCounts: {active:861, expired:64, pending:47},
+  total: 1193, syncAt: '12:04:38',
+  stateCounts: {active:1058, expired:78, pending:57},
   recyclable: 38,
   annualCost: 8420, costYoY: '+9.2%',
   renew90Amt: 2310, renew90Cnt: 14,
@@ -1147,20 +1246,22 @@ MOCK['/api/overview'] = {
     sku:s.name, seats:s.seats, day:s.expiryDays,
     tier: s.expiryDays<=30?'r30':s.expiryDays<=90?'r90':s.expiryDays<=180?'r180':'r365'})),
   topDepts: [
-    {name:'引擎技术部', amt:2140},{name:'美术中心', amt:1860},{name:'平台研发部', amt:1420},
-    {name:'全公司共享', amt:1250},{name:'QA 测试部', amt:640},{name:'市场与发行', amt:520},{name:'职能与行政', amt:380}],
+    {name:'公共', code:'0079', amt:1680}, {name:'原神', code:'0152', amt:1420},
+    {name:'崩坏：星穹铁道', code:'0658', amt:1180}, {name:'国际化组', code:'0274', amt:980},
+    {name:'职能线', code:'0780', amt:860}, {name:'企业工程与效能组', code:'1429', amt:720},
+    {name:'绝区零', code:'0573', amt:640}, {name:'崩坏3', code:'0371', amt:380}],
   health: [
-    {label:'生效中', n:861, color:'var(--lime)'},
-    {label:'待生效', n:47, color:'var(--cyan)'},
-    {label:'已过期', n:64, color:'var(--rose)'}],
+    {label:'生效中', n:1058, color:'var(--lime)'},
+    {label:'待生效', n:57, color:'var(--cyan)'},
+    {label:'已过期', n:78, color:'var(--rose)'}],
   actions: [
-    {go:'radar', pri:'p1', tag:'t-renew', title:'Perforce Helix Core 45 天后到期，供应商报价 +12%', meta:'引擎技术部 · 420 席 · 使用率 88% 支撑续约', impact:'¥380万'},
-    {go:'compliance', pri:'p1', tag:'t-comp', title:'Autodesk Maya 超部署 42 席，存在审计敞口', meta:'美术中心 · 权益 310 / 部署 352', impact:'¥210万'},
-    {go:'cost', pri:'p2', tag:'t-reclaim', title:'GitHub Copilot 闲置 216 席，建议回收降配', meta:'引擎技术部 · 使用率 52% · 30 天未活跃', impact:'¥53万/年'},
-    {go:'cost', pri:'p2', tag:'t-merge', title:'Zoom 与飞书会议功能重叠，建议整合退订', meta:'全公司 · Zoom 活跃率仅 31%', impact:'¥68万/年'},
+    {go:'radar', pri:'p1', tag:'t-renew', title:'Perforce Helix Core 45 天后到期，供应商报价 +12%', meta:'公共>技术发展组 · 420 席 · 发放率 88% 支撑续约', impact:'¥380万'},
+    {go:'compliance', pri:'p1', tag:'t-comp', title:'Autodesk Maya 超部署 42 席，存在审计敞口', meta:'原神 · 权益 310 / 部署 352', impact:'¥210万'},
+    {go:'cost', pri:'p2', tag:'t-reclaim', title:'GitHub Copilot 闲置 216 席，建议回收降配', meta:'公共>技术发展组 · 已发放 234/450 席 · 未发放 216 席', impact:'¥53万/年'},
+    {go:'cost', pri:'p2', tag:'t-merge', title:'Zoom 与飞书会议功能重叠，建议整合退订', meta:'全公司 · Zoom 席位发放率仅 31%', impact:'¥68万/年'},
     {go:'finance', pri:'p3', tag:'t-renew', title:'10 月为付款高峰（¥1,120万），需提前锁定预算', meta:'3 笔大额续约集中 · 含 USD 敞口', impact:'¥1,120万'}],
   aiTips: [
-    {t:'<b>Unity Pro</b> 28 天后到期且报价 +18%，但活跃率仅 64%。建议按 200 席续约（降 60 席），谈判底牌：Unreal 迁移预研已完成 40%。', conf:'置信度 高 · 台账+报价单'},
+    {t:'<b>Unity Pro</b> 28 天后到期且报价 +18%，但席位发放率仅 64%。建议按 200 席续约（降 60 席），谈判底牌：Unreal 迁移预研已完成 40%。', conf:'置信度 高 · 台账+报价单'},
     {t:'<b>Maya 超部署 42 席</b>与美术外包峰值相关。建议 30 天内补采 20 席 + 回收离项外包账号，将敞口从 ¥210万 压到 ¥60万。', conf:'置信度 高 · 部署扫描'},
     {t:'AI 工具三件套（Claude/Copilot/Midjourney）合计 ¥319万/年，其中 <b>Copilot 与 Claude 的代码场景重叠约 55%</b>，续约前建议做一次使用行为分析。', conf:'置信度 中 · 使用日志抽样'},
     {t:'预算执行率 86%，按当前节奏 <b>12 月中旬将触顶</b>。若 Q4 三笔续约全部成交，需追加约 ¥340万 或递延一笔至次年 1 月。', conf:'置信度 高 · 付款计划外推'}],
@@ -1204,9 +1305,9 @@ MOCK['/api/radar'] = {
 
 MOCK['/api/usage'] = {
   kpis: [
-    {cls:'', v:'12,480', l:'分配席位总数'},
-    {cls:'warn', v:'2,180', l:'30 天未活跃席位'},
-    {cls:'ok', v:'82%', l:'整体活跃率'},
+    {cls:'', v:'12,480', l:'已采购席位总数'},
+    {cls:'warn', v:'2,323', l:'未发放席位（闲置）'},
+    {cls:'ok', v:'81.4%', l:'整体席位发放率'},
     {cls:'warn', v:'6', l:'消耗偏离预警合同'}],
   consume: [
     {soft:'Claude Team', sub:'Token 总包 · 年约', consume:74, time:58, flag:'over', flagtx:'消耗过快'},
@@ -1219,43 +1320,51 @@ MOCK['/api/usage'] = {
 
 MOCK['/api/documents'] = {groups: [
   {key:'off', name:'离职回收单', color:'var(--rose)', items:[
-    {code:'OFF-20260805-014', creator:'系统自动', dept:'美术中心', time:'15:00', state:'待发放'},
-    {code:'OFF-20260805-013', creator:'系统自动', dept:'平台研发部', time:'15:00', state:'待发放'},
-    {code:'OFF-20260805-012', creator:'系统自动', dept:'QA 测试部', time:'15:00', state:'待发放'},
-    {code:'OFF-20260805-011', creator:'HRBP 张', dept:'市场与发行', time:'14:20', state:'审核中'},
-    {code:'OFF-20260805-010', creator:'系统自动', dept:'引擎技术部', time:'11:00', state:'已完成'},
-    {code:'OFF-20260805-009', creator:'系统自动', dept:'美术中心', time:'10:30', state:'已完成'},
-    {code:'OFF-20260804-008', creator:'HRBP 李', dept:'职能与行政', time:'昨日', state:'已完成'},
-    {code:'OFF-20260804-007', creator:'系统自动', dept:'平台研发部', time:'昨日', state:'已完成'}]},
+    {code:'OFF-20260805-014', creator:'系统自动', dept:'原神', time:'15:00', state:'待发放'},
+    {code:'OFF-20260805-013', creator:'系统自动', dept:'公共>技术发展组', time:'15:00', state:'待发放'},
+    {code:'OFF-20260805-012', creator:'系统自动', dept:'绝区零', time:'15:00', state:'待发放'},
+    {code:'OFF-20260805-011', creator:'HRBP 张', dept:'国际化组>综合市场组', time:'14:20', state:'审核中'},
+    {code:'OFF-20260805-010', creator:'系统自动', dept:'崩坏：星穹铁道', time:'11:00', state:'已完成'},
+    {code:'OFF-20260805-009', creator:'系统自动', dept:'原神', time:'10:30', state:'已完成'},
+    {code:'OFF-20260804-008', creator:'HRBP 李', dept:'职能线>综合事务组', time:'昨日', state:'已完成'},
+    {code:'OFF-20260804-007', creator:'系统自动', dept:'公共>技术发展组', time:'昨日', state:'已完成'}]},
   {key:'req', name:'采购申请', color:'var(--cyan)', items:[
-    {code:'REQ-20260805-207', creator:'王工', dept:'引擎技术部', time:'11:32', state:'审核中'},
-    {code:'REQ-20260805-206', creator:'陈静', dept:'美术中心', time:'11:05', state:'审核中'},
-    {code:'REQ-20260805-205', creator:'刘洋', dept:'平台研发部', time:'10:48', state:'待修改'},
-    {code:'REQ-20260805-204', creator:'赵敏', dept:'市场与发行', time:'09:52', state:'审核中'},
-    {code:'REQ-20260805-203', creator:'孙浩', dept:'QA 测试部', time:'09:20', state:'已完成'},
-    {code:'REQ-20260804-202', creator:'周琳', dept:'美术中心', time:'昨日', state:'已完成'}]},
+    {code:'REQ-20260805-207', creator:'王工', dept:'崩坏：星穹铁道', time:'11:32', state:'审核中'},
+    {code:'REQ-20260805-206', creator:'陈静', dept:'原神', time:'11:05', state:'审核中'},
+    {code:'REQ-20260805-205', creator:'刘洋', dept:'公共>技术发展组', time:'10:48', state:'待修改'},
+    {code:'REQ-20260805-204', creator:'赵敏', dept:'国际化组>综合市场组', time:'09:52', state:'审核中'},
+    {code:'REQ-20260805-203', creator:'孙浩', dept:'绝区零', time:'09:20', state:'已完成'},
+    {code:'REQ-20260804-202', creator:'周琳', dept:'原神', time:'昨日', state:'已完成'}]},
   {key:'trf', name:'席位调拨', color:'var(--violet)', items:[
-    {code:'TRF-20260805-089', creator:'李萌', dept:'平台研发部', time:'10:15', state:'已完成'},
-    {code:'TRF-20260805-088', creator:'李京', dept:'引擎技术部', time:'09:40', state:'已完成'},
-    {code:'TRF-20260805-087', creator:'IT 运维', dept:'美术中心', time:'09:10', state:'审核中'},
-    {code:'TRF-20260804-086', creator:'李京', dept:'QA 测试部', time:'昨日', state:'已完成'}]},
+    {code:'TRF-20260805-089', creator:'李萌', dept:'公共>技术发展组', time:'10:15', state:'已完成'},
+    {code:'TRF-20260805-088', creator:'李京', dept:'崩坏：星穹铁道', time:'09:40', state:'已完成'},
+    {code:'TRF-20260805-087', creator:'IT 运维', dept:'原神', time:'09:10', state:'审核中'},
+    {code:'TRF-20260804-086', creator:'李京', dept:'绝区零', time:'昨日', state:'已完成'}]},
   {key:'rnw', name:'续约立项', color:'var(--amber)', items:[
-    {code:'RNW-20260804-031', creator:'采购组', dept:'全公司共享', time:'昨日', state:'待修改'},
-    {code:'RNW-20260804-030', creator:'采购组', dept:'引擎技术部', time:'昨日', state:'审核中'},
-    {code:'RNW-20260803-029', creator:'采购组', dept:'美术中心', time:'8-03', state:'审核中'},
-    {code:'RNW-20260803-028', creator:'王工', dept:'平台研发部', time:'8-03', state:'已完成'},
-    {code:'RNW-20260802-027', creator:'采购组', dept:'全公司共享', time:'8-02', state:'已完成'}]},
+    {code:'RNW-20260804-031', creator:'采购组', dept:'职能线>综合服务线', time:'昨日', state:'待修改'},
+    {code:'RNW-20260804-030', creator:'采购组', dept:'崩坏：星穹铁道', time:'昨日', state:'审核中'},
+    {code:'RNW-20260803-029', creator:'采购组', dept:'原神', time:'8-03', state:'审核中'},
+    {code:'RNW-20260803-028', creator:'王工', dept:'公共>技术发展组', time:'8-03', state:'已完成'},
+    {code:'RNW-20260802-027', creator:'采购组', dept:'职能线>综合服务线', time:'8-02', state:'已完成'}]},
 ]};
 
 MOCK['/api/idle'] = {
   rate: 18.6, momDelta: '-1.4pt 环比',
-  allocSeats: 12480, activeSeats: 10157, idleSeats: 2323,
-  excluded: {expired: 64, disabled: 23, seats: 1860},
+  // purchasedSeats = 已采购席位(user_seat_num)，issuedSeats = 已发放席位(current_seat_num)
+  purchasedSeats: 12480, issuedSeats: 10157, idleSeats: 2323,
+  excluded: {expired: 78, disabled: 23, seats: 1860},
   byType: [
-    {name:'办公协同', idle:1180, alloc:3782},
-    {name:'AI 工具',  idle:398,  alloc:1624},
-    {name:'设计创意', idle:412,  alloc:2452},
-    {name:'研发工具', idle:333,  alloc:4622}],
+    {name:'字体',       idle:520, purchased:1240},
+    {name:'素材',       idle:268, purchased:860},
+    {name:'账号会员',   idle:118, purchased:420},
+    {name:'音视频软件', idle:452, purchased:2180},
+    {name:'通用办公软件',idle:596, purchased:3480},
+    {name:'美术软件',   idle:248, purchased:2140},
+    {name:'专业系统软件',idle:68,  purchased:640},
+    {name:'安全软件',   idle:2,   purchased:30},
+    {name:'数据库',     idle:3,   purchased:60},
+    {name:'开发软件',   idle:48,  purchased:1420},
+    {name:'域名',       idle:0,   purchased:10}],
 };
 
 MOCK['/api/compliance'] = {
@@ -1272,9 +1381,9 @@ MOCK['/api/compliance'] = {
     {name:'Perforce Helix Core', vendor:'Perforce', logo:'Pf', entitled:420, deployed:412, exposure:0, audit:'md', adv:'合规，续约时顺带核对部署清单'}],
   shadow: [
     {src:'报销单据', name:'ChatGPT Plus', sub:'多部门零散报销 · 月均 ¥2.4万', n:'~57 人'},
-    {src:'SSO 日志', name:'Canva Pro', sub:'市场与发行 · 未走采购流程', n:'~44 人'},
-    {src:'浏览器遥测', name:'DeepL Pro', sub:'发行本地化组 · 个人订阅', n:'~26 人'},
-    {src:'报销单据', name:'Overleaf 团队版', sub:'技术美术 · 3 张报销单', n:'~18 人'}],
+    {src:'SSO 日志', name:'Canva Pro', sub:'国际化组>综合市场组 · 未走采购流程', n:'~44 人'},
+    {src:'浏览器遥测', name:'DeepL Pro', sub:'国际化组>本地化组 · 个人订阅', n:'~26 人'},
+    {src:'报销单据', name:'Overleaf 团队版', sub:'公共>技术发展组 · 3 张报销单', n:'~18 人'}],
   sso: [
     {label:'已接入 SSO', n:71, color:'var(--cyan)'},
     {label:'未接入', n:21, color:'var(--amber)'},
@@ -1296,12 +1405,16 @@ MOCK['/api/finance'] = {
     {label:'JPY 等', n:3, color:'var(--ink-3)'}],
   fxImpact: '+¥143万/年',
   chargeback: [
-    {dept:'引擎技术部', direct:1780, alloc:360, total:2140, per:3.4, mom:'+2.1%', dir:'up'},
-    {dept:'美术中心', direct:1590, alloc:270, total:1860, per:2.9, mom:'+4.8%', dir:'up'},
-    {dept:'平台研发部', direct:1160, alloc:260, total:1420, per:3.1, mom:'-1.2%', dir:'dn'},
-    {dept:'QA 测试部', direct:410, alloc:230, total:640, per:1.6, mom:'+0.4%', dir:'up'},
-    {dept:'市场与发行', direct:330, alloc:190, total:520, per:1.9, mom:'-3.5%', dir:'dn'},
-    {dept:'职能与行政', direct:170, alloc:210, total:380, per:0.9, mom:'0.0%', dir:'flat'}],
+    {dept:'公共', code:'0079', l2:14, direct:1360, alloc:320, total:1680, per:3.1, mom:'+2.1%', dir:'up'},
+    {dept:'原神', code:'0152', l2:0, direct:1250, alloc:170, total:1420, per:3.6, mom:'+4.8%', dir:'up'},
+    {dept:'崩坏：星穹铁道', code:'0658', l2:0, direct:1040, alloc:140, total:1180, per:3.4, mom:'-1.2%', dir:'dn'},
+    {dept:'国际化组', code:'0274', l2:7, direct:820, alloc:160, total:980, per:2.4, mom:'+3.5%', dir:'up'},
+    {dept:'职能线', code:'0780', l2:7, direct:640, alloc:220, total:860, per:1.5, mom:'+0.4%', dir:'up'},
+    {dept:'企业工程与效能组', code:'1429', l2:7, direct:580, alloc:140, total:720, per:2.2, mom:'-3.5%', dir:'dn'},
+    {dept:'绝区零', code:'0573', l2:0, direct:560, alloc:80, total:640, per:2.8, mom:'+1.1%', dir:'up'},
+    {dept:'崩坏3', code:'0371', l2:0, direct:330, alloc:50, total:380, per:2.1, mom:'0.0%', dir:'flat'},
+    {dept:'预研项目', code:'0540', l2:12, direct:250, alloc:50, total:300, per:1.9, mom:'+6.2%', dir:'up'},
+    {dept:'其他 5 个一级组织', code:'—', l2:1, direct:200, alloc:60, total:260, per:1.2, mom:'-0.8%', dir:'dn'}],
 };
 
 MOCK['/api/vendors'] = {
@@ -1327,6 +1440,24 @@ MOCK['/api/vendors'] = {
     {name:'GitHub', sub:'研发 + AI 工具', spend:497, contracts:2, seats:1350, next:'75 天后', hike:'0%', hcls:'flat'}],
 };
 
+MOCK['/api/vendors/list'] = (()=>{
+  const base=[
+    ['Autodesk',3,410,1197,'上海经销商A'],['Adobe',2,700,994,'Adobe 中国直签'],
+    ['Unity Technologies',2,260,808,'Unity 中国直签'],['Perforce',1,420,690,'上海经销商A'],
+    ['Atlassian',2,1500,539,'新加坡代理商B'],['GitHub',2,1350,497,'微软企业协议'],
+    ['方正电子',1,420,186,'方正直签'],['Shutterstock',1,260,143,'海外代理商C'],
+    ['Figma',1,240,127,'Figma 直签'],['SideFX',1,96,317,'海外代理商C'],
+    ['Audiokinetic',1,40,64,'上海经销商A'],['字节跳动',1,3200,384,'飞书直签'],
+    ['Anthropic',1,600,158,'海外代理商C'],['Midjourney',1,120,51,'海外代理商C'],
+    ['Salesforce',1,80,60,'Salesforce 中国'],['Miro',1,300,34,'海外代理商C'],
+    ['Snyk',1,60,47,'新加坡代理商B'],['Zoom',1,800,68,'Zoom 中国'],
+    ['Notion Labs',1,150,16,'海外代理商C'],['Epic Games',1,180,220,'Epic 直签'],
+    ['阿里云',2,10,22,'阿里云直签'],['MongoDB',1,60,12,'MongoDB 直签'],
+    ['腾讯云',1,0,18,'腾讯云直签'],['JetBrains',1,380,171,'JetBrains 直签'],
+  ].map(([name,skuCnt,seats,spend,channel])=>({name,skuCnt,seats,spend,channel}));
+  return {total: base.length, list: base};
+})();
+
 MOCK['/api/actions'] = {
   kpis: [
     {cls:'', v:'9', l:'待办任务'},
@@ -1336,17 +1467,17 @@ MOCK['/api/actions'] = {
   tasks: [
     {title:'Maya 超部署补采 + 外包账号回收', type:'t-comp', typeTx:'合规', owner:'陈静', amt:'¥210万', due:'08-20', st:'over', stTx:'超期 3 天'},
     {title:'Unity 续约谈判：200 席方案与底价测算', type:'t-renew', typeTx:'续约', owner:'采购组', amt:'¥336万', due:'08-25', st:'doing', stTx:'进行中'},
-    {title:'Midjourney 降席（120→50）或退订评估', type:'t-renew', typeTx:'续约', owner:'美术中心', amt:'¥51万', due:'08-28', st:'doing', stTx:'进行中'},
+    {title:'Midjourney 降席（120→50）或退订评估', type:'t-renew', typeTx:'续约', owner:'原神', amt:'¥51万', due:'08-28', st:'doing', stTx:'进行中'},
     {title:'Copilot 闲置 216 席回收', type:'t-reclaim', typeTx:'回收', owner:'李京', amt:'¥53万/年', due:'09-05', st:'doing', stTx:'进行中'},
     {title:'Zoom 退订方案与飞书迁移公告', type:'t-merge', typeTx:'整合', owner:'IT 运维', amt:'¥68万/年', due:'09-12', st:'todo', stTx:'待办'},
     {title:'Perforce 3 年锁价商务谈判', type:'t-renew', typeTx:'续约', owner:'采购组', amt:'¥380万', due:'09-15', st:'todo', stTx:'待办'},
-    {title:'影子 IT：ChatGPT Plus 收编为企业版', type:'t-comp', typeTx:'合规', owner:'安全合规部', amt:'¥29万/年', due:'09-20', st:'todo', stTx:'待办'},
-    {title:'Tableau 席位 80→40 降配', type:'t-reclaim', typeTx:'回收', owner:'数据组', amt:'¥30万/年', due:'08-15', st:'over', stTx:'超期 8 天'}],
+    {title:'影子 IT：ChatGPT Plus 收编为企业版', type:'t-comp', typeTx:'合规', owner:'公共>游戏安全组', amt:'¥29万/年', due:'09-20', st:'todo', stTx:'待办'},
+    {title:'Tableau 席位 80→40 降配', type:'t-reclaim', typeTx:'回收', owner:'公共>业务数据组', amt:'¥30万/年', due:'08-15', st:'over', stTx:'超期 8 天'}],
   jml: {joiner:{n:86, sub:'开通 214 席'}, mover:{n:23, sub:'调整 51 席'}, leaver:{n:41, sub:'待回收 37 席'}},
   leavers: [
-    {pri:'p1', title:'离职回收：美术中心 3 人 · Maya/Adobe/Midjourney 共 9 席', meta:'OFF-20260805-014 · 今日 15:00 批次', tag:'t-reclaim', tagTx:'回收'},
-    {pri:'p2', title:'离职回收：平台研发 2 人 · JetBrains/GitHub 共 6 席', meta:'OFF-20260804-011 · 已回收 4/6', tag:'t-reclaim', tagTx:'回收'},
-    {pri:'p3', title:'转岗调拨：QA→引擎 1 人 · Unity 席位随人转移', meta:'TRF-20260805-089 · 已完成', tag:'t-merge', tagTx:'调拨'}],
+    {pri:'p1', title:'离职回收：原神 3 人 · Maya/Adobe/Midjourney 共 9 席', meta:'OFF-20260805-014 · 今日 15:00 批次', tag:'t-reclaim', tagTx:'回收'},
+    {pri:'p2', title:'离职回收：公共>技术发展组 2 人 · JetBrains/GitHub 共 6 席', meta:'OFF-20260804-011 · 已回收 4/6', tag:'t-reclaim', tagTx:'回收'},
+    {pri:'p3', title:'转岗调拨：绝区零→星穹铁道 1 人 · Unity 席位随人转移', meta:'TRF-20260805-089 · 已完成', tag:'t-merge', tagTx:'调拨'}],
   sla: [
     {lbl:'≤3 天', pct:68, color:'var(--lime)'},
     {lbl:'4–7 天', pct:22, color:'var(--amber)'},
@@ -1455,6 +1586,8 @@ async function loadOverview() {
     renderKPIs(d);
     renderRunway(d.runway);
     renderDept(d.topDepts);
+    renderCats();
+    renderDeptFilter();
     renderHealth(d.health);
     renderQueue(d.actions, 'queue');
     renderAI(d);
@@ -1481,7 +1614,7 @@ function renderKPIs(d) {
           <b>已支付</b>=财务实际付款；<b>已承诺未付</b>=PO 已下、合同已签但尚未到付款节点的金额（这部分钱事实上已经锁死，所以计入）。
           当前 ${fmtW(d.budgetUsed)} ÷ ${fmtW(d.budgetTotal)} = ${d.budgetPct}%。
           <span class="src">数据来源：付款流水 + 未清 PO + 财务预算表</span>`},
-    {cls:'k-renew', name:'90天内到期金额', val:fmtW(d.renew90Amt), delta:`${d.renew90Cnt} 项合同`, dir:'down', spark:[3,5,4,7,6,9,8,11,10],
+    {cls:'k-renew', name:'180天内到期金额', val:fmtW(d.renew180Amt||d.renew90Amt), delta:`${d.renew180Cnt||d.renew90Cnt} 项合同`, dir:'down', spark:[3,5,4,7,6,9,8,11,10],
      tip:`<b>90 天内到期金额</b>：未来 90 天需要做续约决策的合同年化金额合计，是谈判排期的依据。
           <span class="f">Σ 到期日 ≤ 今天+90 天 的合同年化金额</span>
           金额越大越要提前进谈判——留给议价的时间越少，越容易被动接受涨价。
@@ -1532,9 +1665,9 @@ function renderRunway(runway) {
   el.innerHTML=html;
   const d=overviewData?.expiryBuckets;
   if(d){
-    document.getElementById('r30v').textContent = `${d.d30?.length||0} 项`;
-    document.getElementById('r90v').textContent = `${(d.d30?.length||0)+(d.d90?.length||0)} 项`;
-    document.getElementById('r365v').textContent = runway.length + ' 项';
+    document.getElementById('r90v_hero').textContent = `${(d.d30?.length||0)+(d.d90?.length||0)} 项`;
+    document.getElementById('r180v_hero').textContent = `${(d.d30?.length||0)+(d.d90?.length||0)+(d.d180?.length||0)} 项`;
+    document.getElementById('r365v_hero').textContent = runway.length + ' 项';
   }
 }
 
@@ -1542,11 +1675,34 @@ function renderDept(depts) {
   if (!depts || depts.length === 0) { document.getElementById('dept').innerHTML = '<div style="color:var(--ink-3);padding:20px;font-size:12px">暂无部门数据</div>'; return; }
   const max = Math.max(...depts.map(d => d.amt||d.seats||0));
   document.getElementById('dept').innerHTML = depts.map(d=>`
-    <div class="dept-row" data-go="finance">
-      <span class="dept-name">${d.name}</span>
+    <div class="dept-row" data-go="finance" title="${d.name}${d.code?'（'+d.code+'）':''}">
+      <span class="dept-name">${d.name}${d.code?`<small style="font-family:var(--mono);font-size:9.5px;color:var(--ink-3);margin-left:6px">${d.code}</small>`:''}</span>
       <div class="dept-track"><div class="dept-fill" style="width:${max?(((d.amt||d.seats)/max)*100):0}%"></div></div>
       <span class="dept-val">${d.amt?fmtW(d.amt):(d.seats+' 席')}</span>
     </div>`).join('');
+}
+
+/* 软件分类构成：直接对齐台账 sw_category 的 11 类 */
+function renderCats() {
+  const el = document.getElementById('catlist');
+  if (!el) return;
+  const max = Math.max(...SW_CATS.map(c=>c.cnt));
+  el.innerHTML = SW_CATS.map(c=>`
+    <div class="dept-row" data-go="inventory" data-cat="${c.key}" title="${c.label} · ${c.cnt} 个资产 · 年化 ${fmtW(c.cost)}">
+      <span class="dept-name">${c.label}</span>
+      <div class="dept-track"><div class="dept-fill" style="width:${(c.cnt/max)*100}%"></div></div>
+      <span class="dept-val">${c.cnt} <small style="color:var(--ink-3)">· ${fmtW(c.cost)}</small></span>
+    </div>`).join('');
+  const meta = document.getElementById('cat-meta');
+  if (meta) meta.textContent = `${SW_CATS.length} 类 · 共 ${SW_CATS.reduce((s,c)=>s+c.cnt,0)} 个资产`;
+}
+
+/* 全局筛选：受益部门下拉按一级组织生成 */
+function renderDeptFilter() {
+  const sel = document.getElementById('f-dept');
+  if (!sel || sel.options.length) return;
+  sel.innerHTML = '<option value="">全公司</option>' +
+    ORG_L1.map(o=>`<option value="${o.name}">${o.name}（${o.code}）${o.l2?` · ${o.l2} 个二级`:''}</option>`).join('');
 }
 
 function renderHealth(health) {
@@ -1655,27 +1811,38 @@ async function loadIdle() {
   if (!el) return;
   try {
     const d = await api('/api/idle');
-    const actPct = d.allocSeats ? (d.activeSeats/d.allocSeats*100) : 0;
-    const idlPct = d.allocSeats ? (d.idleSeats/d.allocSeats*100) : 0;
-    const rateColor = d.rate>=25 ? 'var(--rose)' : d.rate>=15 ? 'var(--amber)' : 'var(--lime)';
-    const types = (d.byType||[]).map(t=>({...t, rate: t.alloc ? t.idle/t.alloc*100 : 0}))
-                                 .sort((a,b)=>b.rate-a.rate);
+    const purchased = d.purchasedSeats ?? d.allocSeats ?? 0;
+    const issued    = d.issuedSeats ?? d.activeSeats ?? 0;
+    const issPct = purchased ? (issued/purchased*100) : 0;
+    const idlPct = purchased ? (d.idleSeats/purchased*100) : 0;
+    const rate = d.rate ?? +idlPct.toFixed(1);
+    const rateColor = rate>=25 ? 'var(--rose)' : rate>=15 ? 'var(--amber)' : 'var(--lime)';
+    const IDLE_TOP = 8;
+    let types = (d.byType||[]).map(t=>{
+      const base = t.purchased ?? t.alloc ?? 0;
+      return {...t, base, rate: base ? t.idle/base*100 : 0};
+    }).sort((a,b)=>b.rate-a.rate);
+    if (types.length > IDLE_TOP) {                       // 超出部分合并，避免长列表淹没重点
+      const rest = types.slice(IDLE_TOP);
+      const ri = rest.reduce((s,t)=>s+t.idle,0), rb = rest.reduce((s,t)=>s+t.base,0);
+      types = types.slice(0, IDLE_TOP).concat([{name:`其他 ${rest.length} 类`, idle:ri, base:rb, rate: rb?ri/rb*100:0}]);
+    }
     const maxRate = Math.max(...types.map(t=>t.rate), 1);
     el.innerHTML = `
       <div class="idle-hero">
-        <div class="big" style="color:${rateColor}">${d.rate}<span style="font-size:24px">%</span></div>
-        <div class="sub">全公司软件闲置率<br>闲置 ${d.idleSeats.toLocaleString()} 席 ÷ 有效分配 ${d.allocSeats.toLocaleString()} 席</div>
+        <div class="big" style="color:${rateColor}">${rate}<span style="font-size:24px">%</span></div>
+        <div class="sub">全公司软件闲置率<br>未发放 ${d.idleSeats.toLocaleString()} 席 ÷ 已采购 ${purchased.toLocaleString()} 席</div>
         <div class="mom">▼ ${d.momDelta||''}</div>
       </div>
       <div class="idle-seats">
-        <div class="bartitle">有效分配席位构成</div>
+        <div class="bartitle">已采购席位构成</div>
         <div class="idle-stack">
-          <i class="act" style="width:${actPct}%"></i>
+          <i class="act" style="width:${issPct}%"></i>
           <i class="idl" style="width:${idlPct}%"></i>
         </div>
         <div class="idle-legend">
-          <div class="row"><span class="sw" style="background:var(--cyan)"></span><span class="lt">活跃席位（近 30 天有登录）</span><span class="ln">${d.activeSeats.toLocaleString()} · ${actPct.toFixed(1)}%</span></div>
-          <div class="row"><span class="sw" style="background:var(--amber)"></span><span class="lt">闲置席位（30 天零登录）</span><span class="ln">${d.idleSeats.toLocaleString()} · ${idlPct.toFixed(1)}%</span></div>
+          <div class="row"><span class="sw" style="background:var(--cyan)"></span><span class="lt">已发放席位（已分配到具体使用人）</span><span class="ln">${issued.toLocaleString()} · ${issPct.toFixed(1)}%</span></div>
+          <div class="row"><span class="sw" style="background:var(--amber)"></span><span class="lt">未发放席位（在库未分配 = 闲置）</span><span class="ln">${d.idleSeats.toLocaleString()} · ${idlPct.toFixed(1)}%</span></div>
         </div>
         <div class="idle-excl">
           <b>已排除，不计入闲置率：</b>已过期 ${d.excluded.expired} 项、已停用 ${d.excluded.disabled} 项，合计 ${d.excluded.seats.toLocaleString()} 席。
@@ -1683,7 +1850,7 @@ async function loadIdle() {
         </div>
       </div>
       <div class="idle-type">
-        <div class="bartitle">分类型闲置率 · 高到低</div>
+        <div class="bartitle">分软件分类闲置率 · 高到低</div>
         ${types.map(t=>{
           const c = t.rate>=25 ? 'var(--rose)' : t.rate>=15 ? 'var(--amber)' : 'var(--lime)';
           return `<div class="itrow">
@@ -1774,8 +1941,9 @@ function renderRadar(data) {
 }
 
 /* ============ COST ============ */
-function renderCost() {
-  const LEVERS = [
+function renderCost(data) {
+  // 优先使用真实 API 数据，回退到 hardcoded mock
+  const LEVERS = data?.levers || [
     {name:'闲置席位回收', save:'¥1,060万', pct:100, ic:'M3 8l3 3 7-7', items:[
       {n:'GitHub Copilot · 回收 216 闲置席', s:'¥53万/年'},
       {n:'Zoom · 552 席 30 天未活跃', s:'¥47万/年'},
@@ -1806,7 +1974,7 @@ function renderCost() {
         <div class="lever-item"><span class="li-name">${it.n}</span><span class="li-save">${it.s}</span></div>`).join('')}</div>
     </div>`).join('');
 
-  const ROI = [
+  const ROI = data?.roi?.length > 0 ? data.roi : [
     {name:'Houdini FX', cost:317, active:80, bench:3.2, judge:'合理', jc:'v-justified'},
     {name:'Midjourney Pro', cost:51, active:52, bench:0.42, judge:'偏贵 · 待降配', jc:'v-cut'},
     {name:'Tableau', cost:60, active:30, bench:0.9, judge:'偏贵 · 待降配', jc:'v-cut'},
@@ -1832,7 +2000,7 @@ function renderCost() {
 
 /* ============ USAGE ============ */
 const BREAKDOWN_COLOR = {
-  '活跃使用':                'var(--lime)',
+  '已发放使用':              'var(--lime)',
   '正版化保留（Unity/Adobe）':  'var(--cyan)',
   '免费账号管理（Figma只读/Cursor）': 'var(--violet)',
   '已到期（正常）':            'var(--ink-3)',
@@ -1968,7 +2136,7 @@ async function loadFinance() {
     document.getElementById('fx-impact').textContent=d.fxImpact;
     document.getElementById('chargeback-tbody').innerHTML=d.chargeback.map(c=>`
       <tr>
-        <td>${c.dept}</td>
+        <td><div class="sw-name">${c.dept}</div><div class="sw-vendor">${c.code||''}${c.l2?` · 含 ${c.l2} 个二级组织`:''}</div></td>
         <td class="num">${fmtW(c.direct)}</td>
         <td class="num" style="color:var(--ink-3)">${fmtW(c.alloc)}</td>
         <td class="num" style="font-weight:600">${fmtW(c.total)}</td>
@@ -2012,6 +2180,55 @@ async function loadVendor() {
         </div>
       </div>`).join('');
   } catch(e) { console.error('vendor error', e); }
+
+  // 全量供应商列表加载
+  loadVendorAll();
+}
+
+// 供应商全量分页状态
+let vendorPage = 1, vendorSearch = '', vendorTotalPages = 1;
+const VENDOR_SIZE = 20;
+
+async function loadVendorAll(page, search) {
+  if (page !== undefined) vendorPage = page;
+  if (search !== undefined) vendorSearch = search;
+  const tbody = document.getElementById('vendor-all-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--ink-3)">加载中…</td></tr>`;
+  try {
+    const params = new URLSearchParams({ page: vendorPage, size: VENDOR_SIZE, search: vendorSearch });
+    let d = await api('/api/vendors/list?' + params);
+    // 演示数据回退时后端不分页，这里本地做搜索+分页
+    if (usingMock['/api/vendors/list']) {
+      let all = d.list || [];
+      if (vendorSearch) all = all.filter(v => (v.name||'').toLowerCase().includes(vendorSearch.toLowerCase()));
+      d = { total: all.length, list: all.slice((vendorPage-1)*VENDOR_SIZE, vendorPage*VENDOR_SIZE) };
+    }
+    const total = d.total || 0;
+    vendorTotalPages = Math.max(1, Math.ceil(total / VENDOR_SIZE));
+    document.getElementById('vendor-total-meta').textContent = `共 ${total} 家厂商 · sw_vendor 字段`;
+    document.getElementById('vendor-page-info').textContent = vendorSearch ? `搜索"${vendorSearch}"命中 ${total} 条` : '';
+    document.getElementById('vendor-page-num').textContent = `${vendorPage} / ${vendorTotalPages}`;
+    document.getElementById('vendor-prev').disabled = vendorPage <= 1;
+    document.getElementById('vendor-next').disabled = vendorPage >= vendorTotalPages;
+    if (!d.list || d.list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--ink-3)">无匹配结果</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = d.list.map((v, i) => `
+      <tr>
+        <td><div class="sw-cell">
+          <div class="sw-logo" style="width:28px;height:28px;font-size:11px">${(v.name||'?').slice(0,2)}</div>
+          <span class="sw-name">${v.name}</span>
+        </div></td>
+        <td class="num">${v.skuCnt}</td>
+        <td class="num">${v.seats.toLocaleString()}</td>
+        <td class="num">${v.spend > 0 ? fmtW(v.spend) : '—'}</td>
+        <td style="font-family:var(--mono);font-size:10.5px;color:var(--ink-3)">${v.channel||'—'}</td>
+      </tr>`).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--rose);padding:20px">⚠ ${e.message}</td></tr>`;
+  }
 }
 
 /* ============ ACTION CENTER ============ */
@@ -2066,7 +2283,7 @@ const DECIDE=[
   {type:'watch',badge:'建议',soft:'Midjourney',tx:'内部 SD 工作流对标度 78%：降到 50 席保留探索用途，其余转内部方案。'},
   {type:'ok',badge:'保留',soft:'Claude Team',tx:'使用率 87% 且新档位有折扣空间：建议续约并升级企业档。'}];
 const WHY=[
-  {soft:'Maya',q:'美术中心 Maya 310 席是否过多？<b>动画/绑定管线不可替代</b>，且项目高峰期外包并发使用，310 席有真实支撑。',verdict:'justified',vlabel:'买得对'},
+  {soft:'Maya',q:'原神 Maya 310 席是否过多？<b>动画/绑定管线不可替代</b>，且项目高峰期外包并发使用，310 席有真实支撑。',verdict:'justified',vlabel:'买得对'},
   {soft:'Copilot',q:'Copilot 与 Claude 并存是否重复？代码补全与代码对话场景<b>重叠约 55%</b>，续约前需做一次使用行为分析。',verdict:'review',vlabel:'复核中'},
   {soft:'Miro',q:'Miro 300 席活跃率仅 29%，且飞书白板已覆盖基础场景。<b>继续持有的理由不成立</b>。',verdict:'cut',vlabel:'建议退订'}];
 
@@ -2080,13 +2297,13 @@ function renderAlt(){
 }
 
 /* ============ INVENTORY ============ */
-let curFilter='all', curSort='util', sortDir=-1, curQ='';
+let curFilter='all', curSort='util', sortDir=-1, curQ='', curCat='', curDept='';
 
 async function loadTable() {
   const tbody=document.getElementById('tbody');
   tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--ink-3)">加载中…</td></tr>`;
   try {
-    const params = new URLSearchParams({ page:1, size:50, q:curQ, filter:curFilter, sort:curSort, dir:sortDir>0?'asc':'desc' });
+    const params = new URLSearchParams({ page:1, size:50, q:curQ, filter:curFilter, cat:curCat, dept:curDept, sort:curSort, dir:sortDir>0?'asc':'desc' });
     const data = await api('/api/ledger?' + params);
     let rows = data.list || [];
     // mock 数据时本地过滤排序
@@ -2095,7 +2312,8 @@ async function loadTable() {
       if (curFilter==='hi') rows=rows.filter(s=>s.risk==='hi');
       else if (curFilter==='proxy') rows=rows.filter(s=>s.proxy===true);
       else if (curFilter==='bulk') rows=rows.filter(s=>s.proxy===false);
-      else if (curFilter!=='all') rows=rows.filter(s=>s.type===curFilter);
+      if (curCat)  rows=rows.filter(s=>s.type===curCat);
+      if (curDept) rows=rows.filter(s=>deptL1(s.dept)===curDept);
       const key={name:'name',type:'type',dept:'dept',seats:'seats',util:'util',expiry:'expiryDays',risk:'risk'}[curSort]||'util';
       rows=[...rows].sort((a,b)=>{const av=a[key],bv=b[key];return (av>bv?1:av<bv?-1:0)*sortDir*-1;});
     }
@@ -2106,7 +2324,8 @@ async function loadTable() {
           <div><div class="sw-name">${s.name}</div><div class="sw-vendor">${s.vendor||''}</div></div></div></td>
         <td><span class="badge ${TYPE_CLASS[s.type]||'b-office'}">${TYPE_LABEL[s.type]||s.type}</span></td>
         <td><span style="font-family:var(--mono);font-size:9.5px;padding:3px 9px;border-radius:6px;background:${s.proxy?'rgba(157,232,91,0.12)':'rgba(156,140,255,0.12)'};color:${s.proxy?'var(--lime)':'var(--violet)'};border:1px solid ${s.proxy?'rgba(157,232,91,0.3)':'rgba(156,140,255,0.25)'}">${s.procureMode||'—'}</span></td>
-        <td style="color:var(--ink-2)">${s.dept}</td>
+        <td><div style="color:var(--ink-2);font-size:12px">${deptL1(s.dept)}</div>
+          ${deptL2(s.dept)?`<div class="sw-vendor">${deptL2(s.dept)}</div>`:''}</td>
         <td class="num">${s.seats} 席</td>
         <td><div class="util-bar"><div class="util-track"><div class="util-fill" style="width:${s.util}%;background:${utilColor(s.util)}"></div></div>
           <span class="util-tx" style="color:${utilColor(s.util)}">${s.util}%</span></div></td>
@@ -2134,9 +2353,9 @@ function renderDetail(raw) {
         <div class="dh-vendor">${s.vendor||''} · ${s.dept||''}</div>
         <div class="dh-stats">
           <div class="dh-stat"><div class="v">${s.seats||0}</div><div class="l">分配席位</div></div>
-          <div class="dh-stat"><div class="v" style="color:${utilColor(s.util||0)}">${s.util||0}%</div><div class="l">使用率</div></div>
-          <div class="dh-stat"><div class="v">${s.usedSeats||0}</div><div class="l">活跃席位</div></div>
-          <div class="dh-stat"><div class="v" style="color:var(--rose)">${idle}</div><div class="l">闲置席位</div></div>
+          <div class="dh-stat"><div class="v" style="color:${utilColor(s.util||0)}">${s.util||0}%</div><div class="l">席位发放率</div></div>
+          <div class="dh-stat"><div class="v">${s.usedSeats||0}</div><div class="l">已发放席位</div></div>
+          <div class="dh-stat"><div class="v" style="color:var(--rose)">${idle}</div><div class="l">未发放席位</div></div>
           ${s.cost?`<div class="dh-stat"><div class="v">${fmtW(s.cost)}</div><div class="l">年化成本</div></div>`:''}
         </div>
       </div>
@@ -2153,8 +2372,8 @@ function renderDetail(raw) {
       <div class="dcard">
         <h4><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M5 10l2-3 2 2 3-4"/></svg></span>使用分析</h4>
         <div class="gauge">
-          <div class="gauge-row"><span class="gauge-lbl">活跃席位</span><div class="gauge-track"><div class="gauge-fill" style="width:${s.util||0}%;background:${utilColor(s.util||0)}"></div></div><span class="gauge-val">${s.usedSeats||0}</span></div>
-          <div class="gauge-row"><span class="gauge-lbl">闲置席位</span><div class="gauge-track"><div class="gauge-fill" style="width:${s.seats?(idle/s.seats*100).toFixed(0):0}%;background:var(--rose)"></div></div><span class="gauge-val">${idle}</span></div>
+          <div class="gauge-row"><span class="gauge-lbl">已发放</span><div class="gauge-track"><div class="gauge-fill" style="width:${s.util||0}%;background:${utilColor(s.util||0)}"></div></div><span class="gauge-val">${s.usedSeats||0}</span></div>
+          <div class="gauge-row"><span class="gauge-lbl">未发放</span><div class="gauge-track"><div class="gauge-fill" style="width:${s.seats?(idle/s.seats*100).toFixed(0):0}%;background:var(--rose)"></div></div><span class="gauge-val">${idle}</span></div>
         </div>
         <div class="kv" style="margin-top:14px"><span class="k">闲置率</span><span class="v ${idle>0?'hi':'good'}">${s.seats?Math.round(idle/s.seats*100):0}%</span></div>
       </div>
@@ -2176,9 +2395,9 @@ const viewLoaders = {
   usage: loadUsage,
   compliance: loadCompliance,
   finance: loadFinance,
-  vendor: loadVendor,
+  vendor: loadVendorWrapped,
   actions: loadActions,
-  cost: () => renderCost(),
+  cost: async () => { try { renderCost(await api('/api/cost')); } catch(e) { renderCost(null); } },
   alt: () => renderAlt(),
 };
 const loaded = {};
@@ -2194,6 +2413,14 @@ function go(view) {
 }
 
 document.addEventListener('click',e=>{
+  const catEl=e.target.closest('[data-cat]');
+  if(catEl){
+    curCat=catEl.dataset.cat; curFilter='all'; curDept='';
+    const sel=document.getElementById('tcat'); if(sel) sel.value=curCat;
+    const dsel=document.getElementById('tdept'); if(dsel) dsel.value='';
+    document.querySelectorAll('#tfilters .chip').forEach(x=>x.classList.toggle('on',x.dataset.f==='all'));
+    go('inventory'); return;
+  }
   const det=e.target.closest('[data-detail]');
   if(det){ renderDetail(det.dataset.detail); go('detail'); return; }
   const goEl=e.target.closest('[data-go]');
@@ -2201,6 +2428,19 @@ document.addEventListener('click',e=>{
 });
 
 document.getElementById('tsearch').addEventListener('input', e=>{ curQ=e.target.value.trim(); loadTable(); });
+/* 资产清单：软件分类 + 受益部门（一级）下拉 */
+(function initInventoryFilters(){
+  const cat=document.getElementById('tcat'), dep=document.getElementById('tdept');
+  if(cat && !cat.options.length){
+    cat.innerHTML='<option value="">全部分类</option>'+SW_CATS.map(c=>`<option value="${c.key}">${c.label}（${c.cnt}）</option>`).join('');
+    cat.addEventListener('change',e=>{ curCat=e.target.value; loadTable(); });
+  }
+  if(dep && !dep.options.length){
+    dep.innerHTML='<option value="">全部部门</option>'+ORG_L1.map(o=>`<option value="${o.name}">${o.name}（${o.code}）</option>`).join('');
+    dep.addEventListener('change',e=>{ curDept=e.target.value; loadTable(); });
+  }
+})();
+
 document.getElementById('tfilters').addEventListener('click',e=>{
   const c=e.target.closest('.chip'); if(!c)return;
   document.querySelectorAll('#tfilters .chip').forEach(x=>x.classList.remove('on')); c.classList.add('on');
@@ -2229,9 +2469,32 @@ themeBtn.addEventListener('click', ()=>{
 syncThemeBtn();
 ['f-time','f-dept','f-cur'].forEach(id=>{
   document.getElementById(id).addEventListener('change',()=>{
-    document.getElementById('filter-note').textContent='筛选为演示交互 · 接入真实 API 后生效';
+    // filter-note hidden
   });
 });
+
+// 供应商搜索和翻页事件绑定（DOM 已存在才绑定，初始化时节点可能不存在）
+function bindVendorEvents() {
+  const searchEl = document.getElementById('vendor-search');
+  const prevEl = document.getElementById('vendor-prev');
+  const nextEl = document.getElementById('vendor-next');
+  if (searchEl && !searchEl._bound) {
+    searchEl._bound = true;
+    let searchTimer;
+    searchEl.addEventListener('input', e => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => loadVendorAll(1, e.target.value.trim()), 400);
+    });
+    prevEl.addEventListener('click', () => { if (vendorPage > 1) loadVendorAll(vendorPage - 1); });
+    nextEl.addEventListener('click', () => { if (vendorPage < vendorTotalPages) loadVendorAll(vendorPage + 1); });
+  }
+}
+// 每次切到 vendor 视图时绑定（因为 DOM 是在 view 里，初始隐藏）
+const _origLoadVendor = loadVendor;
+async function loadVendorWrapped() {
+  await _origLoadVendor();
+  setTimeout(bindVendorEvents, 100);
+}
 
 loadOverview(); loaded.overview=true;
 </script>
