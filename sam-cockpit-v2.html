@@ -943,6 +943,125 @@ tbody tr:hover{background:var(--panel-2);}
   .rail-foot{flex-direction:row;padding-top:0;width:auto;}
 }
 
+
+/* ============================================================
+   参考风格 2：悬浮白面板 · 顶部胶囊导航 · 斜纹胶囊图表 · 渐变焦点卡
+   ============================================================ */
+:root{
+  --frame:#E7EAF2;                 /* 面板外的页面底色 */
+  --grad-teal:linear-gradient(150deg,#8CDCD6,#3FB4BC);
+  --grad-peri:linear-gradient(150deg,#A3AFF7,#6376E6);
+  --grad-rose:linear-gradient(150deg,#F7A8BE,#E4688C);
+  --hatch:rgba(20,22,45,.07);
+}
+[data-theme="dark"]{ --frame:#0A0B11; --hatch:rgba(255,255,255,.07); }
+
+html,body{background:var(--frame) !important;}
+body{padding:14px;background-image:none !important;}
+.app{flex-direction:column;background:var(--panel);border-radius:30px;
+  min-height:calc(100vh - 28px);overflow:hidden;box-shadow:0 2px 6px rgba(20,22,45,.05),0 30px 70px -40px rgba(20,22,45,.4);}
+
+/* ---- 顶部胶囊导航 ---- */
+.rail{width:auto;height:auto;position:sticky;top:0;flex-direction:row;align-items:center;
+  gap:var(--s3);padding:14px var(--s5);background:var(--panel);z-index:60;box-shadow:none !important;}
+.rail-logo{width:auto;height:40px;padding:0 16px 0 12px;border-radius:999px;margin:0;gap:9px;
+  background:var(--panel-2);color:var(--ink);display:flex;align-items:center;font-size:14px;font-weight:800;letter-spacing:-.01em;}
+.rail-logo::before{content:"";width:22px;height:22px;border-radius:50%;background:var(--grad-peri);flex-shrink:0;}
+.rail-nav{flex-direction:row;flex:0 1 auto;gap:3px;overflow:visible;padding:0;width:auto;
+  background:var(--panel-2);border-radius:999px;padding:4px;}
+.rail-nav button{flex-direction:row;gap:7px;padding:8px 13px;border-radius:999px;white-space:nowrap;}
+.rail-nav button span{font-size:12.5px;font-weight:600;}
+.rail-nav button svg{width:16px;height:16px;}
+.rail-nav button.on{background:var(--ink);color:var(--panel);box-shadow:0 6px 16px -8px rgba(0,0,0,.7);}
+.rail-nav button:hover:not(.on){background:transparent;color:var(--ink);}
+.rail-foot{flex-direction:row;width:auto;margin-left:auto;padding-top:0;gap:var(--s2);}
+.theme-btn{width:40px;height:40px;border-radius:50%;background:var(--panel-2);}
+.rail-av{width:40px;height:40px;box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--violet-dim);}
+
+/* ---- 欢迎标题区 ---- */
+.main{padding:0 var(--s5) var(--s6);}
+.page-head{position:static;background:none;padding:var(--s5) 0 var(--s4);align-items:flex-end;}
+.ph-title{display:flex;flex-direction:column;gap:6px;}
+.ph-eyebrow{font-size:13px;color:var(--ink-2);font-weight:500;}
+.page-head h1{font-size:38px;font-weight:800;letter-spacing:-0.04em;line-height:1.05;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.badge-pill{font-size:12px;font-weight:700;padding:7px 15px;border-radius:999px;
+  background:var(--cyan-dim);color:var(--cyan);letter-spacing:0;}
+.ph-search{height:46px;border-radius:999px;box-shadow:none;background:var(--panel-2);border:none;min-width:250px;}
+.icon-btn{width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--panel);
+  display:grid;place-items:center;flex-shrink:0;transition:.16s;}
+.icon-btn:hover{filter:brightness(1.4);}
+.icon-btn.ghost{background:var(--panel-2);color:var(--ink-2);}
+.icon-btn.ghost:hover{background:var(--panel-3);filter:none;color:var(--ink);}
+
+/* ---- 卡片：更大圆角 ---- */
+.card,.ai-card,.kpi,.lever,.vcard,.dcard,.table-wrap,.jml-box,.bucket,
+.budget-hero,.save-summary,.why-card,.hero,.pipe-body,.doccol,.ukpi{border-radius:22px;}
+[data-theme="light"] .card,[data-theme="light"] .kpi,[data-theme="light"] .ai-card,
+[data-theme="light"] .hero,[data-theme="light"] .lever,[data-theme="light"] .vcard,
+[data-theme="light"] .dcard,[data-theme="light"] .table-wrap,[data-theme="light"] .budget-hero{
+  background:var(--panel);box-shadow:0 0 0 1px rgba(20,22,45,.045);}
+[data-theme="dark"] .card,[data-theme="dark"] .kpi,[data-theme="dark"] .ai-card,
+[data-theme="dark"] .hero,[data-theme="dark"] .lever,[data-theme="dark"] .vcard,
+[data-theme="dark"] .dcard,[data-theme="dark"] .table-wrap,[data-theme="dark"] .budget-hero{
+  background:var(--panel-2);box-shadow:0 0 0 1px var(--line);}
+
+/* ---- 斜纹：表示"未填充/未来/不可用" ---- */
+.hatch,.dept-track,.conc-track,.gauge-track,.util-track,.dual-track,.lever-bar,.gap-track{
+  background-color:var(--panel-2);
+  background-image:repeating-linear-gradient(45deg,var(--hatch) 0 3px,transparent 3px 7px);}
+
+/* ---- 渐变焦点卡（对应参考图 Ongoing Class） ---- */
+.focus-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin-bottom:var(--s4);}
+.focus{border-radius:24px;padding:22px 24px;color:#fff;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;min-height:210px;cursor:pointer;transition:.2s;}
+.focus:hover{transform:translateY(-3px);box-shadow:0 22px 44px -22px rgba(20,22,45,.55);}
+.focus::after{content:"";position:absolute;right:-60px;top:-70px;width:230px;height:230px;border-radius:50%;
+  border:34px solid rgba(255,255,255,.13);pointer-events:none;}
+.focus.g1{background:var(--grad-teal);} .focus.g2{background:var(--grad-peri);}
+.focus-ic{width:48px;height:48px;border-radius:16px;background:#fff;display:grid;place-items:center;
+  color:var(--ink);margin-bottom:16px;position:relative;z-index:1;}
+.focus-title{font-size:19px;font-weight:800;letter-spacing:-0.02em;line-height:1.3;position:relative;z-index:1;}
+.focus-tags{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap;position:relative;z-index:1;}
+.focus-tags span{font-size:11px;font-weight:600;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.25);}
+.focus-bar{margin-top:auto;padding-top:18px;position:relative;z-index:1;}
+.focus-track{height:9px;border-radius:999px;background:rgba(255,255,255,.3);overflow:hidden;
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.22) 0 3px,transparent 3px 7px);}
+.focus-fill{height:100%;border-radius:999px;background:#fff;}
+.focus-meta{display:flex;justify-content:space-between;align-items:center;margin-top:9px;font-size:11.5px;font-weight:600;}
+.focus-amt{position:absolute;right:24px;top:22px;font-size:22px;font-weight:800;letter-spacing:-0.03em;z-index:1;}
+
+/* ---- 圆形小按钮（卡片右上角） ---- */
+.card-btn{width:30px;height:30px;border-radius:50%;background:var(--panel-2);color:var(--ink-3);
+  display:grid;place-items:center;font-size:14px;line-height:1;transition:.15s;flex-shrink:0;}
+.card-btn:hover{background:var(--panel-3);color:var(--ink);}
+
+/* ---- 付款日历柱：胶囊 + 斜纹底 ---- */
+.monthbars{gap:10px;height:190px;align-items:flex-end;}
+.mb{position:relative;}
+.mb .stack{gap:0;border-radius:999px;overflow:hidden;background-color:var(--panel-2);
+  background-image:repeating-linear-gradient(45deg,var(--hatch) 0 3px,transparent 3px 7px);
+  height:150px;justify-content:flex-end;max-width:44px;}
+.mb .seg{border-radius:0 !important;}
+.mb .seg:first-child{border-radius:999px 999px 0 0 !important;}
+.mb.peak .stack{background:var(--ink);background-image:none;}
+.mb.peak .seg{background:transparent !important;}
+.mb.peak::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid #fff;z-index:2;}
+.mb .amt{font-weight:700;color:var(--ink);}
+.mb .lbl{font-family:var(--body);font-weight:600;font-size:10.5px;}
+
+/* ---- 其余圆角统一放大 ---- */
+.q-item,.docitem,.shadow-item,.feed-item,.distill-item,.link-item,.decide-item,.jml-box,.doccol{border-radius:16px;}
+.sw-logo,.focus-ic,.ai-ic,.dh-logo{border-radius:14px;}
+.gsel,.search,.gbtn,.chip,.back-btn,.doc-more{border-radius:999px;}
+.tcell{border-radius:12px;}
+
+@media(max-width:1400px){ .rail-nav button span{display:none;} .rail-nav button{padding:9px 11px;} }
+@media(max-width:1240px){ .rail{padding:12px var(--s4);} .main{padding:0 var(--s4) var(--s5);}
+  .page-head h1{font-size:30px;} .focus-row{grid-template-columns:1fr;} }
+@media(max-width:900px){ .rail{flex-wrap:wrap;} .rail-nav{overflow-x:auto;} }
+
 </style>
 </head>
 <body>
@@ -971,14 +1090,20 @@ tbody tr:hover{background:var(--panel-2);}
   <main class="main">
 
   <header class="page-head">
-    <h1 id="page-title">经营总览</h1>
+    <div class="ph-title">
+      <div class="ph-eyebrow" id="ph-eyebrow">欢迎回来，李京 &#128075;</div>
+      <h1><span id="page-title">经营总览</span>
+        <span class="badge-pill" id="ph-badge">实时数据 · MCP 接入</span></h1>
+    </div>
     <div class="ph-right">
       <div class="ph-search">
-        <svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6L14 14"/></svg>
+        <svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6L14 14"/></svg>
         <input id="g-search" placeholder="搜索软件、厂商、部门…" aria-label="全局搜索" />
         <span class="kbd">&#8984;K</span>
       </div>
-      <div class="demo-pill" style="background:var(--lime-dim);color:var(--lime)">实时数据 · MCP 接入</div>
+      <button class="icon-btn" id="btn-filter" title="显示/隐藏筛选条" aria-label="显示或隐藏筛选条" aria-expanded="true">
+        <svg class="svg-ic" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5.5h12M3 9h12M3 12.5h12"/><circle cx="6.5" cy="5.5" r="1.9" fill="currentColor" stroke="none"/><circle cx="11.5" cy="12.5" r="1.9" fill="currentColor" stroke="none"/></svg>
+      </button>
       <div class="live"><span class="dot"></span><span class="time-txt">—</span></div>
     </div>
   </header>
@@ -1003,6 +1128,8 @@ tbody tr:hover{background:var(--panel-2);}
   <!-- ============ OVERVIEW ============ -->
   <section class="view on" id="v-overview">
     <div class="crumb"><span>经营总览</span><span class="sep">/</span><span>全公司软件资产</span></div>
+
+    <div class="focus-row" id="focus-row"></div>
 
     <div class="hero">
       <div class="hero-head">
@@ -1928,7 +2055,8 @@ async function loadOverview() {
     renderCats();
     renderDeptFilter();
     renderHealth(d.health);
-    renderQueue(d.actions, 'queue');
+    renderFocus(d.actions);
+    renderQueue((d.actions||[]).slice(2), 'queue');
     renderAI(d);
     document.querySelectorAll('.live .time-txt').forEach(el => el.textContent = 'SYNC ' + (d.syncAt||'—'));
     document.getElementById('health-meta').textContent = d.total + ' 个资产';
@@ -2122,6 +2250,33 @@ function renderHealth(health) {
         <span class="v" style="color:${col}">${m.d>0?'+':''}${m.d} <small>${m.note}</small></span></div>`;
     }).join('') : '';
   }
+}
+
+/* 焦点卡：把最紧迫的两条行动做成渐变大卡（对应参考图的 Ongoing Class） */
+function renderFocus(actions){
+  const el=document.getElementById('focus-row'); if(!el) return;
+  const top=(actions||[]).slice(0,2);
+  if(!top.length){ el.style.display='none'; return; }
+  const ICON={'t-renew':'<path d="M3 10a7 7 0 1 1 2.1 5"/><path d="M3 10V6M3 10h4"/>',
+              't-comp':'<path d="M10 2.5l6 2.3v4.6c0 3.7-2.5 6.9-6 8.1-3.5-1.2-6-4.4-6-8.1V4.8z"/>',
+              't-reclaim':'<path d="M4 6h12M7.5 6V4h5v2M6 6l.8 10h6.4L14 6"/>',
+              't-merge':'<path d="M4 5h5l3 5 4 0M4 15h5l3-5"/>'};
+  const TAGTX={'t-renew':'续约','t-reclaim':'回收','t-merge':'整合','t-comp':'合规'};
+  const URG={p1:{w:88,t:'紧迫度 高'},p2:{w:58,t:'紧迫度 中'},p3:{w:32,t:'紧迫度 低'}};
+  el.innerHTML=top.map((a,i)=>{
+    const u=URG[a.pri]||URG.p2;
+    const tags=(a.meta||'').split('·').map(x=>x.trim()).filter(Boolean).slice(0,3);
+    return `<div class="focus ${i?'g2':'g1'}" data-go="${a.go||''}">
+      <div class="focus-ic"><svg width="22" height="22" viewBox="0 0 20 20" fill="none"
+        stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICON[a.tag]||ICON['t-renew']}</svg></div>
+      ${a.impact?`<div class="focus-amt">${a.impact}</div>`:''}
+      <div class="focus-title">${a.title}</div>
+      <div class="focus-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</div>
+      <div class="focus-bar">
+        <div class="focus-track"><div class="focus-fill" style="width:${u.w}%"></div></div>
+        <div class="focus-meta"><span>${TAGTX[a.tag]||'待办'} · 待启动</span><span>${u.t}</span></div>
+      </div>
+    </div>`;}).join('');
 }
 
 function renderQueue(actions, elId) {
@@ -2544,13 +2699,13 @@ async function loadFinance() {
     document.getElementById('monthbars').innerHTML=d.months.map(m=>{
       const total=m.renew+m.inst;
       const peak = total===maxM;
-      return `<div class="mb" title="${m.m}：续约 ${m.renew}万 + 分期 ${m.inst}万 = ${total}万">
+      return `<div class="mb ${peak?'peak':''}" title="${m.m}：续约 ${m.renew}万 + 分期 ${m.inst}万 = ${total}万">
         ${peak?`<span class="amt">${total.toLocaleString()}</span>`:''}
         <div class="stack">
-          ${m.renew?`<div class="seg" style="height:${m.renew/maxM*100}px;background:linear-gradient(180deg,var(--cyan),color-mix(in srgb,var(--cyan) 22%,var(--panel)))"></div>`:''}
-          ${m.inst?`<div class="seg s2" style="height:${m.inst/maxM*100}px;background:linear-gradient(180deg,color-mix(in srgb,var(--violet) 70%,var(--panel)),color-mix(in srgb,var(--violet) 25%,var(--panel)))"></div>`:''}
+          ${m.renew?`<div class="seg" style="height:${m.renew/maxM*138}px;background:linear-gradient(180deg,var(--cyan),color-mix(in srgb,var(--cyan) 22%,var(--panel)))"></div>`:''}
+          ${m.inst?`<div class="seg s2" style="height:${m.inst/maxM*138}px;background:linear-gradient(180deg,color-mix(in srgb,var(--violet) 70%,var(--panel)),color-mix(in srgb,var(--violet) 25%,var(--panel)))"></div>`:''}
         </div>
-        <span class="lbl" style="${peak?'color:var(--amber)':''}">${m.m}</span>
+        <span class="lbl" style="${peak?'color:var(--ink);font-weight:700':''}">${m.m}</span>
       </div>`;}).join('');
     document.getElementById('month-legend').innerHTML=legendHTML([
       {label:'续约付款', n:'', color:'var(--cyan)'},
@@ -2836,6 +2991,8 @@ function go(view) {
            finance:'财务预算',vendor:'供应商洞察',actions:'行动中心',alt:'AI 平替与市场情报',
            inventory:'资产清单',detail:'软件详情'};
   const h=document.getElementById('page-title'); if(h&&T[view]) h.textContent=T[view];
+  const eb=document.getElementById('ph-eyebrow');
+  if(eb) eb.textContent = view==='overview' ? '欢迎回来，李京 \u{1F44B}' : '软件资产经营驾驶舱 · 全公司口径';
   window.scrollTo({top:0,behavior:'smooth'});
   if(viewLoaders[view] && (!loaded[view] || view==='inventory')) { viewLoaders[view](); loaded[view]=true; }
 }
@@ -2878,6 +3035,17 @@ document.querySelectorAll('thead th[data-sort]').forEach(th=>{
   th.addEventListener('click',()=>{ const k=th.dataset.sort; if(curSort===k)sortDir*=-1;else{curSort=k;sortDir=-1;} loadTable(); });
 });
 document.getElementById('btn-export').addEventListener('click',()=>window.print());
+/* 筛选条折叠，给内容区让出空间 */
+(function(){
+  const btn=document.getElementById('btn-filter'), bar=document.querySelector('.gfilters');
+  if(!btn||!bar) return;
+  btn.addEventListener('click',()=>{
+    const hidden = bar.style.display==='none';
+    bar.style.display = hidden ? '' : 'none';
+    btn.setAttribute('aria-expanded', hidden ? 'true' : 'false');
+    btn.classList.toggle('ghost', !hidden);
+  });
+})();
 
 /* 顶部全局搜索 → 直达资产清单 */
 (function(){
