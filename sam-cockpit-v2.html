@@ -175,7 +175,7 @@ select{font-family:inherit;}
 .runway-zone.z30{background:linear-gradient(180deg,var(--rose-dim),transparent);}
 
 /* ---- kpi strip ---- */
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s4);margin-bottom:var(--s4);}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4);margin-bottom:var(--s4);}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:var(--s3) var(--s4);position:relative;transition:.2s;}
 .kpi:hover{border-color:var(--line-2);transform:translateY(-2px);}
 /* 悬停时提层，否则口径气泡会被后续带 backdrop-filter 的卡片盖住 */
@@ -1062,6 +1062,132 @@ body{padding:14px;background-image:none !important;}
   .page-head h1{font-size:30px;} .focus-row{grid-template-columns:1fr;} }
 @media(max-width:900px){ .rail{flex-wrap:wrap;} .rail-nav{overflow-x:auto;} }
 
+
+/* ============================================================
+   北极星指标 · 拆解树
+   ============================================================ */
+.ns-wrap{display:grid;grid-template-columns:300px 1fr;gap:var(--s5);align-items:stretch;}
+.ns-hero{display:flex;flex-direction:column;justify-content:center;padding:var(--s4) var(--s5);
+  border-radius:20px;background:var(--grad-peri);color:#fff;position:relative;overflow:hidden;}
+.ns-hero::after{content:"";position:absolute;right:-70px;bottom:-80px;width:220px;height:220px;
+  border-radius:50%;border:32px solid rgba(255,255,255,.14);pointer-events:none;}
+.ns-eyebrow{font-size:11.5px;font-weight:700;opacity:.9;letter-spacing:.04em;position:relative;z-index:1;}
+.ns-val{font-size:46px;font-weight:800;letter-spacing:-0.045em;line-height:1;margin-top:10px;position:relative;z-index:1;}
+.ns-val small{font-size:15px;font-weight:600;opacity:.85;margin-left:5px;letter-spacing:0;}
+.ns-unit{font-size:11.5px;opacity:.85;margin-top:7px;position:relative;z-index:1;}
+.ns-delta{display:flex;gap:14px;margin-top:14px;position:relative;z-index:1;font-size:11.5px;font-weight:600;}
+.ns-delta span{background:rgba(255,255,255,.2);padding:5px 11px;border-radius:999px;}
+.ns-target{margin-top:auto;padding-top:16px;position:relative;z-index:1;}
+.ns-target .tk{height:8px;border-radius:999px;background:rgba(255,255,255,.28);overflow:hidden;
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.2) 0 3px,transparent 3px 7px);}
+.ns-target .fl{height:100%;border-radius:999px;background:#fff;}
+.ns-target .tx{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-top:8px;}
+.ns-spark{margin-top:14px;position:relative;z-index:1;}
+
+.ns-tree{display:flex;flex-direction:column;}
+.ns-formula{font-size:12px;color:var(--ink-2);background:var(--panel-2);border-radius:12px;
+  padding:11px 15px;margin-bottom:var(--s4);font-weight:500;}
+.ns-formula b{color:var(--ink);font-weight:700;}
+.ns-branches{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);flex:1;}
+.ns-branch{background:var(--panel-2);border-radius:18px;padding:var(--s4);display:flex;flex-direction:column;
+  cursor:pointer;transition:.16s;position:relative;}
+.ns-branch:hover{background:var(--panel-3);transform:translateY(-2px);}
+.ns-branch::before{content:"";position:absolute;top:-14px;left:50%;width:1px;height:14px;background:var(--line-2);}
+.nsb-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.nsb-label{font-size:13px;font-weight:700;color:var(--ink);}
+.nsb-val{font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-left:auto;}
+.nsb-sub{font-size:11px;color:var(--ink-3);margin-top:4px;}
+.nsb-meta{display:flex;align-items:center;gap:9px;margin-top:11px;font-size:11px;font-weight:600;}
+.nsb-meta .dl{padding:4px 10px;border-radius:999px;}
+.nsb-meta .dl.good{background:var(--lime-dim);color:var(--lime);}
+.nsb-meta .dl.bad{background:var(--rose-dim);color:var(--rose);}
+.nsb-meta .ow{color:var(--ink-3);font-weight:500;}
+.nsb-kids{display:flex;flex-direction:column;gap:1px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);}
+.nsb-kid{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:11.5px;}
+.nsb-kid .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.nsb-kid .dot.ok{background:var(--lime);} .nsb-kid .dot.warn{background:var(--amber);} .nsb-kid .dot.bad{background:var(--rose);}
+.nsb-kid .n{color:var(--ink-2);font-weight:500;}
+.nsb-kid .v{margin-left:auto;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
+.nsb-kid .d{display:none;}
+
+/* ---- 护栏指标 ---- */
+.guards{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s4);margin-bottom:var(--s4);}
+.guard{background:var(--panel);border-radius:18px;padding:var(--s4) 18px;cursor:pointer;transition:.16s;
+  display:flex;flex-direction:column;gap:6px;}
+.guard:hover{transform:translateY(-2px);}
+.guard-top{display:flex;align-items:center;gap:8px;}
+.guard-top .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.guard-top .lb{font-size:11.5px;font-weight:600;color:var(--ink-2);}
+.guard .v{font-size:22px;font-weight:800;letter-spacing:-0.03em;}
+.guard .note{font-size:10.5px;color:var(--ink-3);line-height:1.5;}
+.guards-title{font-size:11.5px;font-weight:700;color:var(--ink-3);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.guards-title::after{content:"";flex:1;height:1px;background:var(--line);}
+
+@media(max-width:1240px){ .ns-wrap{grid-template-columns:1fr;} .guards{grid-template-columns:1fr 1fr;} }
+@media(max-width:900px){ .ns-branches{grid-template-columns:1fr;} .guards{grid-template-columns:1fr;} }
+
+
+/* ---- 预算双跑道 ---- */
+.runway2{position:relative;}
+.runway2 svg{display:block;width:100%;height:auto;}
+.rw-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:var(--s3);font-size:11px;color:var(--ink-2);font-weight:500;}
+.rw-legend span{display:inline-flex;align-items:center;gap:7px;}
+.rw-legend i{width:16px;height:0;border-top:2.5px solid currentColor;display:block;}
+.rw-legend i.dash{border-top-style:dashed;}
+.rw-note{margin-top:var(--s3);padding:12px 14px;border-radius:14px;background:var(--rose-dim);
+  font-size:11.5px;line-height:1.6;color:var(--ink-2);}
+.rw-note b{color:var(--rose);font-weight:700;}
+.rw-unp{margin-top:var(--s3);display:flex;flex-direction:column;gap:7px;}
+.rw-unp .r{display:flex;align-items:center;gap:10px;font-size:11.5px;padding:9px 12px;
+  border-radius:12px;background:var(--panel-2);}
+.rw-unp .r .m{font-weight:700;color:var(--ink);white-space:nowrap;}
+.rw-unp .r .w{color:var(--ink-2);flex:1;}
+.rw-unp .r .a{font-weight:700;color:var(--amber);white-space:nowrap;}
+
+/* ---- 软件全景图 ---- */
+.pano-head{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap;margin-bottom:var(--s4);}
+.pano-cov{display:flex;align-items:baseline;gap:9px;}
+.pano-cov .v{font-size:30px;font-weight:800;letter-spacing:-0.03em;}
+.pano-cov .l{font-size:11.5px;color:var(--ink-3);}
+.pano-legend{display:flex;gap:16px;flex-wrap:wrap;margin-left:auto;font-size:11px;color:var(--ink-2);font-weight:500;}
+.pano-legend span{display:inline-flex;align-items:center;gap:7px;}
+.pano-legend i{width:13px;height:13px;border-radius:4px;display:block;}
+.pano-legend i.none{background-color:var(--panel-3);
+  background-image:repeating-linear-gradient(45deg,var(--hatch) 0 3px,transparent 3px 7px);}
+.pano-grp{display:grid;grid-template-columns:104px 1fr;gap:var(--s3);align-items:start;
+  padding:11px 0;border-bottom:1px solid var(--line);}
+.pano-grp:last-child{border-bottom:none;}
+.pano-grp .gn{font-size:12px;font-weight:600;color:var(--ink-2);padding-top:3px;}
+.pano-grp .gn small{display:block;font-size:10px;color:var(--ink-3);font-weight:500;margin-top:2px;}
+.pano-cells{display:flex;flex-wrap:wrap;gap:6px;}
+.pcell{height:30px;min-width:30px;padding:0 10px;border-radius:9px;display:inline-flex;align-items:center;
+  font-size:10.5px;font-weight:600;cursor:pointer;transition:.14s;white-space:nowrap;border:none;}
+.pcell:hover{transform:translateY(-2px);filter:brightness(.96);}
+.pcell.active{background:var(--lime-dim);color:var(--lime);}
+.pcell.idle{background:var(--rose-dim);color:var(--rose);}
+.pcell.none{background-color:var(--panel-2);color:var(--ink-3);
+  background-image:repeating-linear-gradient(45deg,var(--hatch) 0 3px,transparent 3px 7px);}
+.pcell.on{outline:2px solid var(--ink);outline-offset:2px;}
+.pano-detail{margin-top:var(--s4);padding:var(--s4);border-radius:18px;background:var(--panel-2);display:none;}
+.pano-detail.on{display:block;}
+.pd-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:var(--s4);}
+.pd-head .nm{font-size:16px;font-weight:800;letter-spacing:-0.02em;}
+.pd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4);}
+.pd-box{background:var(--panel);border-radius:14px;padding:var(--s3) var(--s4);}
+.pd-box h5{font-size:11.5px;font-weight:700;color:var(--ink-3);margin-bottom:11px;}
+.pd-row{display:flex;align-items:center;gap:9px;font-size:11.5px;padding:6px 0;}
+.pd-row .n{color:var(--ink-2);min-width:74px;}
+.pd-row .tk{flex:1;display:block;height:7px;border-radius:999px;background-color:var(--panel-2);
+  background-image:repeating-linear-gradient(45deg,var(--hatch) 0 3px,transparent 3px 7px);overflow:hidden;}
+.pd-row .fl{display:block;height:100%;border-radius:999px;background:var(--violet);}
+.pd-row .v{font-weight:700;font-variant-numeric:tabular-nums;min-width:52px;text-align:right;flex-shrink:0;}
+.pd-hours{display:flex;align-items:flex-end;gap:4px;height:64px;}
+.pd-hours i{flex:1;border-radius:5px 5px 0 0;background:var(--cyan);display:block;min-height:3px;}
+.pd-hours-x{display:flex;justify-content:space-between;font-size:9.5px;color:var(--ink-3);margin-top:6px;}
+.pd-flag{font-size:11.5px;line-height:1.65;color:var(--ink-2);}
+.pd-flag b{color:var(--rose);font-weight:700;}
+@media(max-width:1100px){ .pd-grid{grid-template-columns:1fr;} }
+
 </style>
 </head>
 <body>
@@ -1129,6 +1255,22 @@ body{padding:14px;background-image:none !important;}
   <section class="view on" id="v-overview">
     <div class="crumb"><span>经营总览</span><span class="sep">/</span><span>全公司软件资产</span></div>
 
+    <!-- 北极星指标与拆解 -->
+    <div class="grid g1">
+      <div class="card t1">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4.4 4.6.4-3.5 3 1 4.6L8 11.5 4 13.9l1-4.6-3.5-3 4.6-.4z"/></svg></span>北极星指标 · 每有效席位年化成本
+            <span class="info" tabindex="0">i<span class="pop"><b>为什么选它做北极星</b>：它同时反映"买得贵不贵"和"用得满不满"，且能干净地拆成两个可执行杠杆。<span class="f">每有效席位成本 = 年化总成本 ÷ 已发放席位<br>　　　　　　　 = 平均席位单价 ÷ 席位发放率</span>两条路径结果一致（¥6,747 ÷ 81.4% = ¥8,289），说明拆解闭合。<b>越低越好</b>，但必须配合下方护栏——只靠"不买"把它压下去不算达标。<span class="src">数据来源：合同金额 + 台账席位</span></span></span>
+          </h3>
+          <span class="meta">拆解到责任方 · 点击分支下钻</span>
+        </div>
+        <div class="ns-wrap" id="ns-wrap"></div>
+      </div>
+    </div>
+
+    <div class="guards-title">护栏指标 · 北极星不能以牺牲这些为代价</div>
+    <div class="guards" id="guards"></div>
+
     <div class="focus-row" id="focus-row"></div>
 
     <div class="hero">
@@ -1153,68 +1295,8 @@ body{padding:14px;background-image:none !important;}
     <div class="kpis" id="kpis"></div>
 
     <!-- trends -->
-    <div class="grid g11">
-      <div class="card">
-        <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M4 10l3-3 2.5 2L13 4"/></svg></span>年化成本趋势</h3>
-          <span class="meta">近 12 个月 · 万元</span>
-        </div>
-        <div class="tchart" id="trend-cost"></div>
-      </div>
-      <div class="card">
-        <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M4 6l3 3 2.5-2L13 11"/></svg></span>闲置率趋势</h3>
-          <span class="meta">近 12 个月 · 全公司席位</span>
-        </div>
-        <div class="tchart" id="trend-idle"></div>
-      </div>
-    </div>
 
-    <!-- 软件闲置率 -->
-    <div class="grid g1">
-      <div class="card">
-        <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.6a6.4 6.4 0 106.4 6.4M8 8V2.2M8 8l4.2 3"/></svg></span>软件闲置率
-            <span class="info" tabindex="0">i<span class="pop"><b>软件闲置率</b>：买了但没发出去的席位占比，是"浪费"的直接度量。<span class="f">闲置率 = 未发放席位 ÷ 已采购席位<br>未发放席位 = 已采购席位 − 已发放席位</span>席位<b>只要已发放给具体使用人就算在用</b>，不看登录频次。<b>只统计"生效中"的资产</b>——已过期、已停用的席位属于正常使用结束，<b>不计入分子也不计入分母</b>。<span class="src">数据来源：台账 user_seat_num（已采购）/ current_seat_num（已发放）</span></span></span>
-          </h3>
-          <span class="meta">未发放即闲置 · 已过期/已停用不计入</span>
-        </div>
-        <div class="idle-wrap" id="idle-wrap"><div class="skel" style="height:150px"></div><div class="skel" style="height:150px"></div><div class="skel" style="height:150px"></div></div>
-      </div>
-    </div>
 
-    <div class="grid g111">
-      <div class="card">
-        <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg></span>软件分类构成
-            <span class="info" tabindex="0">i<span class="pop"><b>软件分类构成</b>：按台账 <b>sw_category</b> 的 11 个标准分类统计资产个数与年化成本。<span class="f">安全软件 · 开发软件 · 美术软件 · 数据库 · 素材<br>通用办公软件 · 音视频软件 · 域名 · 账号会员<br>专业系统软件 · 字体</span>条长按<b>资产个数</b>，右侧同时标注该类年化成本——个数多不等于花钱多（如字体 208 个仅 ¥620万，美术软件 176 个却花 ¥2,180万）。<span class="src">数据来源：台账 sw_category</span></span></span>
-          </h3>
-          <span class="meta" id="cat-meta">—</span>
-        </div>
-        <div class="tmap" id="catlist"></div>
-        <div class="tmap-legend" id="cat-legend"></div>
-      </div>
-      <div class="card">
-        <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M5 13V8M8.5 13V5M12 13V9"/></svg></span>受益部门成本排行</h3>
-          <span class="meta">一级组织 TOP 8 · 点击下钻</span>
-        </div>
-        <div class="dept" id="dept"></div>
-      </div>
-      <div class="card">
-        <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 2"/></svg></span>台账状态分布
-            <span class="info" tabindex="0">i<span class="pop"><b>台账状态分布</b>：按合同/授权的生命周期状态，把全部软件资产分成三类，用来判断台账本身干不干净。<span class="f">生效中 = 已开通且在合同有效期内<br>待生效 = 已采购、尚未到启用日<br>已过期 = 已过合同到期日、未续约</span>圆心百分比 = 生效中 ÷ 资产总数。已过期占比越高，说明台账清理越不及时。<span class="src">数据来源：台账 state + po_end_at</span></span></span>
-          </h3>
-          <span class="meta" id="health-meta">—</span>
-        </div>
-        <div class="health">
-          <div class="donut" id="donut"></div>
-          <div class="legend" id="hlegend"></div>
-        </div>
-        <div class="health-foot" id="health-foot"></div>
-      </div>
-    </div>
 
     <div class="grid">
       <div class="card t1">
@@ -1230,16 +1312,6 @@ body{padding:14px;background-image:none !important;}
           <span class="meta">预警与建议层</span>
         </div>
         <div class="ai-list" id="ailist"></div>
-      </div>
-    </div>
-
-    <div class="grid g1">
-      <div class="card t3">
-        <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h10v12H3zM5 5h6M5 8h6M5 11h4"/></svg></span>今日单据动态</h3>
-          <span class="meta" id="doc-meta">按单据类型分栏 · 每栏默认 5 条</span>
-        </div>
-        <div class="doccols" id="doc-feed"></div>
       </div>
     </div>
   </section>
@@ -1298,6 +1370,63 @@ body{padding:14px;background-image:none !important;}
       <h2>使用治理</h2>
       <p>识别浪费和真实需求。对比分配/活跃/闲置账号，以及"消耗进度 vs 时间进度"，暴露消耗过快或不足的总包合同。</p>
     </div>
+    <!-- 软件闲置率 -->
+    <div class="grid g1">
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.6a6.4 6.4 0 106.4 6.4M8 8V2.2M8 8l4.2 3"/></svg></span>软件闲置率
+            <span class="info" tabindex="0">i<span class="pop"><b>软件闲置率</b>：买了但没发出去的席位占比，是"浪费"的直接度量。<span class="f">闲置率 = 未发放席位 ÷ 已采购席位<br>未发放席位 = 已采购席位 − 已发放席位</span>席位<b>只要已发放给具体使用人就算在用</b>，不看登录频次。<b>只统计"生效中"的资产</b>——已过期、已停用的席位属于正常使用结束，<b>不计入分子也不计入分母</b>。<span class="src">数据来源：台账 user_seat_num（已采购）/ current_seat_num（已发放）</span></span></span>
+          </h3>
+          <span class="meta">未发放即闲置 · 已过期/已停用不计入</span>
+        </div>
+        <div class="idle-wrap" id="idle-wrap"><div class="skel" style="height:150px"></div><div class="skel" style="height:150px"></div><div class="skel" style="height:150px"></div></div>
+      </div>
+    </div>
+
+    <div class="grid g11">
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M4 6l3 3 2.5-2L13 11"/></svg></span>闲置率趋势</h3>
+          <span class="meta">近 12 个月 · 全公司席位</span>
+        </div>
+        <div class="tchart" id="trend-idle"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 2"/></svg></span>台账状态分布
+            <span class="info" tabindex="0">i<span class="pop"><b>台账状态分布</b>：按合同/授权的生命周期状态，把全部软件资产分成三类，用来判断台账本身干不干净。<span class="f">生效中 = 已开通且在合同有效期内<br>待生效 = 已采购、尚未到启用日<br>已过期 = 已过合同到期日、未续约</span>圆心百分比 = 生效中 ÷ 资产总数。已过期占比越高，说明台账清理越不及时。<span class="src">数据来源：台账 state + po_end_at</span></span></span>
+          </h3>
+          <span class="meta" id="health-meta">—</span>
+        </div>
+        <div class="health">
+          <div class="donut" id="donut"></div>
+          <div class="legend" id="hlegend"></div>
+        </div>
+        <div class="health-foot" id="health-foot"></div>
+      </div>
+    </div>
+
+    <div class="grid g1">
+      <div class="card t1">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1.5"/><rect x="9" y="2" width="5" height="5" rx="1.5"/><rect x="2" y="9" width="5" height="5" rx="1.5"/><rect x="9" y="9" width="5" height="5" rx="1.5"/></svg></span>软件全景图
+            <span class="info" tabindex="0">i<span class="pop"><b>三态严格区分，不可监控 ≠ 闲置</b><span class="f">绿 = 可监控 · 在用<br>红 = 可监控 · 确认闲置（可直接行动）<br>斜纹 = 不可监控（治理盲区，无使用数据）</span>字体、素材、域名这类没有登录概念的资产属于盲区，<b>把它们算成闲置会让数字失真且不可信</b>。「可监控覆盖率」本身就是要改进的治理指标。点击任意软件可下钻异常排查、项目组分布、使用时间分布。<span class="src">数据来源：SSO 日志 + 厂商用量 API + 台账</span></span></span>
+          </h3>
+          <span class="meta">点击软件下钻</span>
+        </div>
+        <div class="pano-head">
+          <div class="pano-cov" id="pano-cov"></div>
+          <div class="pano-legend">
+            <span><i style="background:var(--lime-dim)"></i>可监控 · 在用</span>
+            <span><i style="background:var(--rose-dim)"></i>可监控 · 闲置</span>
+            <span><i class="none"></i>不可监控 · 盲区</span>
+          </div>
+        </div>
+        <div id="pano-body"></div>
+        <div class="pano-detail" id="pano-detail"></div>
+      </div>
+    </div>
+
     <div class="usage-kpis" id="usage-kpis"></div>
     <!-- 席位构成说明 -->
     <div class="card" style="margin-bottom:18px" id="seat-breakdown-card" style="display:none">
@@ -1353,6 +1482,23 @@ body{padding:14px;background-image:none !important;}
       <h2>财务与预算</h2>
       <p>预算执行全景：已付款及承诺进度、未来 12 个月到期付款节奏、外币合同汇率风险敞口、跨部门成本分摊核算。</p>
     </div>
+    <div class="grid g11">
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M4 10l3-3 2.5 2L13 4"/></svg></span>年化成本趋势</h3>
+          <span class="meta">近 12 个月 · 万元</span>
+        </div>
+        <div class="tchart" id="trend-cost"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3M2 13h12M5 13V8M8.5 13V5M12 13V9"/></svg></span>受益部门成本排行</h3>
+          <span class="meta">一级组织 TOP 8 · 点击下钻</span>
+        </div>
+        <div class="dept" id="dept"></div>
+      </div>
+    </div>
+
     <div class="budget-hero">
       <div class="budget-top">
         <span class="big" id="budget-spent">—</span>
@@ -1362,6 +1508,22 @@ body{padding:14px;background-image:none !important;}
       <div class="budget-bar" id="budget-bar"></div>
       <div class="budget-legend" id="budget-legend"></div>
     </div>
+
+    <div class="grid g1">
+      <div class="card t1">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12.5L6 7l3 3 5-7"/></svg></span>预算跑道 · 计划 vs 实际
+            <span class="info" tabindex="0">i<span class="pop"><b>三条线各代表什么</b><span class="f">计划跑道 = 年度预算按月分摊的累计目标<br>实际已付 = 财务实际付款累计<br>预测 = 已付 + 已承诺未付（PO 已下）</span><b>预测线是关键</b>：超支永远先出现在"已承诺未付"，几个月后才落到"已付"。只看已付会发现得太晚。红色区域 = 预测超出计划的部分。<span class="src">数据来源：付款流水 + 未清 PO + 财务预算表</span></span></span>
+          </h3>
+          <span class="meta">悬停规划外支出点看明细</span>
+        </div>
+        <div class="runway2" id="rw-chart"></div>
+        <div class="rw-legend" id="rw-legend"></div>
+        <div class="rw-note" id="rw-note"></div>
+        <div class="rw-unp" id="rw-unp"></div>
+      </div>
+    </div>
+
     <div class="grid">
       <div class="card">
         <div class="card-head"><h3>未来 12 个月付款日历</h3><span class="meta">续约+分期 · 万元 · 悬停看明细</span></div>
@@ -1443,6 +1605,16 @@ body{padding:14px;background-image:none !important;}
       <h2>行动中心</h2>
       <p>看板的最后一公里：每条优化建议都要有负责人、截止日和状态，超期自动标红。否则看板只是好看的体检报告。</p>
     </div>
+    <div class="grid g1">
+      <div class="card t3">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h10v12H3zM5 5h6M5 8h6M5 11h4"/></svg></span>今日单据动态</h3>
+          <span class="meta" id="doc-meta">按单据类型分栏 · 每栏默认 5 条</span>
+        </div>
+        <div class="doccols" id="doc-feed"></div>
+      </div>
+    </div>
+
     <div class="usage-kpis" id="act-kpis"></div>
     <div class="card" style="margin-bottom:18px">
       <div class="card-head"><h3>任务跟踪</h3><span class="meta">按截止日升序 · 超 SLA 标红</span></div>
@@ -1509,6 +1681,19 @@ body{padding:14px;background-image:none !important;}
   <!-- ============ INVENTORY ============ -->
   <section class="view" id="v-inventory">
     <div class="crumb"><a data-go="overview">经营总览</a><span class="sep">/</span><span>资产清单</span></div>
+    <div class="grid g1">
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg></span>软件分类构成
+            <span class="info" tabindex="0">i<span class="pop"><b>软件分类构成</b>：按台账 <b>sw_category</b> 的 11 个标准分类统计资产个数与年化成本。<span class="f">安全软件 · 开发软件 · 美术软件 · 数据库 · 素材<br>通用办公软件 · 音视频软件 · 域名 · 账号会员<br>专业系统软件 · 字体</span>条长按<b>资产个数</b>，右侧同时标注该类年化成本——个数多不等于花钱多（如字体 208 个仅 ¥620万，美术软件 176 个却花 ¥2,180万）。<span class="src">数据来源：台账 sw_category</span></span></span>
+          </h3>
+          <span class="meta" id="cat-meta">—</span>
+        </div>
+        <div class="tmap" id="catlist"></div>
+        <div class="tmap-legend" id="cat-legend"></div>
+      </div>
+    </div>
+
     <div class="toolbar">
       <div class="search">
         <span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg></span>
@@ -1796,6 +1981,82 @@ MOCK['/api/idle'] = {
     {name:'域名',       idle:0,   purchased:10}],
 };
 
+
+/* ============================================================
+   北极星指标与拆解树
+   北极星 = 每有效席位年化成本 = 年化总成本 ÷ 已发放席位
+          = 平均席位单价 ÷ 席位发放率
+   两条路径必须闭合：¥6,747 ÷ 81.4% = ¥8,289 ≈ ¥8,290
+   ============================================================ */
+MOCK['/api/northstar'] = {
+  value: 8290, unit: '元 / 有效席位 / 年', target: 7800,
+  mom: -2.8, yoy: -6.4, better: 'down',
+  trend: [9120,9040,8960,8870,8790,8700,8620,8540,8470,8400,8340,8290],
+  formula: '年化总成本 ÷ 已发放席位　=　平均席位单价 ÷ 席位发放率',
+  branches: [
+    {key:'price', label:'平均席位单价', val:'¥6,747', sub:'年化总成本 ÷ 已采购席位',
+     delta:'+4.1%', dir:'bad', owner:'采购 / 谈判', go:'vendor',
+     children:[
+       {n:'锁价覆盖率',   v:'42%',    d:'3 年以上锁价合同金额占比', dir:'warn'},
+       {n:'集采覆盖率',   v:'68%',    d:'走集采而非分散采购的金额占比', dir:'ok'},
+       {n:'加权供应商涨幅', v:'+9.4%',  d:'本期续约报价 vs 上期成交', dir:'bad'},
+       {n:'外币敞口',     v:'42%',    d:'USD+EUR 合同占年化金额', dir:'warn'}]},
+    {key:'rate', label:'席位发放率', val:'81.4%', sub:'已发放席位 ÷ 已采购席位',
+     delta:'+1.4pt', dir:'good', owner:'IT 运维 / 治理', go:'usage',
+     children:[
+       {n:'席位周转天数', v:'23 天',   d:'采购到发放的平均间隔', dir:'warn'},
+       {n:'离职回收时效', v:'3.2 天',  d:'离职到席位回收的平均时长', dir:'ok'},
+       {n:'本月回收席位', v:'386 席',  d:'回收后重新入池的席位', dir:'ok'},
+       {n:'未发放席位',   v:'2,323 席',d:'在库未分配 = 闲置', dir:'bad'}]},
+  ],
+  guards: [
+    {k:'compliance', label:'合规审计敞口', v:'¥1,180万', note:'不能为省钱不补授权', dir:'bad',  go:'compliance'},
+    {k:'sla',        label:'需求满足时效', v:'2.4 天',   note:'申请到开通，治理不能伤业务', dir:'ok', go:'actions'},
+    {k:'budget',     label:'预算执行率',   v:'86%',      note:'按当前节奏 11 月触顶', dir:'warn', go:'finance'},
+    {k:'coverage',   label:'可监控覆盖率', v:'63%',      note:'有使用数据的资产占比', dir:'warn', go:'usage'},
+  ],
+};
+
+/* ---- 预算双跑道：计划 / 已付 / 已付+已承诺 ---- */
+MOCK['/api/budget-runway'] = {
+  total: 9000, todayIdx: 6,            // 已走到 7 月末
+  months: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+  plan:     [700,1400,2200,2950,3700,4500,5300,6100,6900,7700,8400,9000],
+  paid:     [780,1520,2400,3260,4180,5100,6180,null,null,null,null,null],
+  forecast: [780,1520,2400,3260,4180,5100,6180,7050,7720,8840,9280,9620],
+  unplanned: [
+    {i:2, amt:180, why:'Figma 席位计划外扩容（UED 中心项目并行）'},
+    {i:5, amt:240, why:'Claude Team 追加 200 席（AI 提效专项）'},
+    {i:9, amt:310, why:'Maya 超部署补采（合规 true-up）'}],
+};
+
+/* ---- 软件全景图：三态严格区分，"不可监控"不等于闲置 ---- */
+MOCK['/api/panorama'] = (()=>{
+  const G=(cat,rows)=>({cat, items: rows.map(r=>({name:r[0], state:r[1], seats:r[2], idle:r[3]||0}))});
+  return {
+    coverage: 63, monitored: 748, unmonitored: 445, total: 1193,
+    groups: [
+      G('开发软件',[['Perforce','active',420],['Unity Pro','idle',260,94],['JetBrains','active',380],
+        ['GitHub EE','active',900],['Copilot','idle',450,216],['Unreal 支持','active',180],
+        ['Snyk','active',60],['Jenkins 企业','active',40],['SonarQube','idle',80,38],['Postman','active',120]]),
+      G('美术软件',[['Maya','active',310],['Houdini','active',96],['Adobe CC','idle',520,177],
+        ['Substance','active',140],['ZBrush','active',85],['Midjourney','idle',120,68],
+        ['Marmoset','none',30],['SpeedTree','none',18]]),
+      G('音视频软件',[['Wwise','active',40],['Zoom','idle',800,552],['Pro Tools','none',35],
+        ['Audition','none',60],['Premiere','active',180],['DaVinci','none',45],['FMOD','none',28]]),
+      G('通用办公软件',[['飞书','active',3200],['Jira+Confluence','active',1500],['Miro','idle',300,213],
+        ['Notion','idle',150,79],['Tableau','idle',80,50],['WPS 企业','active',900]]),
+      G('字体',[['方正字库','none',420],['汉仪字库','none',280],['蒙纳字库','none',180],
+        ['Monotype','none',210],['造字工房','none',150]]),
+      G('素材',[['Shutterstock','none',260],['Envato','none',120],['Quixel','none',90],['Artlist','none',80]]),
+      G('专业系统软件',[['SAP 接口','active',60],['用友 NC','active',120],['Ansys','none',20]]),
+      G('安全软件',[['CrowdStrike','active',900],['Nessus','active',30]]),
+      G('数据库',[['MongoDB Atlas','active',60],['Redis 企业','active',24]]),
+      G('账号会员',[['Claude Team','active',600],['ChatGPT 企业','idle',200,86]]),
+      G('域名',[['阿里云域名','none',10]]),
+    ]};
+})();
+
 MOCK['/api/compliance'] = {
   kpis: [
     {cls:'ok', v:'91%', l:'合规资产占比（权益 ≥ 部署）'},
@@ -2051,21 +2312,13 @@ async function loadOverview() {
     const d = overviewData;
     renderKPIs(d);
     renderRunway(d.runway);
-    renderDept(d.topDepts);
-    renderCats();
     renderDeptFilter();
-    renderHealth(d.health);
     renderFocus(d.actions);
     renderQueue((d.actions||[]).slice(2), 'queue');
     renderAI(d);
     document.querySelectorAll('.live .time-txt').forEach(el => el.textContent = 'SYNC ' + (d.syncAt||'—'));
-    document.getElementById('health-meta').textContent = d.total + ' 个资产';
-    const t = await api('/api/trends');
-    lineChart(document.getElementById('trend-cost'), {labels:t.months, values:t.cost, prev:t.costPrev, color:'var(--neutral)', unit:'万', goodDir:'down'});
-    lineChart(document.getElementById('trend-idle'), {labels:t.months, values:t.idle, prev:t.idlePrev, color:'var(--neutral)', unit:'%', decimals:1, goodDir:'down'});
   } catch (e) { console.error('overview load error', e); }
-  loadIdle();
-  loadDocuments();
+  loadNorthStar();
 }
 
 function renderKPIs(d) {
@@ -2075,7 +2328,7 @@ function renderKPIs(d) {
           <span class="f">年化总成本 = Σ（合同总额 ÷ 合同月数 × 12）</span>
           多年合同按年摊销；外币合同按合同签订日汇率折成 CNY。不含一次性实施费。
           <span class="src">数据来源：合同金额 + 合同周期 + 记账汇率</span>`},
-    {cls:'k-total', name:'预算执行率', val:d.budgetPct+'<small>%</small>', delta:`已付+承诺 ${fmtW(d.budgetUsed)}`, dir:'flat', spark:[3,4,5,6,7,8,8,9,10],
+    {cls:'k-skip', name:'预算执行率', skip:true, val:'', delta:'', dir:'flat', spark:[1],
      tip:`<b>预算执行率</b>：本财年软件预算已经用掉多少，用来判断会不会超支或年底突击花钱。
           <span class="f">执行率 = （已支付 + 已承诺未付）÷ 年度软件预算</span>
           <b>已支付</b>=财务实际付款；<b>已承诺未付</b>=PO 已下、合同已签但尚未到付款节点的金额（这部分钱事实上已经锁死，所以计入）。
@@ -2091,13 +2344,13 @@ function renderKPIs(d) {
           <span class="f">回收闲置 + 降配退订 + 重复工具整合 + 总包消耗治理</span>
           是"理论上限"而非承诺值——实际能省多少取决于业务方是否配合。明细见「成本优化」。
           <span class="src">数据来源：使用率分析 + 同类工具比对</span>`},
-    {cls:'k-risk', name:'合规审计敞口', val:fmtW(d.compAmt), delta:`${d.compVendors} 家高审计厂商`, dir:'down', spark:[4,3,5,4,6,5,7,6,8], right:true,
+    {cls:'k-skip', name:'合规审计敞口', skip:true, val:'', delta:'', dir:'down', spark:[1], right:true,
      tip:`<b>合规审计敞口</b>：假如厂商<b>今天</b>来审计，我们需要补钱的金额——衡量"用超了多少"的风险。
           <span class="f">敞口 = Σ（超部署席位 × 厂商目录补购单价）<br>超部署席位 = 实际部署数 − 已购权益数</span>
           只统计部署 &gt; 权益的软件（少装不冲抵多装，厂商不按净额算）。按目录价而非折扣价估，因为被动 true-up 通常拿不到折扣。
           <span class="src">数据来源：部署扫描 + 权益台账 + 厂商目录价</span>`},
   ];
-  document.getElementById('kpis').innerHTML = KPI.map(k=>{
+  document.getElementById('kpis').innerHTML = KPI.filter(k=>!k.skip).map(k=>{
     const max=Math.max(...k.spark);
     const bars=k.spark.map(s=>`<i style="height:${(s/max)*18}px"></i>`).join('');
     const arrow=k.dir==='up'?'▲':k.dir==='down'?'▼':'■';
@@ -2441,6 +2694,192 @@ async function loadIdle() {
   } catch(e) { el.innerHTML=`<div class="doc-empty" style="color:var(--rose)">⚠ ${e.message}</div>`; }
 }
 
+
+/* ============ 北极星指标 + 拆解树 ============ */
+async function loadNorthStar(){
+  const el=document.getElementById('ns-wrap'); if(!el) return;
+  try{
+    const d=await api('/api/northstar');
+    const better = d.better==='down';
+    const pct = Math.max(0, Math.min(100, (1-(d.value-d.target)/d.target)*100));
+    const gap = d.value - d.target;
+    el.innerHTML = `
+      <div class="ns-hero">
+        <div class="ns-eyebrow">北极星指标 · NORTH STAR</div>
+        <div class="ns-val">¥${d.value.toLocaleString()}</div>
+        <div class="ns-unit">${d.unit} · 越低越好</div>
+        <div class="ns-delta">
+          <span>环比 ${d.mom>0?'+':''}${d.mom}%</span>
+          <span>同比 ${d.yoy>0?'+':''}${d.yoy}%</span>
+        </div>
+        <div class="ns-spark" id="ns-spark"></div>
+        <div class="ns-target">
+          <div class="tk"><div class="fl" style="width:${pct}%"></div></div>
+          <div class="tx"><span>年度目标 ¥${d.target.toLocaleString()}</span><span>还差 ¥${gap.toLocaleString()}</span></div>
+        </div>
+      </div>
+      <div class="ns-tree">
+        <div class="ns-formula">拆解口径：<b>${d.formula}</b></div>
+        <div class="ns-branches">
+          ${d.branches.map(b=>`
+            <div class="ns-branch" data-go="${b.go}">
+              <div class="nsb-top"><span class="nsb-label">${b.label}</span><span class="nsb-val">${b.val}</span></div>
+              <div class="nsb-sub">${b.sub}</div>
+              <div class="nsb-meta">
+                <span class="dl ${b.dir==='good'?'good':'bad'}">${b.delta}</span>
+                <span class="ow">责任方 · ${b.owner}</span>
+              </div>
+              <div class="nsb-kids">
+                ${b.children.map(c=>`<div class="nsb-kid" title="${c.d}">
+                  <span class="dot ${c.dir}"></span><span class="n">${c.n}</span><span class="v">${c.v}</span></div>`).join('')}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    // 迷你趋势线（画在渐变卡上，用白色）
+    const sp=document.getElementById('ns-spark');
+    if(sp){
+      const v=d.trend, W=250,H=42, mn=Math.min(...v), mx=Math.max(...v);
+      const x=i=>i/(v.length-1)*W, y=n=>H-((n-mn)/((mx-mn)||1))*(H-6)-3;
+      const path=v.map((n,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(n).toFixed(1)).join(' ');
+      sp.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:42px;display:block" aria-label="北极星 12 个月趋势">
+        <path d="${path} L${W} ${H} L0 ${H} Z" fill="rgba(255,255,255,.18)"/>
+        <path d="${path}" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="${x(v.length-1)}" cy="${y(v[v.length-1])}" r="3.4" fill="#fff"/></svg>`;
+    }
+    // 护栏
+    const g=document.getElementById('guards');
+    if(g) g.innerHTML=d.guards.map(x=>{
+      const col = x.dir==='ok'?'var(--lime)':x.dir==='warn'?'var(--amber)':'var(--rose)';
+      return `<div class="guard" data-go="${x.go}">
+        <div class="guard-top"><span class="dot" style="background:${col}"></span><span class="lb">${x.label}</span></div>
+        <div class="v" style="color:${col}">${x.v}</div>
+        <div class="note">${x.note}</div></div>`;}).join('');
+  }catch(e){ console.error('northstar error',e); }
+}
+
+
+/* ============ 预算双跑道：计划 / 已付 / 已付+已承诺 ============ */
+async function loadBudgetRunway(){
+  const el=document.getElementById('rw-chart'); if(!el) return;
+  try{
+    const d=await api('/api/budget-runway');
+    const W=880,H=270,PL=52,PR=74,PT=18,PB=34, iw=W-PL-PR, ih=H-PT-PB;
+    const hi=Math.max(d.total, ...d.forecast)*1.06;
+    const x=i=>PL+i/(d.months.length-1)*iw, y=v=>PT+ih-(v/hi)*ih;
+    const line=a=>a.map((v,i)=>v==null?null:(i&&a[i-1]!=null?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1))
+                    .filter(Boolean).join(' ');
+    let grid='';
+    for(let g=0;g<=4;g++){const gv=hi*g/4, gy=y(gv);
+      grid+=`<line x1="${PL}" y1="${gy}" x2="${PL+iw}" y2="${gy}" stroke="var(--line)"/>`
+          + `<text x="${PL-9}" y="${gy+3.5}" fill="var(--ink-3)" font-size="9.5" text-anchor="end">${Math.round(gv)}</text>`;}
+    // 计划 vs 预测的偏离区（超出计划的部分）
+    const over=[]; d.forecast.forEach((v,i)=>{ if(v>d.plan[i]) over.push(i); });
+    let band='';
+    if(over.length){
+      const a=over[0], b=over[over.length-1];
+      const top=d.forecast.slice(a,b+1).map((v,k)=>(k?'L':'M')+x(a+k).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+      const bot=d.plan.slice(a,b+1).map((v,k)=>'L'+x(b-k).toFixed(1)+' '+y(d.plan[b-k]).toFixed(1)).join(' ');
+      band=`<path d="${top} ${bot} Z" fill="var(--rose)" opacity=".13"/>`;
+    }
+    const tx=x(d.todayIdx);
+    const marks=(d.unplanned||[]).map(u=>
+      `<g><circle cx="${x(u.i)}" cy="${y(d.forecast[u.i])}" r="5.5" fill="var(--amber)" stroke="var(--panel)" stroke-width="2">
+        <title>规划外：${u.why}（¥${u.amt}万）</title></circle></g>`).join('');
+    el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="预算双跑道">
+      ${grid}${band}
+      <line x1="${PL}" y1="${y(d.total)}" x2="${PL+iw}" y2="${y(d.total)}" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="5 5"/>
+      <text x="${PL+iw+8}" y="${y(d.total)+4}" fill="var(--ink-2)" font-size="10.5" font-weight="700">预算 ${d.total}</text>
+      <line x1="${tx}" y1="${PT}" x2="${tx}" y2="${PT+ih}" stroke="var(--ink)" stroke-width="1.5"/>
+      <text x="${tx}" y="${PT-5}" fill="var(--ink)" font-size="10" font-weight="700" text-anchor="middle">今天</text>
+      <path d="${line(d.plan)}" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-dasharray="6 5" stroke-linecap="round"/>
+      <path d="${line(d.forecast)}" fill="none" stroke="var(--rose)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="${line(d.paid)}" fill="none" stroke="var(--cyan)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      ${marks}
+      <circle cx="${x(d.todayIdx)}" cy="${y(d.paid[d.todayIdx])}" r="5" fill="var(--cyan)" stroke="var(--panel)" stroke-width="2.5"/>
+      <circle cx="${x(11)}" cy="${y(d.forecast[11])}" r="5" fill="var(--rose)" stroke="var(--panel)" stroke-width="2.5"/>
+      <text x="${x(11)+8}" y="${y(d.forecast[11])+4}" fill="var(--rose)" font-size="11.5" font-weight="800">${d.forecast[11]}</text>
+      ${d.months.map((m,i)=>`<text x="${x(i)}" y="${H-12}" fill="var(--ink-3)" font-size="9.5" text-anchor="middle">${m}</text>`).join('')}
+    </svg>`;
+    const gap=d.forecast[11]-d.total, hitIdx=d.forecast.findIndex(v=>v>=d.total);
+    document.getElementById('rw-legend').innerHTML=
+      `<span style="color:var(--cyan)"><i></i>实际已付</span>
+       <span style="color:var(--rose)"><i></i>预测（已付 + 已承诺未付）</span>
+       <span style="color:var(--ink-3)"><i class="dash"></i>计划跑道</span>
+       <span style="color:var(--amber)"><i style="border:none;width:11px;height:11px;border-radius:50%;background:currentColor"></i>规划外支出</span>`;
+    document.getElementById('rw-note').innerHTML= gap>0
+      ? `实际支出持续快于计划。按当前已承诺金额外推，<b>${d.months[hitIdx]}触顶年度预算</b>，年底预计超支 <b>¥${gap}万</b>。超支先体现在"已承诺未付"，只看已付会发现得太晚。`
+      : `当前进度在计划跑道之内，年底预计结余 ¥${-gap}万。`;
+    document.getElementById('rw-unp').innerHTML=(d.unplanned||[]).map(u=>
+      `<div class="r"><span class="m">${d.months[u.i]}</span><span class="w">${u.why}</span><span class="a">+¥${u.amt}万</span></div>`).join('');
+  }catch(e){ console.error('budget runway error',e); }
+}
+
+/* ============ 软件全景图：可监控 / 不可监控严格区分 ============ */
+const PANO_TX={active:'在用',idle:'闲置',none:'不可监控'};
+async function loadPanorama(){
+  const el=document.getElementById('pano-body'); if(!el) return;
+  try{
+    const d=await api('/api/panorama');
+    document.getElementById('pano-cov').innerHTML=
+      `<span class="v">${d.coverage}%</span><span class="l">可监控覆盖率 · ${d.monitored} / ${d.total} 个资产有使用数据</span>`;
+    el.innerHTML=d.groups.map(g=>{
+      const idle=g.items.filter(i=>i.state==='idle').length, non=g.items.filter(i=>i.state==='none').length;
+      return `<div class="pano-grp">
+        <div class="gn">${g.cat}<small>${g.items.length} 项${idle?` · 闲置 ${idle}`:''}${non?` · 盲区 ${non}`:''}</small></div>
+        <div class="pano-cells">${g.items.map(i=>
+          `<button class="pcell ${i.state}" data-pano='${JSON.stringify({...i,cat:g.cat}).replace(/'/g,"&apos;")}'
+            title="${i.name} · ${PANO_TX[i.state]} · ${i.seats} 席">${i.name}</button>`).join('')}</div>
+      </div>`;}).join('');
+  }catch(e){ console.error('panorama error',e); }
+}
+
+/* 点击软件格 → 下钻：异常排查 / 项目组分布 / 使用时间分布 */
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-pano]'); if(!c) return;
+  document.querySelectorAll('.pcell.on').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on');
+  const it=JSON.parse(c.dataset.pano.replace(/&apos;/g,"'"));
+  const box=document.getElementById('pano-detail'); if(!box) return;
+  box.classList.add('on');
+  if(it.state==='none'){
+    box.innerHTML=`<div class="pd-head"><span class="nm">${it.name}</span>
+      <span class="q-tag b-office">${it.cat}</span><span class="q-tag b-office">不可监控</span></div>
+      <div class="pd-flag">该软件<b>没有可用的使用数据</b>（无 SSO 登录记录、厂商后台不开放用量接口，或为买断/字体授权类）。
+      当前 ${it.seats} 席位属于<b>治理盲区，不能判定为闲置</b>。<br><br>
+      建议：① 接入厂商用量 API 或 SSO 日志；② 无法接入的，改用"按项目领用登记"人工核对；③ 续约前做一次问卷抽样。</div>`;
+    return;
+  }
+  // 演示用的确定性分解，保证同一软件每次展开结果一致
+  const h=[...it.name].reduce((a,ch)=>a+ch.charCodeAt(0),0);
+  const teams=['公共>技术发展组','原神','崩坏：星穹铁道','国际化组','绝区零'];
+  const dist=teams.map((t,i)=>({t, v: Math.max(4, (h*(i+3))%40 + 6)}));
+  const sum=dist.reduce((a,b)=>a+b.v,0);
+  const hours=Array.from({length:12},(_,i)=>((h*(i+2))%70)+8);
+  const idlePct=it.seats?Math.round(it.idle/it.seats*100):0;
+  box.innerHTML=`
+    <div class="pd-head"><span class="nm">${it.name}</span>
+      <span class="q-tag b-office">${it.cat}</span>
+      <span class="q-tag ${it.state==='idle'?'t-comp':'t-reclaim'}">${PANO_TX[it.state]}</span>
+      <span class="q-tag b-office">${it.seats} 席${it.idle?` · 闲置 ${it.idle}`:''}</span></div>
+    <div class="pd-grid">
+      <div class="pd-box"><h5>异常排查</h5>
+        <div class="pd-flag">${it.state==='idle'
+          ? `闲置 <b>${it.idle} 席（${idlePct}%）</b>。其中 ${Math.round(it.idle*0.6)} 席超过 90 天零使用，${Math.round(it.idle*0.25)} 席对应已离职账号未回收。<br><br>建议：先回收离职账号，再对 90 天零使用的做业务确认，续约时按实际需求降配。`
+          : `使用正常，无异常信号。已发放 ${it.seats-it.idle} 席全部在活跃区间，续约时可按现有规模谈。`}</div>
+      </div>
+      <div class="pd-box"><h5>项目组分布</h5>
+        ${dist.map(x=>`<div class="pd-row"><span class="n">${x.t.split('>').pop()}</span>
+          <span class="tk"><span class="fl" style="width:${x.v/Math.max(...dist.map(y=>y.v))*100}%"></span></span>
+          <span class="v">${Math.round(x.v/sum*it.seats)} 席</span></div>`).join('')}
+      </div>
+      <div class="pd-box"><h5>使用时间分布 · 近 12 周</h5>
+        <div class="pd-hours">${hours.map(v=>`<i style="height:${v}%"></i>`).join('')}</div>
+        <div class="pd-hours-x"><span>12 周前</span><span>本周</span></div>
+      </div>
+    </div>`;
+});
+
 /* ============ RENEWAL RADAR ============ */
 async function loadRadar() {
   try { renderRadar(await api('/api/radar')); } catch(e) { console.error('radar error', e); }
@@ -2592,6 +3031,14 @@ const IDLE_CAT_COLOR = {
 };
 
 async function loadUsage() {
+  loadIdle();
+  loadPanorama();
+  if (overviewData) { renderHealth(overviewData.health);
+    const hm=document.getElementById('health-meta'); if(hm) hm.textContent=overviewData.total+' 个资产'; }
+  api('/api/trends').then(t=>{
+    const el=document.getElementById('trend-idle');
+    if(el) lineChart(el,{labels:t.months,values:t.idle,prev:t.idlePrev,color:'var(--cyan)',unit:'%',decimals:1,goodDir:'down'});
+  }).catch(()=>{});
   try {
     const data = await api('/api/usage');
     document.getElementById('usage-kpis').innerHTML=data.kpis.map(k=>`
@@ -2682,6 +3129,12 @@ async function loadCompliance() {
 
 /* ============ FINANCE ============ */
 async function loadFinance() {
+  loadBudgetRunway();
+  if (overviewData) renderDept(overviewData.topDepts);
+  api('/api/trends').then(t=>{
+    const el=document.getElementById('trend-cost');
+    if(el) lineChart(el,{labels:t.months,values:t.cost,prev:t.costPrev,color:'var(--cyan)',unit:'万',goodDir:'down'});
+  }).catch(()=>{});
   try {
     const d = await api('/api/finance');
     const used=d.paid+d.committed, pct=Math.round(used/d.budgetTotal*100);
@@ -2812,6 +3265,7 @@ async function loadVendorAll(page, search) {
 
 /* ============ ACTION CENTER ============ */
 async function loadActions() {
+  loadDocuments();
   try {
     const d = await api('/api/actions');
     document.getElementById('act-kpis').innerHTML=d.kpis.map(k=>`
@@ -2879,6 +3333,7 @@ function renderAlt(){
 let curFilter='all', curSort='util', sortDir=-1, curQ='', curCat='', curDept='';
 
 async function loadTable() {
+  renderCats();
   const tbody=document.getElementById('tbody');
   tbody.innerHTML=Array.from({length:6},()=>`<tr><td colspan="7" style="padding:9px 14px"><div class="skel" style="height:30px"></div></td></tr>`).join('');
   try {
