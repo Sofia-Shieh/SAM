@@ -1096,6 +1096,10 @@ body{padding:14px;background-image:none !important;}
   background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.2) 0 3px,transparent 3px 7px);}
 .ns-target .fl{height:100%;border-radius:999px;background:#fff;}
 .ns-target .tx{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-top:8px;}
+.ns-ref{position:relative;z-index:1;margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.25);
+  font-size:10.5px;font-weight:600;line-height:1.5;}
+.ns-ref span{font-weight:400;opacity:.72;font-size:10px;}
+.ns-val small{font-size:22px;font-weight:700;margin-left:2px;}
 .ns-spark{margin-top:14px;position:relative;z-index:1;}
 
 .ns-tree{display:flex;flex-direction:column;}
@@ -1275,8 +1279,8 @@ body{padding:14px;background-image:none !important;}
     <div class="grid g1">
       <div class="card t1">
         <div class="card-head">
-          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4.4 4.6.4-3.5 3 1 4.6L8 11.5 4 13.9l1-4.6-3.5-3 4.6-.4z"/></svg></span>北极星指标 · 每有效席位年化成本
-            <span class="info" tabindex="0">i<span class="pop"><b>为什么选它做北极星</b>：它同时反映"买得贵不贵"和"用得满不满"，且能干净地拆成两个可执行杠杆。<span class="f">每有效席位成本 = 年化总成本 ÷ 已发放席位<br>　　　　　　　 = 平均席位单价 ÷ 席位发放率</span>两条路径结果一致（¥6,747 ÷ 81.4% = ¥8,289），说明拆解闭合。<b>越低越好</b>，但必须配合下方护栏——只靠"不买"把它压下去不算达标。<span class="src">数据来源：合同金额 + 台账席位</span></span></span>
+          <h3><span class="ic"><svg class="svg-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4.4 4.6.4-3.5 3 1 4.6L8 11.5 4 13.9l1-4.6-3.5-3 4.6-.4z"/></svg></span>北极星指标 · 资金闲置率
+            <span class="info" tabindex="0">i<span class="pop"><b>为什么不用"每有效席位成本"</b><span class="f">资金闲置率 = Σ(未发放席位 × 该软件单价) ÷ 年化总成本</span>台账单价从 ¥850 到 ¥33,021 <b>差 39 倍</b>。"每席位成本"分子是钱、分母是席位，口径不同——什么都不优化、只多买 1000 席最便宜的飞书，指标就"改善" 8.1%；业务扩张多买使用率健康的 Houdini，反而"恶化" 3.5%。<b>它会因与绩效无关的采购结构变化而波动。</b><br><br>资金闲置率的分子分母都是钱、同一个篮子，采购结构变化不影响它，升降含义唯一。价格表现单独由护栏中的<b>同口径价格指数</b>衡量。<span class="src">数据来源：台账席位 + 合同单价</span></span></span>
           </h3>
           <span class="meta">拆解到责任方 · 点击分支下钻</span>
         </div>
@@ -2005,35 +2009,40 @@ MOCK['/api/idle'] = {
    两条路径必须闭合：¥6,747 ÷ 81.4% = ¥8,289 ≈ ¥8,290
    ============================================================ */
 MOCK['/api/northstar'] = {
-  value: 8290, unit: '元 / 有效席位 / 年', target: 7800,
-  mom: -2.8, yoy: -6.4, better: 'down',
-  trend: [9120,9040,8960,8870,8790,8700,8620,8540,8470,8400,8340,8290],
-  formula: '年化总成本 ÷ 已发放席位　=　平均席位单价 ÷ 席位发放率',
+  /* 北极星：资金闲置率 = 未发放席位占用的金额 ÷ 年化总成本
+     不用"每有效席位成本"，是因为它分子是钱、分母是席位，口径不同。
+     台账单价从 ¥850 到 ¥33,021 差 39 倍：什么都不优化、只多买 1000 席最便宜的
+     飞书，该指标就"改善"8.1%；业务扩张多买使用率健康的 Houdini，反而"恶化"3.5%。
+     资金闲置率的分子分母都是钱、同一个篮子，采购结构变化不影响它。 */
+  value: 23.4, unit: '%', target: 18.0,
+  mom: -0.3, yoy: -6.4, better: 'down',
+  amtIdle: 1970, amtTotal: 8420, perSeatRef: 8290,
+  trend: [29.8,29.1,28.4,27.6,27.0,26.3,25.7,25.1,24.6,24.1,23.7,23.4],
+  formula: '资金闲置率 = Σ(未发放席位 × 该软件单价) ÷ 年化总成本',
   branches: [
-    {key:'price', label:'平均席位单价', val:'¥6,747', sub:'年化总成本 ÷ 已采购席位',
-     delta:'+4.1%', dir:'bad', owner:'采购 / 谈判', go:'vendor',
+    {key:'over', label:'超采闲置', val:'13.1%', sub:'买回来就没发出去 · ¥1,105万',
+     delta:'-0.5pt', dir:'good', owner:'采购 / 需求评估', go:'cost',
      children:[
-       {n:'锁价覆盖率',   v:'42%',    d:'3 年以上锁价合同金额占比', dir:'warn'},
-       {n:'集采覆盖率',   v:'68%',    d:'走集采而非分散采购的金额占比', dir:'ok'},
-       {n:'加权供应商涨幅', v:'+9.4%',  d:'本期续约报价 vs 上期成交', dir:'bad'},
-       {n:'外币敞口',     v:'42%',    d:'USD+EUR 合同占年化金额', dir:'warn'}]},
-    {key:'rate', label:'席位发放率', val:'81.4%', sub:'已发放席位 ÷ 已采购席位',
-     delta:'+1.4pt', dir:'good', owner:'IT 运维 / 治理', go:'usage',
+       {n:'新购 30 天到岗率', v:'68%',    d:'采购后 30 天内发放到人的席位占比', dir:'warn'},
+       {n:'采购量预估偏差',   v:'+22%',   d:'实际发放量 vs 申请时的预估量', dir:'bad'},
+       {n:'集采批量冗余',     v:'¥310万', d:'为拿阶梯价多买、尚未消化的部分', dir:'warn'},
+       {n:'起订量损耗',       v:'¥140万', d:'厂商最小起订量高于实际需求的部分', dir:'warn'}]},
+    {key:'recycle', label:'回收滞后', val:'10.3%', sub:'发出去了但该收没收 · ¥865万',
+     delta:'-1.1pt', dir:'good', owner:'IT 运维 / 治理', go:'usage',
      children:[
-       {n:'席位周转天数', v:'23 天',   d:'采购到发放的平均间隔', dir:'warn'},
-       {n:'离职回收时效', v:'3.2 天',  d:'离职到席位回收的平均时长', dir:'ok'},
-       {n:'本月回收席位', v:'386 席',  d:'回收后重新入池的席位', dir:'ok'},
-       {n:'未发放席位',   v:'2,323 席',d:'在库未分配 = 闲置', dir:'bad'}]},
+       {n:'离职回收时效',     v:'3.2 天', d:'离职到席位回收入池的平均时长', dir:'ok'},
+       {n:'项目结束回收率',   v:'54%',    d:'项目关闭后 30 天内完成回收的比例', dir:'bad'},
+       {n:'转岗席位调拨率',   v:'41%',    d:'转岗时随人调拨而非新购的比例', dir:'warn'},
+       {n:'超 180 天零发放',  v:'¥420万', d:'长期躺在库里没发过的席位金额', dir:'bad'}]},
   ],
   guards: [
-    {k:'compliance', label:'合规审计敞口', v:'¥1,180万', note:'不能为省钱不补授权', dir:'bad',  go:'compliance'},
-    {k:'sla',        label:'需求满足时效', v:'2.4 天',   note:'申请到开通，治理不能伤业务', dir:'ok', go:'actions'},
-    {k:'budget',     label:'预算执行率',   v:'86%',      note:'按当前节奏 11 月触顶', dir:'warn', go:'finance'},
-    {k:'coverage',   label:'可监控覆盖率', v:'63%',      note:'有使用数据的资产占比', dir:'warn', go:'usage'},
+    {k:'price',      label:'同口径价格指数', v:'+6.8%',    note:'固定去年采购组合只看单价——不能只清闲置而放任涨价', dir:'bad',  go:'vendor'},
+    {k:'compliance', label:'合规审计敞口',   v:'¥1,180万', note:'不能为省钱不补授权', dir:'bad',  go:'compliance'},
+    {k:'sla',        label:'需求满足时效',   v:'2.4 天',   note:'申请到开通，治理不能伤业务', dir:'ok',   go:'actions'},
+    {k:'coverage',   label:'可监控覆盖率',   v:'63%',      note:'盲区不能扩大，否则闲置率会失真', dir:'warn', go:'usage'},
   ],
 };
 
-/* ---- 预算双跑道：计划 / 已付 / 已付+已承诺 ---- */
 MOCK['/api/budget-runway'] = {
   total: 9000, todayIdx: 6,            // 已走到 7 月末
   months: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
@@ -2679,23 +2688,24 @@ async function loadNorthStar(){
   const el=document.getElementById('ns-wrap'); if(!el) return;
   try{
     const d=await api('/api/northstar');
-    const better = d.better==='down';
     const pct = Math.max(0, Math.min(100, (1-(d.value-d.target)/d.target)*100));
-    const gap = d.value - d.target;
+    const gap = +(d.value - d.target).toFixed(1);
     el.innerHTML = `
       <div class="ns-hero">
         <div class="ns-eyebrow">北极星指标 · NORTH STAR</div>
-        <div class="ns-val">¥${d.value.toLocaleString()}</div>
-        <div class="ns-unit">${d.unit} · 越低越好</div>
+        <div class="ns-val">${d.value}<small>${d.unit}</small></div>
+        <div class="ns-unit">闲置金额 ¥${d.amtIdle.toLocaleString()}万 / 年化 ¥${d.amtTotal.toLocaleString()}万 · 越低越好</div>
         <div class="ns-delta">
-          <span>环比 ${d.mom>0?'+':''}${d.mom}%</span>
-          <span>同比 ${d.yoy>0?'+':''}${d.yoy}%</span>
+          <span>环比 ${d.mom>0?'+':''}${d.mom}pt</span>
+          <span>同比 ${d.yoy>0?'+':''}${d.yoy}pt</span>
         </div>
         <div class="ns-spark" id="ns-spark"></div>
         <div class="ns-target">
           <div class="tk"><div class="fl" style="width:${pct}%"></div></div>
-          <div class="tx"><span>年度目标 ¥${d.target.toLocaleString()}</span><span>还差 ¥${gap.toLocaleString()}</span></div>
+          <div class="tx"><span>年度目标 ${d.target}%</span><span>还差 ${gap}pt</span></div>
         </div>
+        <div class="ns-ref">参考 · 每有效席位 ¥${d.perSeatRef.toLocaleString()}／年<br>
+          <span>该口径分子是钱、分母是席位，受采购结构影响大（单价相差 39 倍），仅同类软件之间可比</span></div>
       </div>
       <div class="ns-tree">
         <div class="ns-formula">拆解口径：<b>${d.formula}</b></div>
